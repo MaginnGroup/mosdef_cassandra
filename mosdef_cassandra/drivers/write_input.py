@@ -797,7 +797,7 @@ def run_type(run_type,thermal_freq,vol_freq=None):
     return inp_data
 
 def simulation_length_info(units,prop_freq,coord_freq,length,
-        steps_per_sweep=None,block_average_freq=None):
+        steps_per_sweep=None,block_avg_freq=None):
     """Get the Simulation_Length_Info section of the input file
 
    Parameters
@@ -831,7 +831,7 @@ def simulation_length_info(units,prop_freq,coord_freq,length,
         if not isinstance(steps_per_sweep,int):
             raise ValueError('steps_per_sweep must be an integer')
     if block_avg_freq is not None:
-        if not isinstance(block_average_freq,int):
+        if not isinstance(block_avg_freq,int):
             raise ValueError('block_avg_freq must be an integer')
 
 
@@ -857,6 +857,15 @@ block_avg_freq {block_avg_freq}
 """
 
     return inp_data
+
+def property_info(properties,nbr_boxes):
+    """Get the Property_Info section of the input file
+   Parameters
+   ----------
+   properties : list
+        desired properties to output
+   """ 
+
 
 def get_fragment_files():
 

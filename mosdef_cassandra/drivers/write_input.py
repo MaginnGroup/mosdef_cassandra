@@ -20,7 +20,7 @@ def run_name(name):
 def sim_type(sim_type):
     """Get the Sim_Type section of the input file"""
 
-    sim_types = ['nvt_mc','npt_mc','gcmc','gemc']
+    sim_types = ['nvt_mc','npt_mc','gcmc','gemc', 'gemc_npt']
     if sim_type not in sim_types:
         raise ValueError('Unsupported sim_type: {}. Supported options'
                 'include {}'.format(sim_type,sim_types))
@@ -222,7 +222,7 @@ def seed_info(seed1=None,seed2=None):
     return inp_data
 
 def minimum_cutoff(cutoff):
-     inp_data = """
+    inp_data = """
 # Rcutoff_Low
 {cutoff}""".format(cutoff=cutoff)
 
@@ -233,7 +233,7 @@ def minimum_cutoff(cutoff):
     return inp_data
 
 def pair_energy(save):
-     inp_data = """
+    inp_data = """
 # Pair_Energy
 {save}""".format(save=save)
 
@@ -244,7 +244,7 @@ def pair_energy(save):
     return inp_data
 
 def molecule_files(max_molecule_dict):
-     inp_data = """
+    inp_data = """
 # Molecule_Files"""
 
     for filename, max_mols in max_molecule_dict.items():
@@ -259,14 +259,14 @@ def molecule_files(max_molecule_dict):
     return inp_data
 
 def box_info(boxes):
-"""Get the box info section of the input file
+    """Get the box info section of the input file
 
     Parameters
     ----------
     boxes : list
        list of box matrices with one box matrix
        per simulation box
-"""
+    """
     nbr_boxes = len(boxes)
     for box in boxes:
         assert box.shape == (3,3)
@@ -314,13 +314,13 @@ def box_info(boxes):
     return inp_data
 
 def temperature_info(temps):
-"""Get the Temperature_Info section of the input file
+    """Get the Temperature_Info section of the input file
 
    Parameters
    ----------
    temps : list
         list of temperatures with one for each box
-"""
+    """
     for temp in temps:
         if temp < 0.0:
             raise ValueError('Specified temperature ({}) is '
@@ -340,13 +340,13 @@ def temperature_info(temps):
     return inp_data
 
 def pressure_info(pressures):
-"""Get the Pressure_Info section of the input file
+    """Get the Pressure_Info section of the input file
 
-   Parameters
-   ----------
-   pressures : list
+    Parameters
+    ----------
+    pressures : list
         list of pressures with one for each box
-"""
+    """
 
     inp_data = """
 # Pressure_Info"""
@@ -362,14 +362,14 @@ def pressure_info(pressures):
     return inp_data
 
 def chemical_potential_info(chem_pots):
-"""Get the Chemical_Potential_Info section of the input file
+    """Get the Chemical_Potential_Info section of the input file
 
    Parameters
    ----------
    chem_pots : list
         list of chemical potentials with one for each species
         Non-insertable species should have None for the chemical potential
-"""
+    """
 
     inp_data = """
 # Chemical_Potential_Info
@@ -386,7 +386,7 @@ def chemical_potential_info(chem_pots):
 
 
 def move_probability_info(**kwargs):
-"""Get the Move_Probability_Info section of the input file
+    """Get the Move_Probability_Info section of the input file
 
    Parameters
    ----------
@@ -445,7 +445,7 @@ def move_probability_info(**kwargs):
                    list with one value for each box specifying the
                    probability of using the box as a donor box.
 
-"""
+    """
 
     # First a sanity check on kwargs
     valid_args = [ 'trans', 'rot', 'angle', 'dihed', 'regrow', 'vol',
@@ -737,13 +737,13 @@ prob_swap_from_box """
 
 
 def start_type(start_types):
-"""Get the Start_Type section of the input file
+    """Get the Start_Type section of the input file
 
    Parameters
    ----------
    start_type : list
         list of start_type with one for each box
-"""
+    """
 
     inp_data = """
 # Start_Type"""
@@ -759,7 +759,7 @@ def start_type(start_types):
     return inp_data
 
 def run_type(run_type,thermal_freq,vol_freq=None):
-"""Get the Run_Type section of the input file
+    """Get the Run_Type section of the input file
 
    Parameters
    ----------
@@ -771,7 +771,7 @@ def run_type(run_type,thermal_freq,vol_freq=None):
    vol_freq : int
         frequency of updating volume move displacement
         widths/output statistics
-"""
+    """
 
     valid_run_types = ['equilibration','production']
     if run_type not in valid_run_types:
@@ -796,9 +796,9 @@ def run_type(run_type,thermal_freq,vol_freq=None):
 
     return inp_data
 
-def simulation_length_info(units,prop_freq,coord_freq,length
+def simulation_length_info(units,prop_freq,coord_freq,length,
         steps_per_sweep=None,block_average_freq=None):
-"""Get the Simulation_Length_Info section of the input file
+    """Get the Simulation_Length_Info section of the input file
 
    Parameters
    ----------
@@ -815,7 +815,7 @@ def simulation_length_info(units,prop_freq,coord_freq,length
    block_avg_freq : int, optional
         write properties as block averages, averaged over
         block_avg_freq (units)
-"""
+    """
 
     valid_units = ['minutes','steps','sweeps']
     if units not in valid_units:
@@ -920,15 +920,5 @@ rcut_cbmc""".format(n_insert=n_insert,n_dihed=n_dihed)
 """
 
     return inp_data
-
-
-
-
-
-
-
-
-
-
 
 

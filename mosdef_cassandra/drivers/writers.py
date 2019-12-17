@@ -1,9 +1,10 @@
 
 import parmed
 import mbuild
-from mbuild.formats.cassandra_mcf import write_mcf
+from mbuild.formats.cassandramcf import write_mcf
 
-from gen_inp import generate_input
+import mosdef_cassandra
+from mosdef_cassandra.drivers.gen_inp import generate_input
 
 def write_mcfs(system):
 
@@ -39,13 +40,15 @@ def write_configs(system):
                 'mosdef_cassandra.System')
 
     for box_count, box in enumerate(system.boxes):
-        if not isinstance(box,mbuild.Compound):
+        if ( not isinstance(box,mbuild.Compound) and
+             not isinstance(box,mbuild.Box) ):
             raise TypeError('Your "system" object appears to have '
                     'been corrupted. Box {} is not a mbuild'
                     '.Compound object'.format(species))
 
         # Only save if box has particles inside
-        if box.n_particles > 0:
+        # This only occurs if box is an mbuild.Compound
+        if isinstance(box,mbuild.Compound):
             xyz_name = 'box{}.in.xyz'.format(box_count+1)
             box.save(xyz_name)
 

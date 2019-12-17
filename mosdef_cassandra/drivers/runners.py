@@ -1,8 +1,9 @@
 
-from writers import write_mcfs
-from writers import write_configs
+from mosdef_cassandra.drivers.writers import write_mcfs
+from mosdef_cassandra.drivers.writers import write_configs
+from mosdef_cassandra.drivers.writers import write_input
 
-def run(system, moves, temperature, sim_type, length, **kwargs):
+def run(system, moves, temperature, run_type, length, **kwargs):
 
     # Sanity checks
     # E.g., system has multiple boxes for GEMC
@@ -22,7 +23,7 @@ def run(system, moves, temperature, sim_type, length, **kwargs):
     write_configs(system)
 
     # Write input file
-    generate_inp(system, moves, temperature, run_type, length, **kwargs)
+    write_input(system, moves, temperature, run_type, length, **kwargs)
 
     # Run fragment generation
 

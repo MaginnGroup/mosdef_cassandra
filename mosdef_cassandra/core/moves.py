@@ -1,7 +1,7 @@
 
 import parmed
 
-class MoveProbabilities:
+class Moves:
 
     def __init__(self,ensemble,species_topologies):
 
@@ -34,26 +34,27 @@ class MoveProbabilities:
             self.prob_rotate = 0.35
             self.prob_regrow = 0.30
         elif self.ensemble == 'npt':
-            self.prob_translate = 0.345
-            self.prob_rotate = 0.345
+            self.prob_translate = 0.34
+            self.prob_rotate = 0.34
             self.prob_regrow = 0.30
-            self.prob_vol = 0.01
+            self.prob_vol = 0.02
         elif self.ensemble == 'gcmc':
             self.prob_translate = 0.30
             self.prob_rotate = 0.30
             self.prob_regrow = 0.30
             self.prob_insert = 0.1
         elif self.ensemble == 'gemc':
-            self.prob_translate = 0.30
-            self.prob_rotate = 0.30
+            self.prob_translate = 0.29
+            self.prob_rotate = 0.29
             self.prob_regrow = 0.30
             self.prob_swap = 0.1
+            self.prob_vol = 0.02
         elif self.ensemble == 'gemc_npt':
-            self.prob_translate = 0.295
-            self.prob_rotate = 0.295
+            self.prob_translate = 0.29
+            self.prob_rotate = 0.29
             self.prob_regrow = 0.30
             self.prob_swap = 0.1
-            self.prob_vol = 0.01
+            self.prob_vol = 0.02
         else:
             raise ValueError('Uh oh, how did we end up here?')
 
@@ -64,7 +65,8 @@ class MoveProbabilities:
         self.max_rotate.append([])
         self.prob_swap_from_box = [1.0]
         # Other options not
-        self.insertable = []
+        self.sp_insertable = []
+        self.sp_prob_swap = []
         self.sp_prob_regrow = []
 
         # Here we handle species-wise selections
@@ -75,6 +77,7 @@ class MoveProbabilities:
                 self.max_rotate[0].append(0.0)
                 self.sp_prob_regrow.append(0.0)
                 self.sp_insertable.append(True)
+                self.sp_prob_swap.append(1.0)
             elif len(species.bonds) == 0:
                 print('Treating {} as a non-insertable rigid species '
                         'since it has no bonds'.format(species))
@@ -82,11 +85,13 @@ class MoveProbabilities:
                 self.max_rotate[0].append(0.0)
                 self.sp_prob_regrow.append(0.0)
                 self.sp_insertable.append(False)
+                self.sp_prob_swap.append(0.0)
             else:
                 self.max_translate[0].append(2.0)
                 self.max_rotate[0].append(30.0)
                 self.sp_prob_regrow.append(1.0)
                 self.sp_insertable.append(True)
+                self.sp_prob_swap.append(1.0)
 
         # Add for box two
         if self.ensemble  == 'gemc' or self.ensemble == 'gemc_npt':
@@ -105,7 +110,9 @@ class MoveProbabilities:
                     self.max_rotate[1].append(30.0)
 
         # Default max deltas for volume moves
-        if self.ensemble == 'npt' or self.ensemble == 'gemc_npt':
+        if ( self.ensemble == 'npt' or
+             self.ensemble == 'gemc'
+             or self.ensemble == 'gemc_npt' ):
             self.max_volume = []
             self.max_volume.append(300.)
             if self.ensemble == 'gemc_npt':
@@ -118,10 +125,10 @@ class MoveProbabilities:
                 self.sp_prob_regrow[i] = sp_regrowth_prob
 
         # Correct species_prob_swap
-        sp_swap_prob = 1.0/sum(self.sp_swap_prob)
+        sp_prob_swap = 1.0/sum(self.sp_prob_swap)
         for i,insertable in enumerate(self.sp_insertable):
             if insertable:
-                self.sp_swap_prob[i] = sp_swap_prob
+                self.sp_prob_swap[i] = sp_prob_swap
 
         # If all species have no prob regrowth, set prob_regrow to
         # zero and redistribute prob to translate/rotate

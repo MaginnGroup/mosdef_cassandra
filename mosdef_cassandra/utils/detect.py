@@ -1,6 +1,6 @@
 import shutil
 
-def _detect_cassandra_binaries():
+def detect_cassandra_binaries():
 
     cassandra_exec_names = [ 'cassandra.exe',
                              'cassandra_gfortran.exe',

@@ -67,4 +67,36 @@ def write_input(system, moves, temperature, run_type, length, **kwargs):
     with open(inp_name,'w') as inp:
         inp.write(inp_data)
 
+    return inp_name
+
+def write_pdb(molecule,filename):
+
+    # Generate CONECT records
+    conect = { atom.idx : [] for atom in molecule.atoms }
+    for atom in molecule.atoms:
+        atidx = atom.idx
+        for bond in molecule.bonds:
+            if bond.atom1.idx == atidx:
+                conect[atidx].append(bond.atom2.idx)
+            elif bond.atom2.idx == atidx:
+                conect[atidx].append(bond.atom1.idx)
+
+    with open(filename, 'w') as pdb:
+        pdb.write('REMARK 1   Created by mosdef_cassandra\n')
+        pdb.write('CRYST1{:9.3f}{:9.3f}{:9.3f}{:7.2f}{:7.2f}{:7.2f}'
+                  ' {:9s}{:3d}\n'.format(molecule.box[0],molecule.box[1],
+                      molecule.box[2],molecule.box[3],molecule.box[4],
+                      molecule.box[5],molecule.space_group,1))
+        for atom in molecule.atoms:
+            pdb.write('ATOM  {:5d} {:4s} RES A{:4d}    '
+                    '{:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}'
+                    '          {:>2s}  \n'.format(atom.idx+1,atom.name,
+                        0,atom.xx,atom.xy,atom.xz,1.0,0.0,
+                        atom.element_name))
+        for atidx, atomlist in conect.items():
+            pdb.write('CONECT{:5d}'.format(atidx+1))
+            for at2idx in atomlist:
+                pdb.write('{:5d}'.format(at2idx+1))
+            pdb.write('\n')
+
 

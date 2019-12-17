@@ -125,9 +125,10 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     # Support for per-box cutoffs
     if 'vdw_cutoff_box1' in kwargs:
         vdw_cutoffs[0] = kwargs['vdw_cutoff_box1']
-    if 'vdw_cutoff_box2' in kwargs:
+    if 'vdw_cutoff_box2' in kwargs and nbr_boxes == 2:
         vdw_cutoffs[1] = kwargs['vdw_cutoff_box2']
 
+    # TODO: Check that cutoff <= half box length
     inp_data += get_vdw_style(vdw_styles,cutoff_styles,vdw_cutoffs)
 
     # Charge Style
@@ -157,9 +158,10 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     # Support for per-box cutoffs
     if 'charge_cutoff_box1' in kwargs:
         charge_cutoffs[0] = kwargs['charge_cutoff_box1']
-    if 'charge_cutoff_box2' in kwargs:
+    if 'charge_cutoff_box2' in kwargs and nbr_boxes == 2:
         charge_cutoffs[1] = kwargs['charge_cutoff_box2']
 
+    # TODO: Check that cutoff <= half box length
     inp_data += get_charge_style(charge_styles,charge_cutoffs,
             ewald_accuracy=ewald_accuracy,dsf_damping=dsf_damping)
 
@@ -358,12 +360,12 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     if 'prop_freq' in kwargs:
         prop_freq = kwargs['prop_freq']
     else:
-        prop_freq = 1000
+        prop_freq = 500
 
     if 'coord_freq' in kwargs:
         coord_freq = kwargs['coord_freq']
     else:
-        coord_freq = 10000
+        coord_freq = 5000
 
     # TODO: Change units to sweeps and come up with
     # a smart way of calculating the number of sweeps

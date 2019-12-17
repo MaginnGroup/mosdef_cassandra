@@ -3,6 +3,7 @@ import parmed
 import mbuild
 from mbuild.formats.cassandra_mcf import write_mcf
 
+from gen_inp import generate_input
 
 def write_mcfs(system):
 
@@ -48,12 +49,19 @@ def write_configs(system):
             xyz_name = 'box{}.in.xyz'.format(box_count+1)
             box.save(xyz_name)
 
+def write_input(system, moves, temperature, run_type, length, **kwargs):
 
-def write_inpfile()
+    inp_data = generate_input(system, moves, temperature, run_type,
+                            length, **kwargs)
 
+    if 'run_name' in kwargs:
+        run_name = kwargs['run_name']
+    else:
+        run_name = moves.ensemble
 
+    inp_name = run_name + '.inp'
 
-
-
+    with open(inp_name,'w') as inp:
+        inp.write(inp_data)
 
 

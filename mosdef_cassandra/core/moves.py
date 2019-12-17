@@ -103,7 +103,7 @@ class MoveProbabilities:
                 else:
                     self.max_translate[1].append(2.0)
                     self.max_rotate[1].append(30.0)
-        
+
         # Default max deltas for volume moves
         if self.ensemble == 'npt' or self.ensemble == 'gemc_npt':
             self.max_volume = []
@@ -116,7 +116,7 @@ class MoveProbabilities:
         for i,prob in enumerate(self.sp_prob_regrow):
             if prob > 0.0:
                 self.sp_prob_regrow[i] = sp_regrowth_prob
-        
+
         # Correct species_prob_swap
         sp_swap_prob = 1.0/sum(self.sp_swap_prob)
         for i,insertable in enumerate(self.sp_insertable):
@@ -135,5 +135,5 @@ class MoveProbabilities:
         if sum(self.max_rotate[0]) == 0.0:
             self.prob_translate += self.prob_rotate
             prob_rotate = 0.0
-        
+
 

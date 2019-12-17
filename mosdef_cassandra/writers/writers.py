@@ -4,7 +4,7 @@ import mbuild
 from mbuild.formats.cassandramcf import write_mcf
 
 import mosdef_cassandra
-from mosdef_cassandra.drivers.gen_inp import generate_input
+from mosdef_cassandra.writers.inp_functions import generate_input
 
 def write_mcfs(system):
 

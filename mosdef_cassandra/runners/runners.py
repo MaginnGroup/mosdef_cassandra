@@ -1,10 +1,10 @@
 
 import subprocess
 
-from mosdef_cassandra.drivers.writers import write_mcfs
-from mosdef_cassandra.drivers.writers import write_configs
-from mosdef_cassandra.drivers.writers import write_input
-from mosdef_cassandra.drivers.writers import write_pdb
+from mosdef_cassandra.writers.writers import write_mcfs
+from mosdef_cassandra.writers.writers import write_configs
+from mosdef_cassandra.writers.writers import write_input
+from mosdef_cassandra.writers.writers import write_pdb
 from mosdef_cassandra.utils.detect import detect_cassandra_binaries
 
 def run(system, moves, temperature, run_type, length, **kwargs):

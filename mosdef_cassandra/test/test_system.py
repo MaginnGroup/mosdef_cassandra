@@ -73,3 +73,27 @@ class TestSystem(BaseTest):
                                species_in_boxes=[[10]])
 
 
+    def test_edit_boxes(self,methane_oplsaa,box):
+        with pytest.raises(AttributeError,match=r'cannot be modified'):
+            system = mc.System([box],[methane_oplsaa],
+                    species_to_add=[[10]])
+            system.boxes = [box]
+
+    def test_edit_topologies(self,methane_oplsaa,box):
+        with pytest.raises(AttributeError,match=r'cannot be modified'):
+            system = mc.System([box],[methane_oplsaa],
+                    species_to_add=[[10]])
+            system.species_topologies = [methane_oplsaa]
+
+    def test_edit_nspecies(self,methane_oplsaa,box):
+        with pytest.raises(AttributeError,match=r'cannot be modified'):
+            system = mc.System([box],[methane_oplsaa],
+                    species_to_add=[[10]])
+            system.species_in_boxes = [[0]]
+
+    def test_edit_add_nspecies(self,methane_oplsaa,box):
+        system = mc.System([box],[methane_oplsaa],
+                    species_to_add=[[10]])
+        system.species_to_add = [[100]]
+
+        assert system.species_to_add == [[100]]

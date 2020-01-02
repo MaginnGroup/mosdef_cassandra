@@ -1,9 +1,37 @@
 
 import parmed
 
-class Moves:
+class Moves(object):
 
     def __init__(self,ensemble,species_topologies):
+        """A class to contain all the move probabilities and related
+        values required to perform a simulation in Cassandra.
+
+        A Moves object contains a variety of move probabilities
+        and other related quantities (e.g., max translation/rotation)
+        that are required to run Cassandra. When the moves object
+        is created the specified ``ensemble`` and ``species_topologies``
+        are used to generate guesses for all required values.
+        Depending upon the specifics of your system, these guesses may
+        be very reasonable or downright terrible. Use the same
+        ``species_topologies`` for your call to mosdef_cassandra.System()
+        and mosdef_cassandra.Moves(). Consult the Cassandra user
+        manual for more details on the meaning of different move
+        probabilities.
+
+        Parameters
+        ----------
+        ensemble : str
+            string describing the desired ensembled. Supported
+            values include 'nvt', 'npt', 'gcmc', 'gemc', 'gemc_npt'
+        species_topologies : list
+            list of parmed.Structures, with one species per element
+        
+        Returns
+        -------
+        mosdef_cassandra.Moves
+ 
+        """
 
         valid_ensembles = ['nvt','npt','gcmc','gemc','gemc_npt']
         if ensemble not in valid_ensembles:

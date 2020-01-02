@@ -1,5 +1,7 @@
 
 import subprocess
+import mbuild
+import parmed
 
 from mosdef_cassandra.writers.writers import write_mcfs
 from mosdef_cassandra.writers.writers import write_configs
@@ -121,18 +123,43 @@ def _check_system(system, moves):
 
     if moves.ensemble == 'gemc' or moves.ensemble == 'gemc_npt':
         if len(system.boxes) != 2:
-            raise ValueError('{} requested but {} simulation'
-                    'boxes provided as part of system. {} requires'
+            raise ValueError('{} requested but {} simulation '
+                    'boxes provided as part of system. {} requires '
                     '2 simulation boxes'.format(moves.ensemble,
                         len(system.boxes), moves.ensemble))
     else:
         if len(system.boxes) != 1:
-            raise ValueError('{} requested but {} simulation'
-                    'boxes provided as part of system. {} requires'
+            raise ValueError('{} requested but {} simulation '
+                    'boxes provided as part of system. {} requires '
                     '1 simulation box'.format(moves.ensemble,
                         len(system.boxes), moves.ensemble))
+
+    for box in system.boxes:
+        if ( not isinstance(box,mbuild.Box) and
+             not isinstance(box,mbuild.Compound) ):
+            raise TypeError('Not all System.boxes are mbuild.Box '
+                            'or mbuild.Compound objects. It appears '
+                            'your System object has been corrupted')
 
     # TODO: Add check that species_topologies provided to System
     # and Moves objects are the same
 
+    if not isinstance(system.species_topologies,list):
+        raise TypeError('System.species_topologies should be a '
+                        'list. It appears your System object '
+                        'has been corrupted')
+
+    for species in system.species_topologies:
+        if not isinstance(species,parmed.Structure):
+            raise TypeError('Each species should be a parmed.Structure. '
+                        'It appears your System object has been '
+                        'corrupted')
+
+    try:
+        system.check_natoms()
+    except:
+        raise ValueError('The number of atoms in one or more boxes '
+                'does not match the number expected from '
+                'System.species_topologies and system.species_in_boxes. '
+                'It appears your System object has been corrupted')
 

@@ -5,13 +5,8 @@ import numpy as np
 import mbuild
 import parmed
 
-# TODO: Make class immutable once instantiated -- or maybe not
-# completely immutable but partially -- it seems that
-# species_to_add could be mutable while the species_topologies,
-# boxes, and species_in_boxes should be immutable? At that point,
-# perhaps make everything immutable
+class System(object):
 
-class System:
     def __init__(self,boxes,species_topologies,species_in_boxes=None,
             species_to_add=None):
         """A class to contain the system to simulate in Cassandra
@@ -36,7 +31,7 @@ class System:
             one element per box. Each element should be a
             mbuild.Compound or mbuild.Box
         species_topologies : list
-            list of pmd.Structures, with one species per element
+            list of parmed.Structures, with one species per element
         species_in_boxes: list, optional
             one element per box. Each element is a list of length
             n_species, specifying the number of each species that
@@ -48,63 +43,128 @@ class System:
 
         Returns
         -------
-        mosdef_cassandra.System()
+        mosdef_cassandra.System
         """
-        # Check that the data is properly formatted. First check
-        # the species_topologies
-        if not isinstance(species_topologies,list):
-            raise TypeError('"species_topologies" should be a list. '
-                    'See help(mosdef_Cassandra.System) for details.')
-        for topology in species_topologies:
-            if not isinstance(topology,parmed.Structure):
-                raise TypeError('Each species should be a '
-                        'parmed.Structure')
-        n_species = len(species_topologies)
+        self._boxes = None
+        self._species_topologies = None
+        self._species_in_boxes = None
+        self._species_to_add = None
 
-        # Now check boxes
-        if not isinstance(boxes,list):
-            raise TypeError('"boxes" should be a list. See '
-                    'help(mosdef_Cassandra.System) for details.')
-        for box in boxes:
-            if ( not isinstance(box,mbuild.Compound) and
-                 not isinstance(box,mbuild.Box) ) :
-                raise TypeError('Each box should be an '
-                        'mbuild.Compound or mbuild.Box object')
-        n_boxes = len(boxes)
+        # @setter decorators used to protect boxes, species
+        # topologies, and species_in_boxes from modification.
+        # Error handling also occurs there
+        self.boxes = boxes
+        self.species_topologies = species_topologies
+        self.species_in_boxes = species_in_boxes
+        self.species_to_add = species_to_add
 
-        # And finally make sure species_in_boxes and
-        # species_to_add are properly formatted
-        if species_in_boxes is None:
-            species_in_boxes = [[0] * n_species] * len(boxes)
-        if species_to_add is None:
-            species_to_add = [[0] * n_species] * len(boxes)
+        # Error checking on number of particles in box(es)
+        # vs. number from self.species_in_boxes and
+        # self.species_topologies
+        self.check_natoms()
 
-        if not isinstance(species_in_boxes,list):
-            raise TypeError('"species_in_boxes" should be a list. '
-                'See help(mosdef_Cassandra.System) for details.')
-        if len(boxes) != len(species_in_boxes):
-            raise ValueError('The number of boxes inferred from the '
-                'length of "species_in_boxes" must match the '
-                'number of boxes inferred from the length of '
-                '"boxes"')
-        for species_in_box in species_in_boxes:
-            if not isinstance(species_in_box,list):
-                raise TypeError('"species_in_boxes" should be a list '
-                        'with one list for each box.'
+    # TODO: one possibility is to return list(self._boxes)
+    # rather than self._boxes --> this prevents list items from
+    # being edited ¯\_(ツ)_/¯
+    @property
+    def boxes(self):
+        return self._boxes
+
+    @boxes.setter
+    def boxes(self,boxes):
+        if self._boxes is None:
+            if not isinstance(boxes,list):
+                raise TypeError('"boxes" should be a list. See '
+                        'help(mosdef_Cassandra.System) for details.')
+            for box in boxes:
+                if ( not isinstance(box,mbuild.Compound) and
+                     not isinstance(box,mbuild.Box) ) :
+                    raise TypeError('Each box should be an '
+                            'mbuild.Compound or mbuild.Box object')
+            self._boxes = deepcopy(boxes)
+        else:
+            raise AttributeError('Box(es) cannot be modified after '
+                    'System object is created. Create a new System '
+                    'object if you wish to change the box(es)' )
+
+    @property
+    def species_topologies(self):
+        return self._species_topologies
+
+    @species_topologies.setter
+    def species_topologies(self,species_topologies):
+        if self._species_topologies is None:
+            if not isinstance(species_topologies,list):
+                raise TypeError('"species_topologies" should be a list. '
                         'See help(mosdef_Cassandra.System) for details.')
-            if len(species_in_box) != n_species:
-                raise ValueError('The number of each species existing '
-                    'in each box must be specified (even if = 0)')
-            for current_n in species_in_box:
-                if not isinstance(current_n,int):
-                    raise TypeError('The number of each species existing '
-                            'in each box must be specified '
-                            'as an integer')
+            for topology in species_topologies:
+                if not isinstance(topology,parmed.Structure):
+                    raise TypeError('Each species should be a '
+                            'parmed.Structure')
+            self._species_topologies = deepcopy(species_topologies)
+        else:
+            raise AttributeError('species_topologies cannot be '
+                    'modified after System object is created. '
+                    'Create a new System object if you wish to '
+                    'edit the species_topolgies')
 
+    @property
+    def species_in_boxes(self):
+        return list(self._species_in_boxes)
+
+    @species_in_boxes.setter
+    def species_in_boxes(self,species_in_boxes):
+        if self._species_in_boxes is None:
+            # Make sure species_in_boxes and species_to_add are
+            # properly formatted even if use specified none
+            n_species = len(self.species_topologies)
+            n_boxes = len(self.boxes)
+            if species_in_boxes is None:
+                species_in_boxes = [[0] * n_species] * n_boxes
+            # Error checking first
+            if not isinstance(species_in_boxes,list):
+                raise TypeError('"species_in_boxes" should be a list. '
+                    'See help(mosdef_Cassandra.System) for details.')
+            if len(species_in_boxes) != n_boxes:
+                raise ValueError('The number of boxes inferred from the '
+                    'length of "species_in_boxes" must match the '
+                    'number of boxes inferred from the length of '
+                    '"boxes"')
+            for species_in_box in species_in_boxes:
+                if not isinstance(species_in_box,list):
+                    raise TypeError('"species_in_boxes" should be a list '
+                            'with one list for each box.'
+                            'See help(mosdef_Cassandra.System) for details.')
+                if len(species_in_box) != n_species:
+                    raise ValueError('The number of each species existing '
+                        'in each box must be specified (even if = 0)')
+                for current_n in species_in_box:
+                    if not isinstance(current_n,int):
+                        raise TypeError('The number of each species existing '
+                                'in each box must be specified '
+                                'as an integer')
+            # Save data
+            self._species_in_boxes = deepcopy(species_in_boxes)
+        else:
+            raise AttributeError('species_in_boxes cannot be '
+                    'modified after System object is created. '
+                    'Create a new System object if you wish to '
+                    'edit species_in_boxes')
+
+    @property
+    def species_to_add(self):
+        return self._species_to_add
+
+    @species_to_add.setter
+    def species_to_add(self,species_to_add):
+        n_species = len(self.species_topologies)
+        n_boxes = len(self.boxes)
+        if species_to_add is None:
+            species_to_add = [[0] * n_species] * n_boxes 
         if not isinstance(species_to_add,list):
             raise TypeError('"species_to_add" should be a list. '
                 'See help(mosdef_Cassandra.System) for details.')
-        if len(boxes) != len(species_to_add):
+        if len(species_to_add) != n_boxes:
             raise ValueError('The number of boxes inferred from the '
                     'length of "species_to_add" must match the '
                     'number of boxes inferred from the length of '
@@ -112,7 +172,7 @@ class System:
         for add_to_box in species_to_add:
             if not isinstance(add_to_box,list):
                 raise TypeError('"species_to_add" should be a list '
-                        'with one list for each box.'
+                        'with one list for each box. '
                         'See help(mosdef_Cassandra.System) for details.')
             if len(add_to_box) != n_species:
                 raise ValueError('The number of each species to '
@@ -124,17 +184,25 @@ class System:
                             'be added to each box must be specified '
                             'as an integer')
 
-        # Confirm that the number of existing atoms in each box
-        # agrees with the number of atoms specified from the combination
-        # of the number of atoms in each species and the number of each
-        # species in the box.
-        atoms_per_species = [len(top.atoms) for top in species_topologies]
-        atoms_in_box = [ np.sum(np.multiply(atoms_per_species,species_in_boxes[ibox]))
-                         for ibox in range(len(boxes))]
+        self._species_to_add = deepcopy(species_to_add)
+
+    def check_natoms(self):
+        """Confirm that the number of existing atoms in each box
+        agrees with the number of atoms specified from the combination
+        of the number of atoms in each species and the number of each
+        species in the box.
+        """
+        n_species = len(self.species_topologies)
+        n_boxes = len(self.boxes)
+
+        atoms_per_species = [len(top.atoms) for top in self.species_topologies]
+        atoms_in_box = [ np.sum(np.multiply(atoms_per_species,
+                                            self.species_in_boxes[ibox]))
+                         for ibox in range(n_boxes)]
 
         # If the box is empty it should be an mbuild.Box object. If occupied
         # it should be an mbuild.Compound object.
-        for ibox,box in enumerate(boxes):
+        for ibox,box in enumerate(self.boxes):
             if isinstance(box,mbuild.Compound):
                 if box.n_particles != atoms_in_box[ibox]:
                     err_msg = ( 'The number of atoms in box {} ({}) '
@@ -147,7 +215,7 @@ class System:
                                                box.n_particles,
                                                atoms_in_box[ibox],
                                                atoms_per_species,
-                                               species_in_boxes[ibox])
+                                               self.species_in_boxes[ibox])
                               )
 
                     if box.n_particles == 1:
@@ -159,19 +227,13 @@ class System:
                         raise ValueError(addtl_msg+'\n'+err_msg)
                     raise ValueError(err_msg)
             elif isinstance(box,mbuild.Box):
-                if sum(species_in_boxes[ibox]) > 0:
+                if sum(self.species_in_boxes[ibox]) > 0:
                     raise ValueError('Box {} is an mbuild.Box object '
                             'but species_in_box ({}) indicates that '
                             'molecules should already be present. If you '
                             'wish to provide a starting structure for '
                             'Box {} then it must be a mbuild.Compound '
-                            'object'.format(ibox+1,species_in_boxes[ibox],
-                                ibox+1))
-
-        # Everything seems reasonable. Copy all to system object.
-        self.boxes = deepcopy(boxes)
-        self.species_topologies = deepcopy(species_topologies)
-        self.species_in_boxes = deepcopy(species_in_boxes)
-        self.species_to_add = deepcopy(species_to_add)
-
+                            'object'.format(ibox+1,
+                                            self.species_in_boxes[ibox],
+                                            ibox+1))
 

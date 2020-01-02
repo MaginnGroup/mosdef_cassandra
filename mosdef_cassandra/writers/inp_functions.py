@@ -5,6 +5,8 @@ import numpy as np
 
 import mosdef_cassandra.utils.convert_box as convert_box
 
+NM_TO_A = 10.
+
 def generate_input(system, moves, temperature, run_type, length, **kwargs):
     """Construct an input file section by section (with defaults)
 
@@ -314,7 +316,7 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
                 start_types.append(start_type)
             else:
                 existing_mols = ' '.join(
-                        [str(x) for x in system.species_in_boxes])
+                        [str(x) for x in system.species_in_boxes[ibox]])
                 xyz_name = 'box{}.in.xyz'.format(ibox+1)
                 start_type = 'read_config '
                 start_type += existing_mols + ' '
@@ -728,21 +730,23 @@ def get_box_info(boxes):
         if box_type == 'cubic':
             inp_data += """
 {dim}
-""".format(dim=box[0][0])
+""".format(dim=box[0][0]*NM_TO_A)
 
         elif box_type == 'orthogonal':
             inp_data += """
 {dim1} {dim2} {dim3}
-""".format(dim1=box[0][0],dim2=box[1][1],dim3=box[2][2])
+""".format(dim1=box[0][0]*NM_TO_A,
+           dim2=box[1][1]*NM_TO_A,
+           dim3=box[2][2]*NM_TO_A)
 
         else:
             inp_data += """
 {ax} {bx} {cx}
 {ay} {by} {cy}
 {az} {bz} {cz}
-""".format(ax=box[0][0],ay=box[0][1],az=box[0][2],
-           bx=box[1][0],by=box[1][1],bz=box[1][2],
-           cx=box[2][0],cy=box[2][1],cz=box[2][2])
+""".format(ax=box[0][0]*NM_TO_A,ay=box[0][1]*NM_TO_A,az=box[0][2]*NM_TO_A,
+           bx=box[1][0]*NM_TO_A,by=box[1][1]*NM_TO_A,bz=box[1][2]*NM_TO_A,
+           cx=box[2][0]*NM_TO_A,cy=box[2][1]*NM_TO_A,cz=box[2][2]*NM_TO_A)
 
     inp_data += """!------------------------------------------------------------------------------
 """

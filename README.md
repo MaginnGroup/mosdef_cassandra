@@ -97,6 +97,8 @@ You will also need a `python2` installation and on your `PATH`.
 * Addition of fragment library generation to `mosdef_cassandra` so that a call
 to a separate python script is not required.
 
+### Known issues
+* Control of 1-4 scaling in MCF files
 
 ### List of Cassandra capabilities that are not (yet) supported
 * Mie potential (support coming with migration to topology.Topology object)

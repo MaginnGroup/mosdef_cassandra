@@ -115,6 +115,9 @@ def _run_cassandra(cassandra, inp_file):
         print('Cassandra error, see {}'.format(log_file))
 
 def _check_system(system, moves):
+    """Run a series of sanity checks on the System and Moves objects
+
+    """
 
     if moves.ensemble == 'gemc' or moves.ensemble == 'gemc_npt':
         if len(system.boxes) != 2:
@@ -128,4 +131,8 @@ def _check_system(system, moves):
                     'boxes provided as part of system. {} requires'
                     '1 simulation box'.format(moves.ensemble,
                         len(system.boxes), moves.ensemble))
+
+    # TODO: Add check that species_topologies provided to System
+    # and Moves objects are the same
+
 

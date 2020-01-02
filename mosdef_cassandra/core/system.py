@@ -53,22 +53,22 @@ class System:
         # Check that the data is properly formatted. First check
         # the species_topologies
         if not isinstance(species_topologies,list):
-            raise TypeError('"species_topologies" should be a list.'
+            raise TypeError('"species_topologies" should be a list. '
                     'See help(mosdef_Cassandra.System) for details.')
         for topology in species_topologies:
             if not isinstance(topology,parmed.Structure):
-                raise TypeError('Each species should be a'
+                raise TypeError('Each species should be a '
                         'parmed.Structure')
         n_species = len(species_topologies)
 
         # Now check boxes
         if not isinstance(boxes,list):
-            raise TypeError('"boxes" should be a list. See'
+            raise TypeError('"boxes" should be a list. See '
                     'help(mosdef_Cassandra.System) for details.')
         for box in boxes:
             if ( not isinstance(box,mbuild.Compound) and
                  not isinstance(box,mbuild.Box) ) :
-                raise TypeError('Each box should be an'
+                raise TypeError('Each box should be an '
                         'mbuild.Compound or mbuild.Box object')
         n_boxes = len(boxes)
 
@@ -80,31 +80,49 @@ class System:
             species_to_add = [[0] * n_species] * len(boxes)
 
         if not isinstance(species_in_boxes,list):
-            raise TypeError('"species_in_boxes" should be a list.'
+            raise TypeError('"species_in_boxes" should be a list. '
                 'See help(mosdef_Cassandra.System) for details.')
         if len(boxes) != len(species_in_boxes):
-            raise ValueError('The number of boxes inferred from the'
-                'length of "species_in_boxes" must match the'
-                'number of boxes inferred from the length of'
+            raise ValueError('The number of boxes inferred from the '
+                'length of "species_in_boxes" must match the '
+                'number of boxes inferred from the length of '
                 '"boxes"')
         for species_in_box in species_in_boxes:
+            if not isinstance(species_in_box,list):
+                raise TypeError('"species_in_boxes" should be a list '
+                        'with one list for each box.'
+                        'See help(mosdef_Cassandra.System) for details.')
             if len(species_in_box) != n_species:
-                raise ValueError('The number of each species existing'
+                raise ValueError('The number of each species existing '
                     'in each box must be specified (even if = 0)')
+            for current_n in species_in_box:
+                if not isinstance(current_n,int):
+                    raise TypeError('The number of each species existing '
+                            'in each box must be specified '
+                            'as an integer')
 
         if not isinstance(species_to_add,list):
-            raise TypeError('"species_to_add" should be a list.'
+            raise TypeError('"species_to_add" should be a list. '
                 'See help(mosdef_Cassandra.System) for details.')
         if len(boxes) != len(species_to_add):
-            raise ValueError('The number of boxes inferred from the'
-                    'length of "species_to_add" must match the'
-                    'number of boxes inferred from the length of'
+            raise ValueError('The number of boxes inferred from the '
+                    'length of "species_to_add" must match the '
+                    'number of boxes inferred from the length of '
                     '"boxes"')
         for add_to_box in species_to_add:
+            if not isinstance(add_to_box,list):
+                raise TypeError('"species_to_add" should be a list '
+                        'with one list for each box.'
+                        'See help(mosdef_Cassandra.System) for details.')
             if len(add_to_box) != n_species:
-                raise ValueError('The number of each species to'
-                    'be added to each box must be specified'
+                raise ValueError('The number of each species to '
+                    'be added to each box must be specified '
                     '(even if it is = 0)')
+            for add_n in add_to_box:
+                if not isinstance(add_n,int):
+                    raise TypeError('The number of each species to '
+                            'be added to each box must be specified '
+                            'as an integer')
 
         # Confirm that the number of existing atoms in each box
         # agrees with the number of atoms specified from the combination

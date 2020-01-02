@@ -13,10 +13,12 @@ class Moves:
         self.ensemble = ensemble
 
         if not isinstance(species_topologies,list):
-            raise TypeError('species should be a list of species')
+            raise TypeError('species_topologies should be a '
+                            'list of species')
         for species in species_topologies:
             if not isinstance(species,parmed.Structure):
-                raise TypeError('species not of type parmed.Structure')
+                raise TypeError('each species should be a '
+                                'parmed.Structure')
 
         # Start by setting all move probabilities to zero
         self.prob_translate = 0.0
@@ -64,6 +66,7 @@ class Moves:
         self.max_translate.append([])
         self.max_rotate.append([])
         self.prob_swap_from_box = [1.0]
+        self.max_volume = []
         # Other options not
         self.sp_insertable = []
         self.sp_prob_swap = []
@@ -113,22 +116,25 @@ class Moves:
         if ( self.ensemble == 'npt' or
              self.ensemble == 'gemc'
              or self.ensemble == 'gemc_npt' ):
-            self.max_volume = []
-            self.max_volume.append(300.)
+            self.max_volume.append(500.)
             if self.ensemble == 'gemc_npt':
-                self.max_volume.append(3000.)
+                self.max_volume.append(5000.)
+        else:
+            self.max_volume.append(0.0)
 
         # Correct species_prob_regrow
-        sp_regrowth_prob = 1.0/sum(self.sp_prob_regrow)
-        for i,prob in enumerate(self.sp_prob_regrow):
-            if prob > 0.0:
-                self.sp_prob_regrow[i] = sp_regrowth_prob
+        if sum(self.sp_prob_regrow) > 0:
+            sp_regrowth_prob = 1.0/sum(self.sp_prob_regrow)
+            for i,prob in enumerate(self.sp_prob_regrow):
+                if prob > 0.0:
+                    self.sp_prob_regrow[i] = sp_regrowth_prob
 
-        # Correct species_prob_swap
-        sp_prob_swap = 1.0/sum(self.sp_prob_swap)
-        for i,insertable in enumerate(self.sp_insertable):
-            if insertable:
-                self.sp_prob_swap[i] = sp_prob_swap
+        if sum(self.sp_prob_swap) > 0:
+            # Correct species_prob_swap
+            sp_prob_swap = 1.0/sum(self.sp_prob_swap)
+            for i,insertable in enumerate(self.sp_insertable):
+                if insertable:
+                    self.sp_prob_swap[i] = sp_prob_swap
 
         # If all species have no prob regrowth, set prob_regrow to
         # zero and redistribute prob to translate/rotate
@@ -139,8 +145,14 @@ class Moves:
 
         # If all species are not rotatable change prob rotation
         # move to zero. Redistribute prob to translate
-        if sum(self.max_rotate[0]) == 0.0:
-            self.prob_translate += self.prob_rotate
-            prob_rotate = 0.0
+        # TODO --> this is only for box 1... ? problem ?
+        if self.ensemble == 'gemc' or self.ensemble == 'gemc_npt':
+            if sum(self.max_rotate[0]) + sum(self.max_rotate[1]) == 0.0:
+                self.prob_translate += self.prob_rotate
+                self.prob_rotate = 0.0
+        else:
+            if sum(self.max_rotate[0]) == 0.0:
+                self.prob_translate += self.prob_rotate
+                self.prob_rotate = 0.0
 
 

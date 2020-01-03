@@ -39,44 +39,10 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     """
 
     # Sanity check on kwargs
-    valid_args = ['run_name',
-                  'vdw_style',
-                  'cutoff_style',
-                  'vdw_cutoff',
-                  'vdw_cutoff_box1',
-                  'vdw_cutoff_box2',
-                  'charge_style',
-                  'charge_cutoff',
-                  'charge_cutoff_box1',
-                  'charge_cutoff_box2',
-                  'ewald_accuracy',
-                  'dsf_damping',
-                  'mixing_rule',
-                  'seeds',
-                  'rcut_min',
-                  'pair_energy',
-                  'max_molecules',
-                  'pressure',
-                  'pressure_box1',
-                  'pressure_box2',
-                  'chemical_potentials',
-                  'thermal_stat_freq',
-                  'vol_stat_freq',
-                  'units',
-                  'prop_freq',
-                  'coord_freq',
-                  'steps_per_sweep',
-                  'block_avg_freq',
-                  'properties',
-                  'verbose_log',
-                  'cbmc_kappa_ins',
-                  'cbmc_kappa_dih',
-                  'cbmc_rcut'
-                  ]
-
+    valid_args = _get_possible_kwargs()
     for arg in kwargs:
         if arg not in valid_args:
-            raise ValueError('Invaild probability info section {}. '
+            raise ValueError('Invalid input argument {}. '
                     'Allowable options include {}'.format(
                      arg,valid_args))
 
@@ -120,14 +86,21 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     else:
         vdw_cutoff = 12.0
 
+    if vdw_style == 'none':
+        cutoff_style = None
+
     vdw_styles = [vdw_style] * nbr_boxes
     cutoff_styles = [cutoff_style] * nbr_boxes
     vdw_cutoffs = [vdw_cutoff] * nbr_boxes
     # Support for per-box cutoffs
     if 'vdw_cutoff_box1' in kwargs:
         vdw_cutoffs[0] = kwargs['vdw_cutoff_box1']
-    if 'vdw_cutoff_box2' in kwargs and nbr_boxes == 2:
-        vdw_cutoffs[1] = kwargs['vdw_cutoff_box2']
+    if 'vdw_cutoff_box2' in kwargs:
+        if nbr_boxes == 2:
+            vdw_cutoffs[1] = kwargs['vdw_cutoff_box2']
+        else:
+            raise ValueError('Only one box in System but '
+                    'cutoff for box 2 specified in kwargs')
 
     # TODO: Check that cutoff <= half box length
     inp_data += get_vdw_style(vdw_styles,cutoff_styles,vdw_cutoffs)
@@ -159,8 +132,12 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     # Support for per-box cutoffs
     if 'charge_cutoff_box1' in kwargs:
         charge_cutoffs[0] = kwargs['charge_cutoff_box1']
-    if 'charge_cutoff_box2' in kwargs and nbr_boxes == 2:
-        charge_cutoffs[1] = kwargs['charge_cutoff_box2']
+    if 'charge_cutoff_box2' in kwargs:
+        if nbr_boxes == 2:
+            charge_cutoffs[1] = kwargs['charge_cutoff_box2']
+        else:
+            raise ValueError('Only one box in System but '
+                    'cutoff for box 2 specified in kwargs')
 
     # TODO: Check that cutoff <= half box length
     inp_data += get_charge_style(charge_styles,charge_cutoffs,
@@ -172,11 +149,20 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     else:
         mixing_rule = 'lb'
 
-    inp_data += get_mixing_rule(mixing_rule)
+    if 'custom_mixing_dict' in kwargs:
+        custom_mixing_dict = kwargs['custom_mixing_dict']
+        print('Warning: be very careful with custom mixing rules.\n'
+              'Please check your final input file.')
+    else:
+        custom_mixing_dict = None
+    inp_data += get_mixing_rule(mixing_rule,custom_mixing_dict)
 
     # Seeds
     if 'seeds' in kwargs:
-        # TODO: Check format of seeds
+        seeds = kwargs['seeds']
+        if not isinstance(seeds,list) or len(seeds) != 2:
+            raise TypeError('The "seeds" argument should be a '
+                            'list of two integers')
         seed1 = kwargs['seeds'][0]
         seed2 = kwargs['seeds'][1]
     else:
@@ -202,13 +188,17 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     max_molecules_dict = {'species%d.mcf' % (i+1) : 0
                           for i in range(nbr_species) }
     if 'max_molecules' in kwargs:
-        if len(kwargs['max_molecules']) != nbr_species:
+        max_molecules = kwargs['max_molecules']
+        if not isinstance(max_molecules,list):
+            raise TypeError('Max molecules should be a list, '
+                            'with one integer per species')
+        if len(max_molecules) != nbr_species:
             raise ValueError('Length of list specified with '
                     '"max_molecules" ({})must be equal to the number '
                     'of species in the system ({})'.format(
                         len(kwargs['max_molecules']),nbr_species))
         for i,max_mols in enumerate(max_molecules):
-            max_molecules_dict['species%d.mcf' % i+1] = max_mols
+            max_molecules_dict['species%d.mcf' % (i+1)] = max_mols
     else:
         for isp in range(nbr_species):
             max_mols = 0
@@ -223,10 +213,11 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     inp_data += get_molecule_files(max_molecules_dict)
 
     # Box Info
+    # TODO: FIX THIS HACK W.R.T. boxes and DOCUMENT
     boxes = []
     for box in system.boxes:
         if isinstance(box,mbuild.Compound):
-            box_dims = np.hstack((box.boundingbox.lengths,
+            box_dims = np.hstack((box.periodicity,
                                   box.boundingbox.angles))
         else:
             box_dims = np.hstack((box.lengths,
@@ -250,7 +241,7 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
         if 'pressure_box2' in kwargs:
             pressures[1] = kwargs['pressure_box2']
 
-        inp_data += pressure_info(pressures)
+        inp_data += get_pressure_info(pressures)
 
     if moves.ensemble == 'gcmc':
         if 'chemical_potentials' in kwargs:
@@ -305,7 +296,7 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
         if isinstance(box,mbuild.Compound):
             if sum(system.species_to_add[ibox]) > 0:
                 existing_mols = ' '.join(
-                        [str(x) for x in system.species_in_boxes])
+                        [str(x) for x in system.species_in_boxes[ibox]])
                 xyz_name = 'box{}.in.xyz'.format(ibox+1)
                 new_mols = ' '.join([str(x)
                                  for x in system.species_to_add[ibox]])
@@ -515,10 +506,12 @@ def get_vdw_style(vdw_styles,cut_styles,cutoffs):
 
     for cut_style,cutoff in zip(cut_styles,cutoffs):
         if cut_style == 'cut_switch':
-            if len(cutoff) != 2:
+            raise_error = False
+            if not isinstance(cutoff,list) or len(cutoff) != 2:
                 raise ValueError('Style "cut_switch" requires an inner '
-                        'and outer cutoff. {} cutoffs were '
-                        'specified'.format(len(cutoff)))
+                        'and outer cutoff. Use the '
+                        'cutoffs=[inner_cut,outer_cut] '
+                        'kwargs option.')
 
     inp_data = """
 # VDW_Style"""
@@ -610,7 +603,6 @@ coul {charge_style} {cutoff}""".format(charge_style=charge_style,
 
     return inp_data
 
-
 def get_mixing_rule(mixing_rule,custom_mixing_dict=None):
     valid_mixing_rules = ['lb','geometric','custom']
     if mixing_rule not in valid_mixing_rules:
@@ -625,7 +617,7 @@ def get_mixing_rule(mixing_rule,custom_mixing_dict=None):
 {mixing_rule}""".format(mixing_rule=mixing_rule)
 
     if mixing_rule == 'custom':
-        for pair, parms in mixing_dict.items():
+        for pair, parms in custom_mixing_dict.items():
             inp_data += """
 {pair} {parms}
 """.format(pair=pair,parms=parms)
@@ -642,6 +634,10 @@ def get_seed_info(seed1=None,seed2=None):
     if seed2 is None:
         seed2 = np.random.randint(1,100000000)
 
+    if seed1 < 0 or seed2 < 0 or seed1 > 100000000 or seed2 > 100000000:
+        raise ValueError('Seeds must be integers between '
+                        '1 and 100000000')
+
     inp_data = """
 # Seed_Info
 {seed1} {seed2}""".format(seed1=seed1,seed2=seed2)
@@ -653,6 +649,9 @@ def get_seed_info(seed1=None,seed2=None):
     return inp_data
 
 def get_minimum_cutoff(cutoff):
+    if not isinstance(cutoff,float):
+        raise TypeError('rcut_min should be of type float')
+
     inp_data = """
 # Rcutoff_Low
 {cutoff}""".format(cutoff=cutoff)
@@ -666,7 +665,7 @@ def get_minimum_cutoff(cutoff):
 def get_pair_energy(save):
 
     if not isinstance(save,bool):
-        raise ValueError('pair_energy must be a boolean')
+        raise TypeError('pair_energy must be of type boolean')
 
     if save:
         save = 'true'
@@ -762,6 +761,8 @@ def get_temperature_info(temps):
         list of temperatures with one for each box
     """
     for temp in temps:
+        if not isinstance(temp,float):
+            raise TypeError('Temperature must be of type float')
         if temp < 0.0:
             raise ValueError('Specified temperature ({}) is '
                     'less than zero'.format(temp))
@@ -788,6 +789,10 @@ def get_pressure_info(pressures):
         list of pressures with one for each box
     """
 
+    for press in pressures:
+        if not isinstance(press,float):
+            raise TypeError('Pressure must be of type float')
+ 
     inp_data = """
 # Pressure_Info"""
 
@@ -810,6 +815,10 @@ def get_chemical_potential_info(chem_pots):
         list of chemical potentials with one for each species
         Non-insertable species should have None for the chemical potential
     """
+
+    for chem_pot in chem_pots:
+        if not isinstance(chem_pot,float):
+            raise TypeError('Chemical potentials must be of type float')
 
     inp_data = """
 # Chemical_Potential_Info
@@ -893,7 +902,7 @@ def get_move_probability_info(**kwargs):
 
     for arg in kwargs:
         if arg not in valid_args:
-            raise ValueError('Invaild probability info section {}. '
+            raise ValueError('Invalid probability info section {}. '
                     'Allowable options include {}'.format(
                      arg,valid_args))
 
@@ -914,6 +923,11 @@ def get_move_probability_info(**kwargs):
             if not isinstance(sp_displacements,list):
                 raise TypeError('Translate probability information not '
                     'formatted properly')
+            for displace in sp_displacements:
+                if not isinstance(displace,float):
+                    raise TypeError('Translate probability information not '
+                    'formatted properly')
+
         inp_data += """
 # Prob_Translation
 {prob_trans}""".format(prob_trans=trans[0])
@@ -939,6 +953,11 @@ def get_move_probability_info(**kwargs):
             if not isinstance(sp_displacements,list):
                 raise TypeError('Rotation probability information not '
                     'formatted properly')
+            for displace in sp_displacements:
+                if not isinstance(displace,float):
+                    raise TypeError('Rotation probability information not '
+                    'formatted properly')
+
         inp_data += """
 # Prob_Rotation
 {prob_rotate}""".format(prob_rotate=rotate[0])
@@ -979,6 +998,11 @@ def get_move_probability_info(**kwargs):
             if not isinstance(sp_displacements,list):
                 raise TypeError('Dihedral probability information not '
                     'formatted properly')
+            for displace in sp_displacements:
+                if not isinstance(displace,float):
+                    raise TypeError('Dihedral probability information not '
+                    'formatted properly')
+
         inp_data += """
 # Prob_Dihedral
 {prob_dihed}""".format(prob_dihed=dihed[0])
@@ -1074,7 +1098,7 @@ def get_move_probability_info(**kwargs):
                     'formatted properly')
         for insertable in insert[1]:
             if not isinstance(insertable,bool):
-                raise TypeError('Whether or not a species is insertable'
+                raise TypeError('Whether or not a species is insertable '
                     'must be a boolean value')
 
         inp_data += """
@@ -1286,7 +1310,7 @@ steps_per_sweep {steps_per_sweep}
 """.format(steps_per_sweep=steps_per_sweep)
     if block_avg_freq is not None:
         inp_data += """
-block_avg_freq {block_avg_freq}
+block_averages {block_avg_freq}
 """.format(block_avg_freq=block_avg_freq)
 
     inp_data += """
@@ -1337,7 +1361,7 @@ def get_fragment_files():
 def get_verbose_log(verbose):
 
     if not isinstance(verbose,bool):
-        raise ValueError('Verbosity must be a boolean')
+        raise TypeError('Verbosity must be a boolean')
 
     if verbose:
         verbose = 'true'
@@ -1348,7 +1372,7 @@ def get_verbose_log(verbose):
 # Verbose_Logfile
 {verbose}
 !------------------------------------------------------------------------------
-""".format(verbose)
+""".format(verbose=verbose)
 
     return inp_data
 
@@ -1366,16 +1390,16 @@ def get_cbmc_info(n_insert, n_dihed, cutoffs):
     """
 
     if not isinstance(n_insert,int):
-        raise ValueError('Number of CBMC insertion attempts must be'
+        raise TypeError('Number of CBMC insertion attempts must be '
                     'an integer')
     if not isinstance(n_dihed,int):
-        raise ValueError('Number of CBMC dihedral angle attempts must be'
+        raise TypeError('Number of CBMC dihedral angle attempts must be '
                     'an integer')
     if not isinstance(cutoffs,list):
-        raise ValueError('Cutoff information improperly specified')
+        raise TypeError('Cutoff information improperly specified')
     for cutoff in cutoffs:
         if not isinstance(cutoff,float):
-            raise ValueError('CBMC cutoff must be a float')
+            raise TypeError('CBMC cutoff must be a float')
 
 
     inp_data = """
@@ -1392,5 +1416,53 @@ rcut_cbmc""".format(n_insert=n_insert,n_dihed=n_dihed)
 """
 
     return inp_data
+
+def print_valid_kwargs():
+    valid_args = _get_possible_kwargs(desc=True)
+    for arg,desc in valid_args.items():
+        print("{:25s}:    {}".format(arg,desc))
+
+def _get_possible_kwargs(desc=False):
+    valid_kwargs = {'run_name'              : 'str, name of output',
+                    'vdw_style'             : 'str, "lj" or "none"',
+                    'cutoff_style'          : 'str, "cut" or "cut_tail" or "cut_switch" or "cut_shift"',
+                    'vdw_cutoff'            : 'float, except for "cut_switch", where [inner_cutoff, outer_cutoff].',
+                    'vdw_cutoff_box1'       : 'customize vdw cutoff for box 1. see "vdw_cutoff" for format',
+                    'vdw_cutoff_box2'       : 'customize vdw cutoff for box 2. see "vdw_cutoff" for format',
+                    'charge_style'          : 'str, "none" or "cut" or "ewald" or "dsf"',
+                    'charge_cutoff'         : 'float',
+                    'charge_cutoff_box1'    : 'customize charge cutoff for box 1. see "charge_cutoff" for format',
+                    'charge_cutoff_box2'    : 'customize charge cutoff for box 2. see "charge_cutoff" for format',
+                    'ewald_accuracy'        : 'float, accuracy of ewald sum',
+                    'dsf_damping'           : 'float, damping parameter for dsf charge method',
+                    'mixing_rule'           : 'str, "lb" or "geometric" or "custom"',
+                    'custom_mixing_dict'    : 'dict, one key-value pair per atomtype-pair, key=str of species comb, value=str of params',
+                    'seeds'                 : 'list of ints, [seed1,seed2], where each seed is an integer',
+                    'rcut_min'              : 'float, automatically reject move if atoms are closer than this distance',
+                    'pair_energy'           : 'boolean, store pair energies (faster but requires more memory)',
+                    'max_molecules'         : 'list of ints, maximum number of molecules for each species',
+                    'pressure'              : 'float, desired pressure (npt and gemc-npt)',
+                    'pressure_box1'         : 'customize pressure for box 1. see "pressure" for format',
+                    'pressure_box2'         : 'customize pressure for box 2. see "pressure" for format',
+                    'chemical_potentials'   : 'list of floats, specify the desired chemical potential for each species',
+                    'thermal_stat_freq'     : 'int, frequency of printing/updating non-volume moves',
+                    'vol_stat_freq'         : 'int, frequency of printing/updating volume moves',
+                    'units'                 : 'str, units for run/thermo/coord length/freqs. "minutes" or "steps" or "sweeps"',
+                    'prop_freq'             : 'int, frequency of writing thermo properties',
+                    'coord_freq'            : 'int, frequency of writing coordinates',
+                    'steps_per_sweep'       : 'int, number of MC steps defined as a single sweep',
+                    'block_avg_freq'        : 'int, block average size',
+                    'properties'            : ('list, properties to write to thermo file. Valid options include '
+                                               '"energy_total", "energy_lj", "energy_elec", "energy_intra", "enthalpy",'
+                                               '"pressure", "volume", "nmols", "density", "mass_density"'),
+                    'verbose_log'           : 'boolean, write verbose log file',
+                    'cbmc_kappa_ins'        : 'int, number of attempted insertion sites for CBMC',
+                    'cbmc_kappa_dih'        : 'int, number of attempted dihedral rotations for CBMC',
+                    'cbmc_rcut'             : 'float, cutoff for CBMC'
+                    }
+    if desc:
+        return valid_kwargs
+    else:
+        return list(valid_kwargs.keys())
 
 

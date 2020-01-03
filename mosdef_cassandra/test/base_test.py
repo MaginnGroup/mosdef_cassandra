@@ -14,6 +14,13 @@ class BaseTest:
         return methane
 
     @pytest.fixture
+    def butane_oplsaa(self):
+        oplsaa = foyer.forcefields.load_OPLSAA()
+        butane = mbuild.load('CCCC',smiles=True)
+        butane = oplsaa.apply(butane)
+        return butane
+
+    @pytest.fixture
     def methane_trappe(self):
         trappe = foyer.forcefields.load_TRAPPE_UA()
         methane = mbuild.Compound(pos=[0.,0.,0.],name='_CH4')
@@ -28,8 +35,7 @@ class BaseTest:
         return ethane
 
     @pytest.fixture
-    def fixed_lattice(self):
-        trappe = foyer.forcefields.load_TRAPPE_UA()
+    def fixed_lattice_compound(self):
         carbon = mbuild.Compound(name='_CH4')
         angles = [90.,90.,90.]
         carbon_locations = [[0.,0.,0.],
@@ -39,13 +45,20 @@ class BaseTest:
                             [0.,0.,1./2.]]
         basis = {'C' : carbon_locations }
         carbon_dict = {'C' : carbon}
-        lattice = mbuild.Lattice(lattice_spacing = [0.746,0.746,0.746],
+        lattice_spacing = [0.746,0.746,0.746]
+        lattice = mbuild.Lattice(lattice_spacing = lattice_spacing,
                                  angles = angles,
                                  lattice_points = basis)
         system = lattice.populate(
                             compound_dict=carbon_dict,x=4,y=4,z=4)
-        
-        typed_system = trappe.apply(system)
+
+        return system
+
+    @pytest.fixture
+    def fixed_lattice_trappe(self,fixed_lattice_compound):
+        trappe = foyer.forcefields.load_TRAPPE_UA()
+        lattice = fixed_lattice_compound
+        typed_system = trappe.apply(lattice)
 
         return typed_system
 

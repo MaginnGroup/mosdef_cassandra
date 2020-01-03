@@ -215,9 +215,9 @@ class TestMoves(BaseTest):
         assert moves.sp_prob_regrow[0] == 0.0
 
 
-    def test_gcmc_lattice(self,fixed_lattice,methane_trappe):
+    def test_gcmc_lattice(self,fixed_lattice_trappe,methane_trappe):
 
-        moves = mc.Moves('gcmc',[fixed_lattice,methane_trappe])
+        moves = mc.Moves('gcmc',[fixed_lattice_trappe,methane_trappe])
         assert moves.ensemble == 'gcmc'
         assert moves.prob_translate == pytest.approx(0.9)
         assert moves.prob_rotate == 0.0

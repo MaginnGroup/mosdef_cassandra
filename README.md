@@ -1,6 +1,9 @@
 # mosdef_cassandra
 MoSDeF compatible wrapper for Cassandra Monte Carlo code
 
+[//]: # (Badges)
+[![codecov](https://codecov.io/gh/rsdefever/mosdef_cassandra/branch/master/graph/badge.svg?token=xsgvdWprHp)](https://codecov.io/gh/rsdefever/mosdef_cassandra)
+
 WARNING: This package is under development and should not be considered ready for production use.
 
 ### Example usage

@@ -85,8 +85,8 @@ class TestMoves(BaseTest):
     def test_ensemble_gcmc(self,methane_oplsaa):
         moves = mc.Moves('gcmc',[methane_oplsaa])
         assert moves.ensemble == 'gcmc'
-        assert moves.prob_translate == 0.30
-        assert moves.prob_rotate == 0.30
+        assert moves.prob_translate == 0.25
+        assert moves.prob_rotate == 0.25
         assert moves.prob_regrow == 0.30
         assert moves.prob_volume == 0.0
         assert moves.prob_angle == 0.0
@@ -254,7 +254,7 @@ class TestMoves(BaseTest):
 
         moves = mc.Moves('gcmc',[fixed_lattice_trappe,methane_trappe])
         assert moves.ensemble == 'gcmc'
-        assert moves.prob_translate == pytest.approx(0.9)
+        assert moves.prob_translate == pytest.approx(0.8)
         assert moves.prob_rotate == 0.0
         assert moves.prob_regrow == 0.0
         assert moves.prob_volume == 0.0

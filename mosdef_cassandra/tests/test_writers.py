@@ -688,8 +688,8 @@ class TestInpFunctions(BaseTest):
 
         assert '# Move_Probability_Info' in inp_data
         assert '# Done_Probability_Info' in inp_data
-        assert '# Prob_Translation\n0.3\n0.0 2.0 \n' in inp_data
-        assert '# Prob_Rotation\n0.3\n0.0 30.0 \n' in inp_data
+        assert '# Prob_Translation\n0.25\n0.0 2.0 \n' in inp_data
+        assert '# Prob_Rotation\n0.25\n0.0 30.0 \n' in inp_data
         assert '# Prob_Angle' not in inp_data
         assert '# Prob_Dihedral' not in inp_data
         assert '# Prob_Regrowth\n0.3\n0.0 1.0 \n' in inp_data

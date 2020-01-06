@@ -3,5 +3,6 @@ from .core.system import System
 from .core.moves import Moves
 
 from .runners.runners import run
+from .runners.runners import restart
 
 from .writers.inp_functions import print_valid_kwargs

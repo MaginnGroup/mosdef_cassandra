@@ -28,13 +28,6 @@ class BaseTest:
         return methane
 
     @pytest.fixture
-    def ethane_oplsaa(self):
-        oplsaa = foyer.forcefields.load_OPLSAA()
-        ethane = mbuild.load('CC',smiles=True)
-        ethane = oplsaa.apply(ethane)
-        return ethane
-
-    @pytest.fixture
     def fixed_lattice_compound(self):
         carbon = mbuild.Compound(name='_CH4')
         angles = [90.,90.,90.]

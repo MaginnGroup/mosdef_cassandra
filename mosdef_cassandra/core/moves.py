@@ -173,7 +173,6 @@ class Moves(object):
 
         # If all species are not rotatable change prob rotation
         # move to zero. Redistribute prob to translate
-        # TODO --> this is only for box 1... ? problem ?
         if self.ensemble == 'gemc' or self.ensemble == 'gemc_npt':
             if sum(self.max_rotate[0]) + sum(self.max_rotate[1]) == 0.0:
                 self.prob_translate += self.prob_rotate

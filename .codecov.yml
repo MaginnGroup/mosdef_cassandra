@@ -1,14 +1,32 @@
 # Codecov configuration to make it a bit less noisy
+
+codecov:
+  notify:
+    require_ci_to_pass: yes
+
 coverage:
+  precision: 2
+  round: down
   status:
     patch: false
     project:
       default:
         threshold: 50%
 comment:
-  layout: "header"
+  layout: "header, diff"
   require_changes: false
   branches: null
   behavior: default
   flags: null
   paths: null
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+ignore:
+  - "mosdef_cassandra/tests"

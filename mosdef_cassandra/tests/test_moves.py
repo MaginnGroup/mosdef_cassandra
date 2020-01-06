@@ -2,7 +2,7 @@
 import pytest
 import mosdef_cassandra as mc
 
-from mosdef_cassandra.test.base_test import BaseTest
+from mosdef_cassandra.tests.base_test import BaseTest
 
 class TestMoves(BaseTest):
 
@@ -205,6 +205,41 @@ class TestMoves(BaseTest):
         # Per species-per-box
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
+        # Per species attributes
+        assert len(moves.sp_insertable) == 1
+        assert len(moves.sp_prob_swap) == 1
+        assert len(moves.sp_prob_regrow) == 1
+
+        # Should be insertable and NOT regrow-able
+        assert moves.sp_insertable[0] == True
+        assert moves.sp_prob_regrow[0] == 0.0
+
+    def test_single_site_gemc(self,methane_trappe):
+
+        moves = mc.Moves('gemc',[methane_trappe])
+        assert moves.ensemble == 'gemc'
+        assert moves.prob_rotate == 0.0
+        assert moves.prob_regrow == 0.0
+        assert moves.prob_translate == pytest.approx(0.88)
+        assert moves.prob_volume == 0.02
+        assert moves.prob_angle == 0.0
+        assert moves.prob_dihedral == 0.0
+        assert moves.prob_insert == 0.0
+        assert moves.prob_swap == 0.1
+
+        # Per box attributes
+        assert len(moves.max_translate) == 2
+        assert len(moves.max_rotate) == 2
+        assert len(moves.max_volume) == 1
+        assert len(moves.prob_swap_from_box) == 2
+        assert moves.prob_swap_from_box[0] == 0.5
+        assert moves.prob_swap_from_box[1] == 0.5
+        assert moves.max_volume[0] == 500.
+        # Per species-per-box
+        assert len(moves.max_translate[0]) == 1
+        assert len(moves.max_translate[1]) == 1
+        assert len(moves.max_rotate[0]) == 1
+        assert len(moves.max_rotate[1]) == 1
         # Per species attributes
         assert len(moves.sp_insertable) == 1
         assert len(moves.sp_prob_swap) == 1

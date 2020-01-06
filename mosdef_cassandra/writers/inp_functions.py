@@ -257,6 +257,11 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
                 '"gcmc". The chemical potential of non-insertable '
                 'species should be "none"')
 
+        for isp,chempot in enumerate(chemical_potentials):
+            if moves.sp_insertable[isp] == False and chempot != 'none':
+                raise ValueError('The chemical potential of non-insertable '
+                    'species should be "none"')
+
         inp_data += get_chemical_potential_info(chemical_potentials)
 
     # Move probability info
@@ -810,7 +815,7 @@ def get_pressure_info(pressures):
     for press in pressures:
         if not isinstance(press,float):
             raise TypeError('Pressure must be of type float')
- 
+
     inp_data = """
 # Pressure_Info"""
 
@@ -835,8 +840,10 @@ def get_chemical_potential_info(chem_pots):
     """
 
     for chem_pot in chem_pots:
-        if not isinstance(chem_pot,float):
-            raise TypeError('Chemical potentials must be of type float')
+        if chem_pot != 'none':
+            if not isinstance(chem_pot,float):
+                raise TypeError('Chemical potentials must "none" or '
+                    'be of type float')
 
     inp_data = """
 # Chemical_Potential_Info

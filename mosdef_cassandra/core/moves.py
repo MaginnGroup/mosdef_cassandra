@@ -5,7 +5,7 @@ class Moves(object):
 
     def __init__(self,ensemble,species_topologies):
         """A class to contain all the move probabilities and related
-        values required to perform a simulation in Cassandra.
+        values required to perform a simulation in ``Cassandra``.
 
         A Moves object contains a variety of move probabilities
         and other related quantities (e.g., max translation/rotation)
@@ -14,8 +14,8 @@ class Moves(object):
         are used to generate guesses for all required values.
         Depending upon the specifics of your system, these guesses may
         be very reasonable or downright terrible. Use the same
-        ``species_topologies`` for your call to mosdef_cassandra.System()
-        and mosdef_cassandra.Moves(). Consult the Cassandra user
+        ``species_topologies`` for your call to ``mosdef_cassandra.System()``
+        and ``mosdef_cassandra.Moves()``. Consult the Cassandra user
         manual for more details on the meaning of different move
         probabilities.
 
@@ -23,13 +23,14 @@ class Moves(object):
         ----------
         ensemble : str
             string describing the desired ensembled. Supported
-            values include 'nvt', 'npt', 'gcmc', 'gemc', 'gemc_npt'
+            values include ``'nvt'``, ``'npt'``, ``'gcmc'``,
+            ``'gemc'``, ``'gemc_npt'``
         species_topologies : list
-            list of parmed.Structures, with one species per element
+            list of ``parmed.Structures``, with one species per element
 
         Returns
         -------
-        mosdef_cassandra.Moves
+        ``mosdef_cassandra.Moves``
 
         """
 
@@ -68,9 +69,10 @@ class Moves(object):
             self.prob_rotate = 0.34
             self.prob_regrow = 0.30
             self.prob_volume = 0.02
+        # GCMC sums to 0.9 b/c symmetric prob_delete
         elif self.ensemble == 'gcmc':
-            self.prob_translate = 0.30
-            self.prob_rotate = 0.30
+            self.prob_translate = 0.25
+            self.prob_rotate = 0.25
             self.prob_regrow = 0.30
             self.prob_insert = 0.1
         elif self.ensemble == 'gemc':

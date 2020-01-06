@@ -1,6 +1,7 @@
 import os
 import shutil
 import tempfile
+import contextlib
 
 @contextlib.contextmanager
 def temporary_cd(dir_path):

@@ -160,7 +160,7 @@ class System(object):
         n_species = len(self.species_topologies)
         n_boxes = len(self.boxes)
         if species_to_add is None:
-            species_to_add = [[0] * n_species] * n_boxes 
+            species_to_add = [[0] * n_species] * n_boxes
         if not isinstance(species_to_add,list):
             raise TypeError('"species_to_add" should be a list. '
                 'See help(mosdef_Cassandra.System) for details.')

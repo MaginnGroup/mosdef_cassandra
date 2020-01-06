@@ -319,7 +319,7 @@ class TestInpFunctions(BaseTest):
         (system, moves) = gcmc_system
         inp_data = generate_input(system,moves,300.,
                                   'equilibration',500,
-                                  chemical_potentials=[0.0,10.0])
+                                  chemical_potentials=['none',10.0])
 
         assert '# Molecule_Files\nspecies1.mcf 1\nspecies2.mcf 510\n' in inp_data
 
@@ -355,7 +355,7 @@ class TestInpFunctions(BaseTest):
         (system, moves) = gcmc_system
         inp_data = generate_input(system,moves,300.,
                                   'equilibration',500,
-                                  chemical_potentials=[0.0,10.0])
+                                  chemical_potentials=['none',10.0])
 
         assert '# Box_Info\n1\ncubic\n29.84\n' in inp_data
 
@@ -409,9 +409,9 @@ class TestInpFunctions(BaseTest):
         (system, moves) = gcmc_system
         inp_data = generate_input(system,moves,300.0,
                                   'equilibration',500,
-                                  chemical_potentials=[0.0,10.0])
+                                  chemical_potentials=['none',10.0])
 
-        assert '# Chemical_Potential_Info\n0.0 10.0 \n' in inp_data
+        assert '# Chemical_Potential_Info\nnone 10.0 \n' in inp_data
 
         with pytest.raises(ValueError,match=r'Chemical potential information'):
             inp_data = generate_input(system,moves,300.0,
@@ -420,7 +420,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(TypeError,match=r'of type float'):
             inp_data = generate_input(system,moves,300.0,
                                   'equilibration',500,
-                                  chemical_potentials=[0.0,'string'])
+                                  chemical_potentials=['none','string'])
 
     def test_moves_formatting(self,onecomp_system):
         # Invalid keyword
@@ -684,7 +684,7 @@ class TestInpFunctions(BaseTest):
         (system,moves) = gcmc_system
         inp_data = generate_input(system,moves,300.0,
                                   'equilibration',500,
-                                  chemical_potentials=[0.0,1.0])
+                                  chemical_potentials=['none',1.0])
 
         assert '# Move_Probability_Info' in inp_data
         assert '# Done_Probability_Info' in inp_data
@@ -730,7 +730,7 @@ class TestInpFunctions(BaseTest):
         (system,moves) = gcmc_system
         inp_data = generate_input(system,moves,300.0,
                                   'equilibration',500,
-                                  chemical_potentials=[0.0,1.0])
+                                  chemical_potentials=['none',1.0])
         assert '# Start_Type\nadd_to_config 1 0 box1.in.xyz 0 10\n' in inp_data
 
         # HACK to test read config
@@ -738,7 +738,7 @@ class TestInpFunctions(BaseTest):
         system_copy._species_to_add = [[0,0],[0,0]]
         inp_data = generate_input(system_copy,moves,300.0,
                                   'equilibration',500,
-                                  chemical_potentials=[0.0,1.0])
+                                  chemical_potentials=['none',1.0])
         assert '# Start_Type\nread_config 1 0 box1.in.xyz\n' in inp_data
 
 

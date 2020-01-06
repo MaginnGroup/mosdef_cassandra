@@ -26,11 +26,11 @@ class Moves(object):
             values include 'nvt', 'npt', 'gcmc', 'gemc', 'gemc_npt'
         species_topologies : list
             list of parmed.Structures, with one species per element
-        
+
         Returns
         -------
         mosdef_cassandra.Moves
- 
+
         """
 
         valid_ensembles = ['nvt','npt','gcmc','gemc','gemc_npt']
@@ -54,7 +54,7 @@ class Moves(object):
         self.prob_angle = 0.0
         self.prob_dihedral = 0.0
         self.prob_regrow = 0.0
-        self.prob_vol = 0.0
+        self.prob_volume = 0.0
         self.prob_insert = 0.0
         self.prob_swap = 0.0
 
@@ -67,7 +67,7 @@ class Moves(object):
             self.prob_translate = 0.34
             self.prob_rotate = 0.34
             self.prob_regrow = 0.30
-            self.prob_vol = 0.02
+            self.prob_volume = 0.02
         elif self.ensemble == 'gcmc':
             self.prob_translate = 0.30
             self.prob_rotate = 0.30
@@ -78,13 +78,13 @@ class Moves(object):
             self.prob_rotate = 0.29
             self.prob_regrow = 0.30
             self.prob_swap = 0.1
-            self.prob_vol = 0.02
+            self.prob_volume = 0.02
         elif self.ensemble == 'gemc_npt':
             self.prob_translate = 0.29
             self.prob_rotate = 0.29
             self.prob_regrow = 0.30
             self.prob_swap = 0.1
-            self.prob_vol = 0.02
+            self.prob_volume = 0.02
         else:
             raise ValueError('Uh oh, how did we end up here?')
 

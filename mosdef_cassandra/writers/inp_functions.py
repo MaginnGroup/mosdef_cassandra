@@ -262,11 +262,11 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     # Move probability info
     move_prob_dict = {}
     if moves.prob_translate > 0.0:
-        move_prob_dict['trans'] = [moves.prob_translate,
-                                  *moves.max_translate]
+        move_prob_dict['translate'] = [moves.prob_translate,
+                                       *moves.max_translate]
     if moves.prob_rotate > 0.0:
-        move_prob_dict['rot'] = [moves.prob_rotate,
-                                *moves.max_rotate]
+        move_prob_dict['rotate'] = [moves.prob_rotate,
+                                    *moves.max_rotate]
     if moves.prob_angle > 0.0:
         move_prob_dict['angle'] = moves.prob_angle
 
@@ -276,8 +276,8 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     if moves.prob_regrow > 0.0:
         move_prob_dict['regrow'] = [moves.prob_regrow,
                                     moves.sp_prob_regrow]
-    if moves.prob_vol > 0.0:
-        move_prob_dict['vol'] = [moves.prob_vol,
+    if moves.prob_volume > 0.0:
+        move_prob_dict['volume'] = [moves.prob_volume,
                                  moves.max_volume]
     if moves.prob_insert > 0.0:
         move_prob_dict['insert'] = [moves.prob_insert,
@@ -292,31 +292,34 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
 
     # Start type info
     start_types = []
-    for ibox,box in enumerate(system.boxes):
-        if isinstance(box,mbuild.Compound):
-            if sum(system.species_to_add[ibox]) > 0:
-                existing_mols = ' '.join(
-                        [str(x) for x in system.species_in_boxes[ibox]])
-                xyz_name = 'box{}.in.xyz'.format(ibox+1)
-                new_mols = ' '.join([str(x)
-                                 for x in system.species_to_add[ibox]])
-                start_type = 'add_to_config '
-                start_type += existing_mols + ' '
-                start_type += xyz_name + ' '
-                start_type += new_mols
-                start_types.append(start_type)
+    if 'restart' in kwargs and kwargs['restart']:
+        start_types.append('checkpoint {}.out.chk'.format(kwargs['restart_name']))
+    else:
+        for ibox,box in enumerate(system.boxes):
+            if isinstance(box,mbuild.Compound):
+                if sum(system.species_to_add[ibox]) > 0:
+                    existing_mols = ' '.join(
+                            [str(x) for x in system.species_in_boxes[ibox]])
+                    xyz_name = 'box{}.in.xyz'.format(ibox+1)
+                    new_mols = ' '.join([str(x)
+                                     for x in system.species_to_add[ibox]])
+                    start_type = 'add_to_config '
+                    start_type += existing_mols + ' '
+                    start_type += xyz_name + ' '
+                    start_type += new_mols
+                    start_types.append(start_type)
+                else:
+                    existing_mols = ' '.join(
+                            [str(x) for x in system.species_in_boxes[ibox]])
+                    xyz_name = 'box{}.in.xyz'.format(ibox+1)
+                    start_type = 'read_config '
+                    start_type += existing_mols + ' '
+                    start_type += xyz_name
+                    start_types.append(start_type)
             else:
-                existing_mols = ' '.join(
-                        [str(x) for x in system.species_in_boxes[ibox]])
-                xyz_name = 'box{}.in.xyz'.format(ibox+1)
-                start_type = 'read_config '
-                start_type += existing_mols + ' '
-                start_type += xyz_name
+                new_mols = ' '.join([str(x) for x in system.species_to_add[ibox]])
+                start_type = 'make_config ' + new_mols
                 start_types.append(start_type)
-        else:
-            new_mols = ' '.join([str(x) for x in system.species_to_add[ibox]])
-            start_type = 'make_config ' + new_mols
-            start_types.append(start_type)
 
     inp_data += get_start_type(start_types)
 
@@ -384,8 +387,23 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
 
     inp_data += get_property_info(properties,nbr_boxes)
 
-    # Empty fragment section
-    inp_data += get_fragment_files()
+    # Empty fragment section unless restart
+    fragment_files=None
+    if 'restart' in kwargs and kwargs['restart']:
+        old_inp = kwargs['restart_name'] + '.inp'
+        fragment_files = []
+        start_fragment_section = False
+        with open(old_inp) as f:
+            for line in f:
+                if '# Fragment_Files' in line:
+                    start_fragment_section=True
+                    continue
+                if start_fragment_section:
+                    if '!--' in line:
+                        break
+                    fragment_files.append(line)
+
+    inp_data += get_fragment_files(fragment_files)
 
     # Verbose log section
     if 'verbose_log' in kwargs:
@@ -843,13 +861,13 @@ def get_move_probability_info(**kwargs):
         Dictionary of move probability information. Each valid keyword and
         associated information is described below
 
-        'trans' :  [prob, box_i, box_j, ...]
+        'trans'  : [prob, box_i, box_j, ...]
                    where prob is the overall probability of
                    selecting a translation move and box_i/j are lists
                    containing the max displacement (angstroms) for
                    each species
 
-        'rot'   :  [prob, box_i, box_j, ...]
+        'rotate' : [prob, box_i, box_j, ...]
                    where prob is the overall probability of
                    selecting a rotation move and box_i/j are lists
                    containing the max rotations (degrees) for
@@ -871,7 +889,7 @@ def get_move_probability_info(**kwargs):
                    probabilities of selecting a regrowth move for each
                    species
 
-        'vol'    : [prob, displacements]
+        'volume' : [prob, displacements]
                    where prob is the overall probability of selecting
                    a volume move and displacements is a list of the
                    max volume change for each box
@@ -897,8 +915,8 @@ def get_move_probability_info(**kwargs):
     """
 
     # First a sanity check on kwargs
-    valid_args = [ 'trans', 'rot', 'angle', 'dihed', 'regrow', 'vol',
-                   'insert', 'swap' ]
+    valid_args = [ 'translate', 'rotate', 'angle', 'dihed', 'regrow',
+                   'volume', 'insert', 'swap' ]
 
     for arg in kwargs:
         if arg not in valid_args:
@@ -911,15 +929,15 @@ def get_move_probability_info(**kwargs):
 """
 
     # Translation
-    if 'trans' in kwargs:
-        trans = kwargs['trans']
-        if not isinstance(trans,list):
+    if 'translate' in kwargs:
+        translate = kwargs['translate']
+        if not isinstance(translate,list):
             raise TypeError('Translate probability information not '
                     'formatted properly')
-        if not isinstance(trans[0],float):
+        if not isinstance(translate[0],float):
             raise TypeError('Probability of translation move must be '
                     'a floating point value')
-        for sp_displacements in trans[1:]:
+        for sp_displacements in translate[1:]:
             if not isinstance(sp_displacements,list):
                 raise TypeError('Translate probability information not '
                     'formatted properly')
@@ -930,9 +948,9 @@ def get_move_probability_info(**kwargs):
 
         inp_data += """
 # Prob_Translation
-{prob_trans}""".format(prob_trans=trans[0])
+{prob_translate}""".format(prob_translate=translate[0])
 
-        for sp_displacements in trans[1:]:
+        for sp_displacements in translate[1:]:
             inp_data += "\n"
             for max_displace in sp_displacements:
                 inp_data += """{} """.format(max_displace)
@@ -941,8 +959,8 @@ def get_move_probability_info(**kwargs):
 """
 
     # Rotation
-    if 'rot' in kwargs:
-        rotate = kwargs['rot']
+    if 'rotate' in kwargs:
+        rotate = kwargs['rotate']
         if not isinstance(rotate,list):
             raise TypeError('Rotation probability information not '
                     'formatted properly')
@@ -1050,30 +1068,30 @@ def get_move_probability_info(**kwargs):
 """
 
     # Volume
-    if 'vol' in kwargs:
-        vol = kwargs['vol']
-        if not isinstance(vol,list):
+    if 'volume' in kwargs:
+        volume = kwargs['volume']
+        if not isinstance(volume,list):
             raise TypeError('Volume probability information not '
                     'formatted properly')
-        if len(vol) != 2:
+        if len(volume) != 2:
             raise TypeError('Volume probability information not '
                     'formatted properly')
-        if not isinstance(vol[0],float):
+        if not isinstance(volume[0],float):
             raise TypeError('Probability of volume move must be '
                     'a floating point value')
-        if not isinstance(vol[1],list):
+        if not isinstance(volume[1],list):
             raise TypeError('Volume probability information not '
                     'formatted properly')
-        for max_displace in vol[1]:
+        for max_displace in volume[1]:
             if not isinstance(max_displace,float):
                 raise TypeError('Max displacement for volume move '
                     'must be a floating point value')
 
         inp_data += """
 # Prob_Volume
-{prob_vol}""".format(prob_vol=vol[0])
+{prob_volume}""".format(prob_volume=volume[0])
 
-        for max_displace in vol[1]:
+        for max_displace in volume[1]:
             inp_data += """
 {max_displace}""".format(max_displace=max_displace)
 
@@ -1350,11 +1368,15 @@ def get_property_info(properties,nbr_boxes):
 
     return inp_data
 
-def get_fragment_files():
+def get_fragment_files(files=None):
 
     inp_data = """
 # Fragment_Files
-!------------------------------------------------------------------------------
+"""
+    if files is not None:
+        for ifile in files:
+            inp_data += ifile
+    inp_data +="""!------------------------------------------------------------------------------
 """
     return inp_data
 
@@ -1458,7 +1480,9 @@ def _get_possible_kwargs(desc=False):
                     'verbose_log'           : 'boolean, write verbose log file',
                     'cbmc_kappa_ins'        : 'int, number of attempted insertion sites for CBMC',
                     'cbmc_kappa_dih'        : 'int, number of attempted dihedral rotations for CBMC',
-                    'cbmc_rcut'             : 'float, cutoff for CBMC'
+                    'cbmc_rcut'             : 'float, cutoff for CBMC',
+                    'restart'               : 'boolean, restart from checkpoint file',
+                    'restart_name'          : 'name of checkpoint file to restart from'
                     }
     if desc:
         return valid_kwargs

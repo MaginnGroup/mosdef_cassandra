@@ -26,7 +26,7 @@ class TestMoves(BaseTest):
         assert moves.prob_translate == 0.35
         assert moves.prob_rotate == 0.35
         assert moves.prob_regrow == 0.30
-        assert moves.prob_vol == 0.0
+        assert moves.prob_volume == 0.0
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.0
@@ -57,7 +57,7 @@ class TestMoves(BaseTest):
         assert moves.prob_translate == 0.34
         assert moves.prob_rotate == 0.34
         assert moves.prob_regrow == 0.30
-        assert moves.prob_vol == 0.02
+        assert moves.prob_volume == 0.02
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.0
@@ -88,7 +88,7 @@ class TestMoves(BaseTest):
         assert moves.prob_translate == 0.30
         assert moves.prob_rotate == 0.30
         assert moves.prob_regrow == 0.30
-        assert moves.prob_vol == 0.0
+        assert moves.prob_volume == 0.0
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.1
@@ -119,7 +119,7 @@ class TestMoves(BaseTest):
         assert moves.prob_translate == 0.29
         assert moves.prob_rotate == 0.29
         assert moves.prob_regrow == 0.30
-        assert moves.prob_vol == 0.02
+        assert moves.prob_volume == 0.02
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.0
@@ -153,7 +153,7 @@ class TestMoves(BaseTest):
         assert moves.prob_translate == 0.29
         assert moves.prob_rotate == 0.29
         assert moves.prob_regrow == 0.30
-        assert moves.prob_vol == 0.02
+        assert moves.prob_volume == 0.02
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.0
@@ -189,7 +189,7 @@ class TestMoves(BaseTest):
         assert moves.prob_rotate == 0.0
         assert moves.prob_regrow == 0.0
         assert moves.prob_translate == 1.0
-        assert moves.prob_vol == 0.0
+        assert moves.prob_volume == 0.0
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.0
@@ -222,7 +222,7 @@ class TestMoves(BaseTest):
         assert moves.prob_translate == pytest.approx(0.9)
         assert moves.prob_rotate == 0.0
         assert moves.prob_regrow == 0.0
-        assert moves.prob_vol == 0.0
+        assert moves.prob_volume == 0.0
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.1

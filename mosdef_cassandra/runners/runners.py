@@ -1,4 +1,5 @@
 
+import datetime
 import subprocess
 import mbuild
 import parmed
@@ -34,20 +35,46 @@ def run(system, moves, temperature, run_type, length, **kwargs):
         filename = 'species{}.pdb'.format(isp+1)
         write_pdb(top,filename)
 
+    log_file = 'mosdef_cassandra_{}.log'.format(
+            datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f"))
+
     # Run fragment generation (again, will be removed...)
     print("Generating fragment libraries...")
     successful_fraglib = _run_fraglib_setup(fraglib_setup, cassandra,
-                            inp_file, len(system.species_topologies))
+                                            inp_file, log_file,
+                                            len(system.species_topologies))
 
     # Run simulation
     if successful_fraglib:
         print("Running Cassandra...")
-        _run_cassandra(cassandra, inp_file)
+        _run_cassandra(cassandra, inp_file, log_file)
     else:
        raise ValueError("Cassandra failed due to unsuccessful "
                         "fragment generation")
 
-def _run_fraglib_setup(fraglib_setup, cassandra, inp_file, nspecies):
+def restart(system, moves, temperature, run_type, length, **kwargs):
+
+    # Check that the user has the Cassandra binary on their PATH
+    # Also need library_setup.py on the PATH and python2
+    py2, fraglib_setup, cassandra = detect_cassandra_binaries()
+
+    kwargs['restart'] = True
+
+    # Sanity checks
+    # TODO: Write more of these
+    _check_system(system, moves)
+
+    log_file = 'mosdef_cassandra_{}.log'.format(
+            datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f"))
+
+    # Write input file
+    inp_file = write_input(system, moves, temperature, run_type, length, **kwargs)
+
+    print("Running Cassandra...")
+    _run_cassandra(cassandra, inp_file, log_file)
+
+def _run_fraglib_setup(fraglib_setup, cassandra, inp_file, log_file,
+                        nspecies):
     """Builds the fragment libraries required to run Cassandra.
 
     Requires python2.
@@ -68,8 +95,7 @@ def _run_fraglib_setup(fraglib_setup, cassandra, inp_file, nspecies):
             universal_newlines=True)
     out,err = p.communicate()
 
-    log_file = 'mosdef_cassandra.log'
-    with open (log_file, 'w') as log:
+    with open (log_file, 'a') as log:
         header = ("*************************************************\n"
                   "******* CASSANDRA FRAGLIB STANDARD OUTPUT *******\n"
                   "*************************************************\n"
@@ -88,7 +114,7 @@ def _run_fraglib_setup(fraglib_setup, cassandra, inp_file, nspecies):
         return False
     return True
 
-def _run_cassandra(cassandra, inp_file):
+def _run_cassandra(cassandra, inp_file, log_file):
     """Calls Cassandra
 
     """
@@ -99,7 +125,6 @@ def _run_cassandra(cassandra, inp_file):
             universal_newlines=True)
     out,err = p.communicate()
 
-    log_file = 'mosdef_cassandra.log'
     with open (log_file, 'a') as log:
         header = ("*************************************************\n"
                   "*********** CASSANDRA STANDARD OUTPUT ***********\n"

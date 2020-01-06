@@ -54,15 +54,19 @@ def write_configs(system):
 
 def write_input(system, moves, temperature, run_type, length, **kwargs):
 
+
+    if 'run_name' not in kwargs:
+        kwargs['run_name'] = moves.ensemble
+
+    if 'restart' in kwargs and kwargs['restart']:
+        if 'restart_name' not in kwargs:
+            kwargs['restart_name'] = kwargs['run_name']
+            kwargs['run_name'] = kwargs['run_name'] + '-rst'
+
     inp_data = generate_input(system, moves, temperature, run_type,
                             length, **kwargs)
 
-    if 'run_name' in kwargs:
-        run_name = kwargs['run_name']
-    else:
-        run_name = moves.ensemble
-
-    inp_name = run_name + '.inp'
+    inp_name = kwargs['run_name'] + '.inp'
 
     with open(inp_name,'w') as inp:
         inp.write(inp_data)

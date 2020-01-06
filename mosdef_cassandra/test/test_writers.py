@@ -425,31 +425,31 @@ class TestInpFunctions(BaseTest):
     def test_moves_formatting(self,onecomp_system):
         # Invalid keyword
         with pytest.raises(ValueError,match='Invalid probability info section'):
-            fake_prob_dict = {'translate' : 'test'}
+            fake_prob_dict = {'trans' : 'test'}
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         # Translate
         with pytest.raises(TypeError,match='not formatted properly'):
-            fake_prob_dict = {'trans' : 'test'}
+            fake_prob_dict = {'translate' : 'test'}
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         with pytest.raises(TypeError,match='not formatted properly'):
-            fake_prob_dict = {'trans' : [0.1, 1.0]}
+            fake_prob_dict = {'translate' : [0.1, 1.0]}
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         with pytest.raises(TypeError,match='not formatted properly'):
-            fake_prob_dict = {'trans' : [0.1, ['test']]}
+            fake_prob_dict = {'translate' : [0.1, ['test']]}
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
-        fake_prob_dict = {'trans' : [0.1, [5.0]]}
+        fake_prob_dict = {'translate' : [0.1, [5.0]]}
         inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         # Rotate
         with pytest.raises(TypeError,match='not formatted properly'):
-            fake_prob_dict = {'rot' : 'test'}
+            fake_prob_dict = {'rotate' : 'test'}
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         with pytest.raises(TypeError,match='not formatted properly'):
-            fake_prob_dict = {'rot' : [0.1, 1.0]}
+            fake_prob_dict = {'rotate' : [0.1, 1.0]}
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         with pytest.raises(TypeError,match='not formatted properly'):
-            fake_prob_dict = {'rot' : [0.1, ['test']]}
+            fake_prob_dict = {'rotate' : [0.1, ['test']]}
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
-        fake_prob_dict = {'rot' : [0.1, [5.0]]}
+        fake_prob_dict = {'rotate' : [0.1, [5.0]]}
         inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         # Angle
         with pytest.raises(TypeError,match='not formatted properly'):
@@ -489,21 +489,21 @@ class TestInpFunctions(BaseTest):
         # Vol
         inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         with pytest.raises(TypeError,match='not formatted properly'):
-            fake_prob_dict = {'vol' : 'test'}
+            fake_prob_dict = {'volume' : 'test'}
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         with pytest.raises(TypeError,match='not formatted properly'):
-            fake_prob_dict = {'vol' : [0.1, 100.0 ,0.2] }
+            fake_prob_dict = {'volume' : [0.1, 100.0 ,0.2] }
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         with pytest.raises(TypeError,match='must be a floating point'):
-            fake_prob_dict = {'vol' : ['test', [100.0]] }
+            fake_prob_dict = {'volume' : ['test', [100.0]] }
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         with pytest.raises(TypeError,match='not formatted properly'):
-            fake_prob_dict = {'vol' : [0.1, 100.0] }
+            fake_prob_dict = {'volume' : [0.1, 100.0] }
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         with pytest.raises(TypeError,match='must be a floating point'):
-            fake_prob_dict = {'vol' : [0.1, ['test']] }
+            fake_prob_dict = {'volume' : [0.1, ['test']] }
             inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
-        fake_prob_dict = {'vol' : [0.1, [100.0]] }
+        fake_prob_dict = {'volume' : [0.1, [100.0]] }
         inp_data = mc.writers.inp_functions.get_move_probability_info(**fake_prob_dict)
         # Insertable
         with pytest.raises(TypeError,match='not formatted properly'):
@@ -705,7 +705,7 @@ class TestInpFunctions(BaseTest):
                              twobox_system,
                              twocomptwobox_system,
                              gcmc_system):
-        
+
         (system,moves) = onecomp_system
         inp_data = generate_input(system,moves,300.0,
                                   'equilibration',500)
@@ -770,13 +770,13 @@ class TestInpFunctions(BaseTest):
                                   'equil',500,
                                   thermal_stat_freq=10.2,
                                   vol_stat_freq=50)
- 
+
         with pytest.raises(ValueError,match=r'must be an integer'):
             inp_data = generate_input(system,moves,300.0,
                                   'equil',500,
                                   thermal_stat_freq=10,
                                   vol_stat_freq=1.2)
- 
+
     def test_length_info(self,onecomp_system):
         (system,moves) = onecomp_system
         inp_data = generate_input(system,moves,300.0,
@@ -817,7 +817,7 @@ class TestInpFunctions(BaseTest):
                                   'equilibration',500,
                                   units='sweeps',
                                   steps_per_sweep=10.2)
- 
+
     def test_property_info(self,onecomp_system,twobox_system):
         (system,moves) = onecomp_system
         inp_data = generate_input(system,moves,300.0,
@@ -858,7 +858,7 @@ class TestInpFunctions(BaseTest):
             inp_data = generate_input(system,moves,300.0,
                                   'equilibration',500,
                                   verbose_log='true')
- 
+
     def test_cbmc_info(self,onecomp_system,twobox_system):
         (system,moves) = onecomp_system
         inp_data = generate_input(system,moves,300.0,

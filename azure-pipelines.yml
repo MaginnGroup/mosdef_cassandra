@@ -20,11 +20,11 @@ jobs:
   strategy:
     matrix:
       Python37Ubuntu:
-        imageName: 'ubuntu-latest'
+        imageName: 'ubuntu-18.04'
         python.version: 3.7
-      Python37macOS:
-        imageName: 'macOS-latest'
-        python.version: 3.7
+      #Python37macOS:
+      #  imageName: 'macOS-latest'
+      #  python.version: 3.7
       #Python36Ubuntu:
       #  imageName: 'ubuntu-latest'
       #  python.version: 3.7

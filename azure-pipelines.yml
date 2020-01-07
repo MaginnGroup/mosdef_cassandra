@@ -1,0 +1,98 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+- master
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+      - master
+
+schedules:
+- cron: "0 0 * * *"
+  displayName: Daily midnight build for master
+  branches:
+    include:
+      - master
+
+jobs:
+- job: BleedingMoSDeF
+  strategy:
+    matrix:
+      Python37Ubuntu:
+        imageName: 'ubuntu-latest'
+        python.version: 3.7
+      #Python36Ubuntu:
+      #  imageName: 'ubuntu-latest'
+      #  python.version: 3.7
+      #Python36macOS:
+      #  imageName: 'macOS-latest'
+      #  python.version: 3.6
+      #Python37macOS:
+      #  imageName: 'macOS-latest'
+      #  python.version: 3.7
+
+  pool:
+    vmImage: $(imageName)
+
+  steps:
+    - bash: echo "##vso[task.prependpath]$CONDA/bin"
+      displayName: Add Conda to path
+    
+    - bash: |
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels omnia
+        conda config --add channels janschulz
+        conda config --add channels conda-forge
+        conda config --add channels mosdef
+        conda update -c defaults conda
+        conda update --all
+        conda create -n  bleeding-test-environment
+      displayName: Create a new bleeding test environment
+
+    -bash: |
+        conda activate bleeding-test-environment
+        conda install -c conda-forge fortran-compiler
+        cd mosdef_cassandra/tests/files/
+        tar -xzvf Cassandra_V1.2.tar.gz
+        cd Cassandra_V1.2/Src
+        make -f Makefile.gfortran
+        cd ../../../../../
+      displayName: Build Cassandra gFortran
+
+
+    - bash: |
+        conda activate bleeding-test-environment
+        git clone https://github.com/mosdef-hub/foyer.git
+        git clone https://github.com/mosdef-hub/mbuild.git
+        cd foyer
+        conda install --yes python=$(python.version) --file requirements-dev.txt
+        conda install --yes python=$(python.version) --file requirements-dev.txt
+        pip install -e .
+        pip uninstall mbuild -y
+        cd ..
+        cd mbuild
+        conda install --yes python=$(python.version) --file requirements-dev.txt
+        conda install --yes python=$(python.version) --file requirements-dev.txt
+        pip install -e .
+        cd ..
+        pip install -e .
+      displayName: clone,install foyer,mbuild; install mosdef_cassandra
+    
+
+    - bash: |
+        source activate bleeding-test-environment
+        pip install pytest-azurepipelines
+        python -m pytest -v --cov=./
+      displayName: Run Tests
+
+    - bash: |
+        source activate bleeding-test-environment
+        coverage xml
+        codecov --file ./coverage.xml --token cb1e0c33-6709-4714-86b1-4f5db28ffede
+      condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['python.version'], '3.7' ) ) 
+      displayName: Upload coverage

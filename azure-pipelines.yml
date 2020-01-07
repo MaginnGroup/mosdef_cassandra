@@ -42,7 +42,7 @@ jobs:
   steps:
     - bash: echo "##vso[task.prependpath]$CONDA/bin"
       displayName: Add Conda to path
-    - bash : echo "##vso[task.prependpath]$(HOME)/mosdef_cassandra/tests/files/Cassandra_V1.2/bin"
+    - bash : echo "##vso[task.prependpath]$(Build.SourcesDirectory)/mosdef_cassandra/tests/files/Cassandra_V1.2/bin"
       
     
     - bash: |
@@ -70,10 +70,17 @@ jobs:
       displayName: Build Cassandra gfortran
 
     - bash: |
+        echo Working directory:
         pwd
+        echo ls:
+        ls
+        echo PATH:
         echo "$PATH"
+        echo CASSANDRA:
         which cassandra_gfortran.exe
+        echo PYTHON2
         which python2
+        echo LIBRARY_SETUP:
         which library_setup.py
       displayName: Test cassandra setup
 

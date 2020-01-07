@@ -42,6 +42,8 @@ jobs:
   steps:
     - bash: echo "##vso[task.prependpath]$CONDA/bin"
       displayName: Add Conda to path
+    - bash : echo "##vso[task.prependpath]mosdef_cassandra/tests/files/Cassandra_V1.2/bin"
+      
     
     - bash: |
         conda config --set always_yes yes --set changeps1 no
@@ -54,15 +56,18 @@ jobs:
         conda create -n  bleeding-test-environment
       displayName: Create a new bleeding test environment
 
-    -bash: |
+    - bash: |
         conda activate bleeding-test-environment
         conda install -c conda-forge fortran-compiler
         cd mosdef_cassandra/tests/files/
         tar -xzvf Cassandra_V1.2.tar.gz
         cd Cassandra_V1.2/Src
         make -f Makefile.gfortran
+        mkdir ../bin
+        cp cassandra_gfortran.exe ../bin/.
+        cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
         cd ../../../../../
-      displayName: Build Cassandra gFortran
+      displayName: Build Cassandra gfortran
 
 
     - bash: |

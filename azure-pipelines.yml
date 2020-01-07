@@ -82,5 +82,36 @@ jobs:
         which python2
         echo LIBRARY_SETUP:
         which library_setup.py
-      displayName: Test cassandra setup
+      displayName: Check cassandra install
 
+    - bash: |
+        conda activate bleeding-test-environment
+        git clone https://github.com/mosdef-hub/foyer.git
+        git clone https://github.com/mosdef-hub/mbuild.git
+        cd foyer
+        conda install --yes python=$(python.version) --file requirements-dev.txt
+        conda install --yes python=$(python.version) --file requirements-dev.txt
+        pip install -e .
+        pip uninstall mbuild -y
+        cd ..
+        cd mbuild
+        conda install --yes python=$(python.version) --file requirements-dev.txt
+        conda install --yes python=$(python.version) --file requirements-dev.txt
+        pip install -e .
+        cd ..
+        pip install -e .
+      displayName: clone,install foyer,mbuild; install mosdef_cassandra
+    
+
+    - bash: |
+        source activate bleeding-test-environment
+        pip install pytest-azurepipelines
+        python -m pytest mosdef_cassandra/tests -v --cov=./
+      displayName: Run Tests
+
+    - bash: |
+        source activate bleeding-test-environment
+        coverage xml
+        codecov --file ./coverage.xml --token cb1e0c33-6709-4714-86b1-4f5db28ffede
+      condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['python.version'], '3.7' ) )
+      displayName: Upload coverage

@@ -1,7 +1,3 @@
-# Python package
-# Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
 - master
@@ -26,15 +22,15 @@ jobs:
       Python37Ubuntu:
         imageName: 'ubuntu-latest'
         python.version: 3.7
+      Python37macOS:
+        imageName: 'macOS-latest'
+        python.version: 3.7
       #Python36Ubuntu:
       #  imageName: 'ubuntu-latest'
       #  python.version: 3.7
       #Python36macOS:
       #  imageName: 'macOS-latest'
       #  python.version: 3.6
-      #Python37macOS:
-      #  imageName: 'macOS-latest'
-      #  python.version: 3.7
 
   pool:
     vmImage: $(imageName)
@@ -42,23 +38,25 @@ jobs:
   steps:
     - bash: echo "##vso[task.prependpath]$CONDA/bin"
       displayName: Add Conda to path
+
     - bash : echo "##vso[task.prependpath]$(Build.SourcesDirectory)/mosdef_cassandra/tests/files/Cassandra_V1.2/bin"
-      
-    
-    - bash: |
-        conda config --set always_yes yes --set changeps1 no
-        conda config --add channels omnia
-        conda config --add channels janschulz
-        conda config --add channels conda-forge
-        conda config --add channels mosdef
-        conda update -c defaults conda
-        conda update --all
-        conda create -n  bleeding-test-environment
-      displayName: Create a new bleeding test environment
+      displayName: Add Cassandra to path
 
     - bash: |
-        conda activate bleeding-test-environment
-        conda install -c conda-forge fortran-compiler
+        sudo apt-get update
+        sudo apt-get install gfortran
+        gfortran --version
+      displayName: Install gfortran Linux
+      condition: eq( variables['Agent.OS'], 'Linux' )
+
+    - bash: |
+        brew install gcc
+        brew upgrade gcc
+        gfortran --version
+      displayName: Install gfortran macOS
+      condition: eq( variables['Agent.OS'], 'Darwin' )
+
+    - bash: |
         cd mosdef_cassandra/tests/files/
         tar -xzvf Cassandra_V1.2.tar.gz
         cd Cassandra_V1.2/Src
@@ -67,7 +65,7 @@ jobs:
         cp cassandra_gfortran.exe ../bin/.
         cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
         cd ../../../../../
-      displayName: Build Cassandra gfortran
+      displayName: Build Cassandra
 
     - bash: |
         echo Working directory:
@@ -83,35 +81,3 @@ jobs:
         echo LIBRARY_SETUP:
         which library_setup.py
       displayName: Check cassandra install
-
-    - bash: |
-        conda activate bleeding-test-environment
-        git clone https://github.com/mosdef-hub/foyer.git
-        git clone https://github.com/mosdef-hub/mbuild.git
-        cd foyer
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        pip install -e .
-        pip uninstall mbuild -y
-        cd ..
-        cd mbuild
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        pip install -e .
-        cd ..
-        pip install -e .
-      displayName: clone,install foyer,mbuild; install mosdef_cassandra
-    
-
-    - bash: |
-        source activate bleeding-test-environment
-        pip install pytest-azurepipelines
-        python -m pytest mosdef_cassandra/tests -v --cov=./
-      displayName: Run Tests
-
-    - bash: |
-        source activate bleeding-test-environment
-        coverage xml
-        codecov --file ./coverage.xml --token cb1e0c33-6709-4714-86b1-4f5db28ffede
-      condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['python.version'], '3.7' ) )
-      displayName: Upload coverage

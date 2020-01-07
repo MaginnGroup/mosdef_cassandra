@@ -1,6 +1,7 @@
 # mosdef_cassandra
 [//]: # (Badges)
 [![codecov](https://codecov.io/gh/rsdefever/mosdef_cassandra/branch/master/graph/badge.svg?token=xsgvdWprHp)](https://codecov.io/gh/rsdefever/mosdef_cassandra)
+
 [![Build Status](https://dev.azure.com/rdefever/mosdef_cassandra/_apis/build/status/rsdefever.mosdef_cassandra?branchName=master)](https://dev.azure.com/rdefever/mosdef_cassandra/_build/latest?definitionId=1&branchName=master)
 
 MoSDeF compatible wrapper for Cassandra Monte Carlo code

@@ -9,7 +9,7 @@ def run_nvt_mixture():
     propane = mbuild.load('CCC',smiles=True)
 
     # Create an empty mbuild.Box
-    box = mb.Box(lengths=[3.,3.,3.])
+    box = mbuild.Box(lengths=[3.,3.,3.])
 
     # Load forcefields
     oplsaa = foyer.forcefields.load_OPLSAA()

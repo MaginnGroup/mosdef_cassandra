@@ -23,7 +23,7 @@ def run_gemc():
     box_list = [liquid_box,vapor_box]
     species_list = [typed_methane]
 
-    species_to_add = [[400],[20]]
+    species_to_add = [[350],[100]]
 
     system = mc.System(box_list,species_list,
                        species_to_add=species_to_add)
@@ -39,16 +39,17 @@ def run_gemc():
                     'nmols',
                     'mass_density']
 
-    custom_args = { 'charge_style' : 'none',
+    custom_args = { 'run_name' : 'equil',
+                    'charge_style' : 'none',
                     'rcut_min' : 2.0,
                     'vdw_cutoff' : 14.0,
                     'units' : 'sweeps',
-                    'steps_per_sweep' : 420,
-                    'coord_freq' : 100,
+                    'steps_per_sweep' : 450,
+                    'coord_freq' : 50,
                     'prop_freq' : 10,
                     'properties' : thermo_props }
 
-    mc.run(system,moves,151.0,'equilibration',100,**custom_args)
+    mc.run(system,moves,151.0,'equilibration',250,**custom_args)
 
     # Set max translate and volume for production
     moves.max_translate = [[0.5],[14.0]]
@@ -58,6 +59,7 @@ def run_gemc():
     custom_args['run_name'] = 'prod'
     custom_args['restart_name'] = 'equil'
 
+    mc.restart(system,moves,151.0,'production',750,**custom_args)
 
-    mc.restart(system,moves,151.0,'production',200,**custom_args)
-
+if __name__ == "__main__":
+    run_gemc()

@@ -42,7 +42,7 @@ jobs:
   steps:
     - bash: echo "##vso[task.prependpath]$CONDA/bin"
       displayName: Add Conda to path
-    - bash : echo "##vso[task.prependpath]mosdef_cassandra/tests/files/Cassandra_V1.2/bin"
+    - bash : echo "##vso[task.prependpath]$(HOME)/mosdef_cassandra/tests/files/Cassandra_V1.2/bin"
       
     
     - bash: |
@@ -69,35 +69,11 @@ jobs:
         cd ../../../../../
       displayName: Build Cassandra gfortran
 
-
     - bash: |
-        conda activate bleeding-test-environment
-        git clone https://github.com/mosdef-hub/foyer.git
-        git clone https://github.com/mosdef-hub/mbuild.git
-        cd foyer
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        pip install -e .
-        pip uninstall mbuild -y
-        cd ..
-        cd mbuild
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        pip install -e .
-        cd ..
-        pip install -e .
-      displayName: clone,install foyer,mbuild; install mosdef_cassandra
-    
+        pwd
+        echo "$PATH"
+        which cassandra_gfortran.exe
+        which python2
+        which library_setup.py
+      displayName: Test cassandra setup
 
-    - bash: |
-        source activate bleeding-test-environment
-        pip install pytest-azurepipelines
-        python -m pytest -v --cov=./
-      displayName: Run Tests
-
-    - bash: |
-        source activate bleeding-test-environment
-        coverage xml
-        codecov --file ./coverage.xml --token cb1e0c33-6709-4714-86b1-4f5db28ffede
-      condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['python.version'], '3.7' ) ) 
-      displayName: Upload coverage

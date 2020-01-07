@@ -107,4 +107,3 @@ to a separate python script is not required.
 ### List of Cassandra capabilities that are not (yet) supported
 * Mie potential (support coming with migration to topology.Topology object)
 * Fixed angles (support coming with migration to topology.Topology object)
-* Restart from checkpoint

@@ -54,7 +54,6 @@ def write_configs(system):
 
 def write_input(system, moves, temperature, run_type, length, **kwargs):
 
-
     if 'run_name' not in kwargs:
         kwargs['run_name'] = moves.ensemble
 
@@ -72,6 +71,21 @@ def write_input(system, moves, temperature, run_type, length, **kwargs):
         inp.write(inp_data)
 
     return inp_name
+
+def print_inputfile(system, moves, temperature, run_type, length, **kwargs):
+
+    if 'run_name' not in kwargs:
+        kwargs['run_name'] = moves.ensemble
+
+    if 'restart' in kwargs and kwargs['restart']:
+        if 'restart_name' not in kwargs:
+            kwargs['restart_name'] = kwargs['run_name']
+            kwargs['run_name'] = kwargs['run_name'] + '-rst'
+
+    inp_data = generate_input(system, moves, temperature, run_type,
+                            length, **kwargs)
+
+    print(inp_data)
 
 def write_pdb(molecule,filename):
 

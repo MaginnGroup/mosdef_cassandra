@@ -6,7 +6,9 @@ Welcome to mosdef_cassandra's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   install
    getting_started
+   concepts
    api
 
 

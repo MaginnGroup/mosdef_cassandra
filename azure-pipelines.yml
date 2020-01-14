@@ -96,7 +96,7 @@ jobs:
     - bash: |
         conda activate bleeding-test-environment
         git clone https://github.com/mosdef-hub/foyer.git
-        git clone https://github.com/mosdef-hub/mbuild.git
+        git clone https://github.com/rsdefever/mbuild.git
         cd foyer
         conda install --yes python=$(python.version) --file requirements-dev.txt
         conda install --yes python=$(python.version) --file requirements-dev.txt
@@ -104,6 +104,7 @@ jobs:
         pip uninstall mbuild -y
         cd ..
         cd mbuild
+        git checkout --track origin/fix-cassandramcf-nobonds
         conda install --yes python=$(python.version) --file requirements-dev.txt
         conda install --yes python=$(python.version) --file requirements-dev.txt
         pip install -e .
@@ -119,7 +120,7 @@ jobs:
 
     - bash: |
         source activate bleeding-test-environment
-        coverage xml 
+        coverage xml
         codecov --file ./coverage.xml --token cb1e0c33-6709-4714-86b1-4f5db28ffede
-      condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['python.version'], '3.7' ) ) 
+      condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['python.version'], '3.7' ) )
       displayName: Upload coverage

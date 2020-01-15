@@ -21,10 +21,10 @@ def run_gcmc():
     box_list = [box]
     species_list = [typed_methane]
 
-    species_to_add = [[100]]
+    mols_to_add = [[100]]
 
     system = mc.System(box_list,species_list,
-                       species_to_add=species_to_add)
+                       mols_to_add=mols_to_add)
     moves = mc.Moves('gcmc', species_list)
 
     mc.run(system,moves,300.0,'equilibration',1000,

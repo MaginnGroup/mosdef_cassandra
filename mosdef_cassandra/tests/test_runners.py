@@ -10,19 +10,19 @@ class TestRunners(BaseTest):
     def test_mismatch_boxes(self,methane_oplsaa,box):
         with pytest.raises(ValueError,match=r'requires 1 simulation'):
             system = mc.System([box,box],[methane_oplsaa],
-                species_to_add=[[10],[0]])
+                mols_to_add=[[10],[0]])
             moves = mc.Moves('nvt',[methane_oplsaa])
             mc.run(system,moves,300.,'equilibration',500)
         with pytest.raises(ValueError,match=r'requires 2 simulation'):
             system = mc.System([box],[methane_oplsaa],
-                species_to_add=[[10]])
+                mols_to_add=[[10]])
             moves = mc.Moves('gemc',[methane_oplsaa])
             mc.run(system,moves,300.,'equilibration',500)
 
     def test_corrupt_boxes(self,methane_oplsaa,box):
         with pytest.raises(TypeError,match=r'corrupted'):
             system = mc.System([box],[methane_oplsaa],
-                species_to_add=[[10]])
+                mols_to_add=[[10]])
             moves = mc.Moves('nvt',[methane_oplsaa])
 
             system.boxes[0] = 1
@@ -32,7 +32,7 @@ class TestRunners(BaseTest):
     def test_corrupt_topologies(self,methane_oplsaa,box):
         with pytest.raises(TypeError,match=r'corrupted'):
             system = mc.System([box],[methane_oplsaa],
-                species_to_add=[[10]])
+                mols_to_add=[[10]])
             moves = mc.Moves('nvt',[methane_oplsaa])
 
             system._species_topologies = methane_oplsaa
@@ -40,7 +40,7 @@ class TestRunners(BaseTest):
 
         with pytest.raises(TypeError,match=r'corrupted'):
             system = mc.System([box],[methane_oplsaa],
-                species_to_add=[[10]])
+                mols_to_add=[[10]])
             moves = mc.Moves('nvt',[methane_oplsaa])
 
             system.species_topologies[0] = 1
@@ -49,10 +49,10 @@ class TestRunners(BaseTest):
     def test_corrupt_natoms(self,methane_oplsaa,box):
         with pytest.raises(ValueError,match=r'corrupted'):
             system = mc.System([box],[methane_oplsaa],
-                species_to_add=[[10]])
+                mols_to_add=[[10]])
             moves = mc.Moves('nvt',[methane_oplsaa])
 
-            system.species_in_boxes[0][0] = 10
+            system.mols_in_boxes[0][0] = 10
             mc.run(system,moves,300.,'equilibration',500)
 
 

@@ -203,8 +203,8 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
         for isp in range(nbr_species):
             max_mols = 0
             for ibox in range(nbr_boxes):
-                max_mols += system.species_in_boxes[ibox][isp]
-                max_mols += system.species_to_add[ibox][isp]
+                max_mols += system.mols_in_boxes[ibox][isp]
+                max_mols += system.mols_to_add[ibox][isp]
             if moves.ensemble == 'gcmc' and moves.sp_insertable[isp]:
                 max_mols += 500
 
@@ -302,12 +302,12 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
     else:
         for ibox,box in enumerate(system.boxes):
             if isinstance(box,mbuild.Compound):
-                if sum(system.species_to_add[ibox]) > 0:
+                if sum(system.mols_to_add[ibox]) > 0:
                     existing_mols = ' '.join(
-                            [str(x) for x in system.species_in_boxes[ibox]])
+                            [str(x) for x in system.mols_in_boxes[ibox]])
                     xyz_name = 'box{}.in.xyz'.format(ibox+1)
                     new_mols = ' '.join([str(x)
-                                     for x in system.species_to_add[ibox]])
+                                     for x in system.mols_to_add[ibox]])
                     start_type = 'add_to_config '
                     start_type += existing_mols + ' '
                     start_type += xyz_name + ' '
@@ -315,14 +315,14 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
                     start_types.append(start_type)
                 else:
                     existing_mols = ' '.join(
-                            [str(x) for x in system.species_in_boxes[ibox]])
+                            [str(x) for x in system.mols_in_boxes[ibox]])
                     xyz_name = 'box{}.in.xyz'.format(ibox+1)
                     start_type = 'read_config '
                     start_type += existing_mols + ' '
                     start_type += xyz_name
                     start_types.append(start_type)
             else:
-                new_mols = ' '.join([str(x) for x in system.species_to_add[ibox]])
+                new_mols = ' '.join([str(x) for x in system.mols_to_add[ibox]])
                 start_type = 'make_config ' + new_mols
                 start_types.append(start_type)
 

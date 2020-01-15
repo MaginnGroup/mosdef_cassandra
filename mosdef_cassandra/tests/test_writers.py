@@ -12,27 +12,27 @@ class TestInpFunctions(BaseTest):
 
     @pytest.fixture
     def onecomp_system(self,methane_oplsaa,box):
-        system = mc.System([box],[methane_oplsaa],species_to_add=[[10]])
+        system = mc.System([box],[methane_oplsaa],mols_to_add=[[10]])
         moves = mc.Moves('nvt',[methane_oplsaa])
         return system,moves
 
     @pytest.fixture
     def twocomp_system(self,methane_oplsaa,butane_oplsaa,box):
         system = mc.System([box],[methane_oplsaa,butane_oplsaa],
-                           species_to_add=[[10,100]])
+                           mols_to_add=[[10,100]])
         moves = mc.Moves('nvt',[methane_oplsaa,butane_oplsaa])
         return system,moves
 
     @pytest.fixture
     def twobox_system(self,methane_oplsaa,box):
-        system = mc.System([box,box],[methane_oplsaa],species_to_add=[[10],[5]])
+        system = mc.System([box,box],[methane_oplsaa],mols_to_add=[[10],[5]])
         moves = mc.Moves('gemc',[methane_oplsaa])
         return system,moves
 
     @pytest.fixture
     def twocomptwobox_system(self,methane_oplsaa,butane_oplsaa,box):
         system = mc.System([box,box],[methane_oplsaa,butane_oplsaa],
-                           species_to_add=[[10,100],[1,5]])
+                           mols_to_add=[[10,100],[1,5]])
         moves = mc.Moves('gemc_npt',[methane_oplsaa,butane_oplsaa])
         return system,moves
 
@@ -42,8 +42,8 @@ class TestInpFunctions(BaseTest):
         box_list = [fixed_lattice_compound]
         species_list = [fixed_lattice_trappe,methane_oplsaa]
         system = mc.System(box_list,species_list,
-                           species_in_boxes=[[1,0]],
-                           species_to_add=[[0,10]])
+                           mols_in_boxes=[[1,0]],
+                           mols_to_add=[[0,10]])
         moves = mc.Moves('gcmc',species_list)
         return system,moves
 
@@ -735,7 +735,7 @@ class TestInpFunctions(BaseTest):
 
         # HACK to test read config
         system_copy = deepcopy(system)
-        system_copy._species_to_add = [[0,0],[0,0]]
+        system_copy._mols_to_add = [[0,0],[0,0]]
         inp_data = generate_input(system_copy,moves,300.0,
                                   'equilibration',500,
                                   chemical_potentials=['none',1.0])

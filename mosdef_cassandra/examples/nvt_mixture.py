@@ -23,10 +23,10 @@ def run_nvt_mixture():
     species_list = [typed_methane, typed_propane]
 
     # Use Cassandra to insert some initial number of species
-    species_to_add = [[100,50]]
+    mols_to_add = [[100,50]]
 
     system = mc.System(box_list,species_list,
-                       species_to_add=species_to_add)
+                       mols_to_add=mols_to_add)
     moves = mc.Moves('nvt', species_list)
 
     mc.run(system,moves,200.0,'equilibration',10000)

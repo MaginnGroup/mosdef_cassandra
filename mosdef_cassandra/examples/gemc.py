@@ -23,10 +23,10 @@ def run_gemc():
     box_list = [liquid_box,vapor_box]
     species_list = [typed_methane]
 
-    species_to_add = [[350],[100]]
+    mols_to_add = [[350],[100]]
 
     system = mc.System(box_list,species_list,
-                       species_to_add=species_to_add)
+                       mols_to_add=mols_to_add)
     moves = mc.Moves('gemc', species_list)
 
     moves.prob_volume = 0.010

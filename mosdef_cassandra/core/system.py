@@ -7,8 +7,8 @@ import parmed
 
 class System(object):
 
-    def __init__(self,boxes,species_topologies,species_in_boxes=None,
-            species_to_add=None):
+    def __init__(self,boxes,species_topologies,mols_in_boxes=None,
+            mols_to_add=None):
         """A class to contain the system to simulate in Cassandra
 
         A System comprises the initial simulation box(es) (empty or
@@ -16,8 +16,8 @@ class System(object):
         and the number of each species to be added to the simulation
         box(es) prior to the start of the simulation. These three
         items are represented by ``boxes``, ``species_topologies``,
-        and ``species_to_add``. If providing a box with existing
-        species, you are required to specify ``species_in_boxes``,
+        and ``mols_to_add``. If providing a box with existing
+        species, you are required to specify ``mols_in_boxes``,
         the number of each species that already exists.
 
         Each argument is specified as a list, with either one
@@ -32,11 +32,11 @@ class System(object):
             mbuild.Compound or mbuild.Box
         species_topologies : list
             list of parmed.Structures, with one species per element
-        species_in_boxes: list, optional
+        mols_in_boxes: list, optional
             one element per box. Each element is a list of length
             n_species, specifying the number of each species that
             are currently in each box
-        species_to_add : list, optional
+        mols_to_add : list, optional
             one element per box. Each element is a list of length
             n_species, specifying the number of each species that
             should be added to each box
@@ -47,19 +47,19 @@ class System(object):
         """
         self._boxes = None
         self._species_topologies = None
-        self._species_in_boxes = None
-        self._species_to_add = None
+        self._mols_in_boxes = None
+        self._mols_to_add = None
 
         # @setter decorators used to protect boxes, species
-        # topologies, and species_in_boxes from modification.
+        # topologies, and mols_in_boxes from modification.
         # Error handling also occurs there
         self.boxes = boxes
         self.species_topologies = species_topologies
-        self.species_in_boxes = species_in_boxes
-        self.species_to_add = species_to_add
+        self.mols_in_boxes = mols_in_boxes
+        self.mols_to_add = mols_to_add
 
         # Error checking on number of particles in box(es)
-        # vs. number from self.species_in_boxes and
+        # vs. number from self.mols_in_boxes and
         # self.species_topologies
         self.check_natoms()
 
@@ -109,30 +109,30 @@ class System(object):
                     'edit the species_topolgies')
 
     @property
-    def species_in_boxes(self):
-        return list(self._species_in_boxes)
+    def mols_in_boxes(self):
+        return list(self._mols_in_boxes)
 
-    @species_in_boxes.setter
-    def species_in_boxes(self,species_in_boxes):
-        if self._species_in_boxes is None:
-            # Make sure species_in_boxes and species_to_add are
+    @mols_in_boxes.setter
+    def mols_in_boxes(self,mols_in_boxes):
+        if self._mols_in_boxes is None:
+            # Make sure mols_in_boxes and mols_to_add are
             # properly formatted even if use specified none
             n_species = len(self.species_topologies)
             n_boxes = len(self.boxes)
-            if species_in_boxes is None:
-                species_in_boxes = [[0] * n_species] * n_boxes
+            if mols_in_boxes is None:
+                mols_in_boxes = [[0] * n_species] * n_boxes
             # Error checking first
-            if not isinstance(species_in_boxes,list):
-                raise TypeError('"species_in_boxes" should be a list. '
+            if not isinstance(mols_in_boxes,list):
+                raise TypeError('"mols_in_boxes" should be a list. '
                     'See help(mosdef_Cassandra.System) for details.')
-            if len(species_in_boxes) != n_boxes:
+            if len(mols_in_boxes) != n_boxes:
                 raise ValueError('The number of boxes inferred from the '
-                    'length of "species_in_boxes" must match the '
+                    'length of "mols_in_boxes" must match the '
                     'number of boxes inferred from the length of '
                     '"boxes"')
-            for species_in_box in species_in_boxes:
+            for species_in_box in mols_in_boxes:
                 if not isinstance(species_in_box,list):
-                    raise TypeError('"species_in_boxes" should be a list '
+                    raise TypeError('"mols_in_boxes" should be a list '
                             'with one list for each box.'
                             'See help(mosdef_Cassandra.System) for details.')
                 if len(species_in_box) != n_species:
@@ -144,34 +144,34 @@ class System(object):
                                 'in each box must be specified '
                                 'as an integer')
             # Save data
-            self._species_in_boxes = deepcopy(species_in_boxes)
+            self._mols_in_boxes = deepcopy(mols_in_boxes)
         else:
-            raise AttributeError('species_in_boxes cannot be '
+            raise AttributeError('mols_in_boxes cannot be '
                     'modified after System object is created. '
                     'Create a new System object if you wish to '
-                    'edit species_in_boxes')
+                    'edit mols_in_boxes')
 
     @property
-    def species_to_add(self):
-        return self._species_to_add
+    def mols_to_add(self):
+        return self._mols_to_add
 
-    @species_to_add.setter
-    def species_to_add(self,species_to_add):
+    @mols_to_add.setter
+    def mols_to_add(self,mols_to_add):
         n_species = len(self.species_topologies)
         n_boxes = len(self.boxes)
-        if species_to_add is None:
-            species_to_add = [[0] * n_species] * n_boxes
-        if not isinstance(species_to_add,list):
-            raise TypeError('"species_to_add" should be a list. '
+        if mols_to_add is None:
+            mols_to_add = [[0] * n_species] * n_boxes
+        if not isinstance(mols_to_add,list):
+            raise TypeError('"mols_to_add" should be a list. '
                 'See help(mosdef_Cassandra.System) for details.')
-        if len(species_to_add) != n_boxes:
+        if len(mols_to_add) != n_boxes:
             raise ValueError('The number of boxes inferred from the '
-                    'length of "species_to_add" must match the '
+                    'length of "mols_to_add" must match the '
                     'number of boxes inferred from the length of '
                     '"boxes"')
-        for add_to_box in species_to_add:
+        for add_to_box in mols_to_add:
             if not isinstance(add_to_box,list):
-                raise TypeError('"species_to_add" should be a list '
+                raise TypeError('"mols_to_add" should be a list '
                         'with one list for each box. '
                         'See help(mosdef_Cassandra.System) for details.')
             if len(add_to_box) != n_species:
@@ -184,7 +184,7 @@ class System(object):
                             'be added to each box must be specified '
                             'as an integer')
 
-        self._species_to_add = deepcopy(species_to_add)
+        self._mols_to_add = deepcopy(mols_to_add)
 
     def check_natoms(self):
         """Confirm that the number of existing atoms in each box
@@ -197,7 +197,7 @@ class System(object):
 
         atoms_per_species = [len(top.atoms) for top in self.species_topologies]
         atoms_in_box = [ np.sum(np.multiply(atoms_per_species,
-                                            self.species_in_boxes[ibox]))
+                                            self.mols_in_boxes[ibox]))
                          for ibox in range(n_boxes)]
 
         # If the box is empty it should be an mbuild.Box object. If occupied
@@ -210,12 +210,12 @@ class System(object):
                                 'calculated to be in the box ({}) from '
                                 'the number of atoms per species ({}) '
                                 'and the number of species specified '
-                                'in each box (species_in_boxes '
+                                'in each box (mols_in_boxes '
                                 '= {})'.format(ibox+1,
                                                box.n_particles,
                                                atoms_in_box[ibox],
                                                atoms_per_species,
-                                               self.species_in_boxes[ibox])
+                                               self.mols_in_boxes[ibox])
                               )
 
                     if box.n_particles == 1:
@@ -227,13 +227,13 @@ class System(object):
                         raise ValueError(addtl_msg+'\n'+err_msg)
                     raise ValueError(err_msg)
             elif isinstance(box,mbuild.Box):
-                if sum(self.species_in_boxes[ibox]) > 0:
+                if sum(self.mols_in_boxes[ibox]) > 0:
                     raise ValueError('Box {} is an mbuild.Box object '
                             'but species_in_box ({}) indicates that '
                             'molecules should already be present. If you '
                             'wish to provide a starting structure for '
                             'Box {} then it must be a mbuild.Compound '
                             'object'.format(ibox+1,
-                                            self.species_in_boxes[ibox],
+                                            self.mols_in_boxes[ibox],
                                             ibox+1))
 

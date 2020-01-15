@@ -24,10 +24,10 @@ def run_gcmc_adsorption():
 
     # Since we have an occupied box we need to specify
     # the number of each species present in the intial config
-    species_in_boxes = [[1,0]]
+    mols_in_boxes = [[1,0]]
 
     system = mc.System(box_list,species_list,
-                       species_in_boxes=species_in_boxes)
+                       mols_in_boxes=mols_in_boxes)
     moves = mc.Moves('gcmc', species_list)
 
     custom_args = { 'chemical_potentials' : ['none',-30.],

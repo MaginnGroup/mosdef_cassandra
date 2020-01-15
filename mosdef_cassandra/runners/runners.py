@@ -185,6 +185,6 @@ def _check_system(system, moves):
     except:
         raise ValueError('The number of atoms in one or more boxes '
                 'does not match the number expected from '
-                'System.species_topologies and system.species_in_boxes. '
+                'System.species_topologies and system.mols_in_boxes. '
                 'It appears your System object has been corrupted')
 

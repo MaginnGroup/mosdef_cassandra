@@ -22,11 +22,11 @@ def run_npt():
     species_list = [typed_methane]
 
     # Use Cassandra to insert some initial number of species
-    species_to_add = [[5]]
+    mols_to_add = [[5]]
 
     # Define the system object
     system = mc.System(box_list,species_list,
-                       species_to_add=species_to_add)
+                       mols_to_add=mols_to_add)
     # Get the move probabilities
     moves = mc.Moves('npt', species_list)
 

@@ -37,12 +37,12 @@ are `[number_species_1_to_add, number_species_2_to_add, ...]`.
 
     box_list = [box]
     species_list = [methane_typed]
-    species_to_add = [[100]]
+    mols_to_add = [[100]]
 
 We now combine all of the above information to define our system:
 
     # Define system
-    system = mc.System(box_list,species_list,species_to_add=species_to_add)
+    system = mc.System(box_list,species_list,mols_to_add=mols_to_add)
 
 Next we get a default set of move probabilities:
 

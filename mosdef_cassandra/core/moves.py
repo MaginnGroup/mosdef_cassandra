@@ -117,6 +117,7 @@ class Moves(object):
             self.max_volume = [0.0]
 
         # Remaining options are per-species
+        self.max_dihedral  = [0.0] * self._n_species
         self.sp_insertable = [True] * self._n_species
         self.sp_prob_swap = [1.0] * self._n_species
         self.sp_prob_regrow = [1.0] * self._n_species
@@ -188,10 +189,10 @@ class Moves(object):
 
     @prob_translate.setter
     def prob_translate(self,prob_translate):
-        try:
-            prob_translate = float(prob_translate)
-        except (ValueError,TypeError):
+        if type(prob_translate) not in (float,int):
             raise TypeError('prob_translate must be of type float')
+        else:
+            prob_translate = float(prob_translate)
         if prob_translate < 0.0 or prob_translate > 1.0:
             raise ValueError('Probability must be between 0.0 and 1.0.')
         self._prob_translate = prob_translate
@@ -202,10 +203,10 @@ class Moves(object):
 
     @prob_rotate.setter
     def prob_rotate(self,prob_rotate):
-        try:
-            prob_rotate = float(prob_rotate)
-        except (ValueError,TypeError):
+        if type(prob_rotate) not in (float,int):
             raise TypeError('prob_rotate must be of type float')
+        else:
+            prob_rotate = float(prob_rotate)
         if prob_rotate < 0.0 or prob_rotate > 1.0:
             raise ValueError('Probability must be between 0.0 and 1.0.')
         self._prob_rotate = prob_rotate
@@ -216,10 +217,10 @@ class Moves(object):
 
     @prob_angle.setter
     def prob_angle(self,prob_angle):
-        try:
-            prob_angle = float(prob_angle)
-        except (ValueError,TypeError):
+        if type(prob_angle) not in (float,int):
             raise TypeError('prob_angle must be of type float')
+        else:
+            prob_angle = float(prob_angle)
         if prob_angle < 0.0 or prob_angle > 1.0:
             raise ValueError('Probability must be between 0.0 and 1.0.')
         self._prob_angle = prob_angle
@@ -230,27 +231,13 @@ class Moves(object):
 
     @prob_dihedral.setter
     def prob_dihedral(self,prob_dihedral):
-        try:
-            prob_dihedral = float(prob_dihedral)
-        except (ValueError,TypeError):
+        if type(prob_dihedral) not in (float,int):
             raise TypeError('prob_dihedral must be of type float')
+        else:
+            prob_dihedral = float(prob_dihedral)
         if prob_dihedral < 0.0 or prob_dihedral > 1.0:
             raise ValueError('Probability must be between 0.0 and 1.0.')
         self._prob_dihedral = prob_dihedral
-
-    @property
-    def prob_angle(self):
-        return self._prob_angle
-
-    @prob_angle.setter
-    def prob_angle(self,prob_angle):
-        try:
-            prob_angle = float(prob_angle)
-        except (ValueError,TypeError):
-            raise TypeError('prob_angle must be of type float')
-        if prob_angle < 0.0 or prob_angle > 1.0:
-            raise ValueError('Probability must be between 0.0 and 1.0.')
-        self._prob_angle = prob_angle
 
     @property
     def prob_regrow(self):
@@ -258,10 +245,10 @@ class Moves(object):
 
     @prob_regrow.setter
     def prob_regrow(self,prob_regrow):
-        try:
-            prob_regrow = float(prob_regrow)
-        except (ValueError,TypeError):
+        if type(prob_regrow) not in (float,int):
             raise TypeError('prob_regrow must be of type float')
+        else:
+            prob_regrow = float(prob_regrow)
         if prob_regrow < 0.0 or prob_regrow > 1.0:
             raise ValueError('Probability must be between 0.0 and 1.0.')
         self._prob_regrow = prob_regrow
@@ -272,23 +259,23 @@ class Moves(object):
 
     @prob_volume.setter
     def prob_volume(self,prob_volume):
-        try:
-            prob_volume = float(prob_volume)
-        except (ValueError,TypeError):
+        if type(prob_volume) not in (float,int):
             raise TypeError('prob_volume must be of type float')
+        else:
+            prob_volume = float(prob_volume)
         if prob_volume < 0.0 or prob_volume > 1.0:
             raise ValueError('Probability must be between 0.0 and 1.0.')
         if prob_volume > 0.0:
-            if self._ensemble == 'nvt' or self._ensemble == 'gcmc':
+            if self.ensemble == 'nvt' or self.ensemble == 'gcmc':
                 raise ValueError('Ensemble is {}. prob_volume cannot be '
                         'non-zero in the {} ensemble'.format(
                          self._ensemble,self.ensemble))
         elif prob_volume == 0.0:
-            if ( self._ensemble == 'npt' or
-                 self._ensemble == 'gemc' or
-                 self._ensemble == 'gemc_npt' ):
+            if ( self.ensemble == 'npt' or
+                 self.ensemble == 'gemc' or
+                 self.ensemble == 'gemc_npt' ):
                 raise ValueError('Ensemble is {}. prob_volume must be '
-                        '> 0.0 in this ensemble'.format(self._ensemble))
+                        '> 0.0 in this ensemble'.format(self.ensemble))
         # Pass all checks. Update prob_volume.
         self._prob_volume = prob_volume
 
@@ -298,12 +285,18 @@ class Moves(object):
 
     @prob_insert.setter
     def prob_insert(self,prob_insert):
-        try:
-            prob_insert = float(prob_insert)
-        except (ValueError,TypeError):
+        if type(prob_insert) not in (float,int):
             raise TypeError('prob_insert must be of type float')
+        else:
+            prob_insert = float(prob_insert)
         if prob_insert < 0.0 or prob_insert > 1.0:
             raise ValueError('Probability must be between 0.0 and 1.0.')
+        if self.ensemble != 'gcmc' and prob_insert != 0.0:
+            raise ValueError('Ensemble is {}. Insertion probability '
+                    'must be = 0.0'.format(self.ensemble))
+        if self.ensemble == 'gcmc' and prob_insert == 0.0:
+            raise ValueError('Ensemble is {}. Insertion probability '
+                    'must be > 0.0'.format(self.ensemble))
         self._prob_insert = prob_insert
 
     @property
@@ -312,12 +305,21 @@ class Moves(object):
 
     @prob_swap.setter
     def prob_swap(self,prob_swap):
-        try:
-            prob_swap = float(prob_swap)
-        except (ValueError,TypeError):
+        if type(prob_swap) not in (float,int):
             raise TypeError('prob_swap must be of type float')
+        else:
+            prob_swap = float(prob_swap)
         if prob_swap < 0.0 or prob_swap > 1.0:
             raise ValueError('Probability must be between 0.0 and 1.0.')
+        if self.ensemble != 'gemc' and self.ensemble != 'gemc_npt':
+            if prob_swap != 0.0:
+                raise ValueError('Ensemble is {}. Swapping probability '
+                        'must be = 0.0'.format(self.ensemble))
+        if self.ensemble == 'gemc' or self.ensemble == 'gemc_npt':
+            if prob_swap == 0.0:
+                raise ValueError('Ensemble is {}. Swapping probability '
+                        'must be > 0.0'.format(self.ensemble))
+
         self._prob_swap = prob_swap
 
     @property
@@ -337,11 +339,11 @@ class Moves(object):
                 raise ValueError('max_translate must be a list with '
                     'shape (number of boxes, number of species)')
             for max_val in max_translate_box:
-                try:
-                    max_val = float(max_val)
-                except (ValueError,TypeError):
+                if type(max_val) not in (float,int):
                     raise TypeError('Max translation values must be '
                         'of type float')
+                else:
+                    max_val = float(max_val)
                 if max_val < 0.0:
                     raise ValueError('Max translation values cannot '
                         'be less than zero')
@@ -365,11 +367,11 @@ class Moves(object):
                 raise ValueError('max_rotate must be a list with '
                     'shape (number of boxes, number of species)')
             for max_val in max_rotate_box:
-                try:
-                    max_val = float(max_val)
-                except (ValueError,TypeError):
+                if type(max_val) not in (float,int):
                     raise TypeError('Max rotation values must be '
                         'of type float')
+                else:
+                    max_val = float(max_val)
                 if max_val < 0.0:
                     raise ValueError('Max rotation values cannot '
                         'be less than zero')
@@ -377,22 +379,45 @@ class Moves(object):
         self._max_rotate = max_rotate
 
     @property
+    def max_dihedral(self):
+        return self._max_dihedral
+
+    @max_dihedral.setter
+    def max_dihedral(self,max_dihedral):
+
+        if ( not isinstance(max_dihedral,list) or
+             len(max_dihedral) != self._n_species  ):
+            raise ValueError('max_dihedral must be a list with length '
+                '(number of species)')
+        for max_val in max_dihedral:
+            if type(max_val) not in (float,int):
+                raise TypeError('Max dihedral values must be '
+                    'of type float')
+            else:
+                max_val = float(max_val)
+            if max_val < 0.0:
+                raise ValueError('Max dihedral values cannot '
+                    'be less than zero')
+
+        self._max_dihedral = max_dihedral
+
+    @property
     def prob_swap_from_box(self):
         return self._prob_swap_from_box
 
     @prob_swap_from_box.setter
     def prob_swap_from_box(self,prob_swap_from_box):
-        
+
         if ( not isinstance(prob_swap_from_box,list) or
              len(prob_swap_from_box) != self._n_boxes  ):
             raise ValueError('prob_swap_from_box must be a list with length '
                 '(number of boxes)')
         for prob_swap in prob_swap_from_box:
-            try:
-                prob_swap = float(prob_swap)
-            except (ValueError,TypeError):
+            if type(prob_swap) not in (float,int):
                 raise TypeError('Probability of swapping from a box '
                         'must be of type float')
+            else:
+                prob_swap = float(prob_swap)
             if prob_swap < 0.0:
                 raise ValueError('Probability of swapping from a box '
                     'cannot be less than zero')
@@ -406,17 +431,23 @@ class Moves(object):
 
     @max_volume.setter
     def max_volume(self,max_volume):
-        if ( not isinstance(max_volume,list) or
-             len(max_volume) != self._n_boxes  ):
-            if self.ensemble != 'gemc':
+        if not isinstance(max_volume,list):
+            raise ValueError('max_volume must be a list with '
+                'length (number of boxes)')
+        if self.ensemble != 'gemc':
+            if len(max_volume) != self._n_boxes:
                 raise ValueError('max_volume must be a list with '
                     'length (number of boxes)')
+        else:
+            if len(max_volume) != 1:
+                raise ValueError('max_volume must be a list of '
+                        'length (1) for gemc')
         for max_vol in max_volume:
-            try:
-                max_vol = float(max_vol)
-            except (ValueError,TypeError):
+            if type(max_vol) not in (float,int):
                 raise TypeError('Maximum volume change for a box '
                         'must be of type float')
+            else:
+                max_vol = float(max_vol)
             if max_vol < 0.0:
                 raise ValueError('Maximum volume change for a box '
                     'cannot be less than zero')
@@ -453,11 +484,11 @@ class Moves(object):
             raise ValueError('sp_prob_swap must be a list with length '
                 '(number of species)')
         for prob_swap in sp_prob_swap:
-            try:
-                prob_swap = float(prob_swap)
-            except (ValueError,TypeError):
+            if type(prob_swap) not in (float,int):
                 raise TypeError('Probability of swapping a species '
                         'must be of type float')
+            else:
+                prob_swap = float(prob_swap)
             if prob_swap < 0.0:
                 raise ValueError('Probability of swapping a species '
                     'cannot be less than zero')
@@ -476,11 +507,11 @@ class Moves(object):
             raise ValueError('sp_prob_regrow must be a list with length '
                 '(number of species)')
         for prob_regrow in sp_prob_regrow:
-            try:
-                prob_regrow = float(prob_regrow)
-            except (ValueError,TypeError):
+            if type(prob_regrow) not in (float,int):
                 raise TypeError('Probability of regrowing a species '
                         'must be of type float')
+            else:
+                prob_regrow = float(prob_regrow)
             if prob_regrow < 0.0:
                 raise ValueError('Probability of regrowing a species '
                     'cannot be less than zero')

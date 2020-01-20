@@ -118,8 +118,8 @@ class Moves(object):
 
         # Remaining options are per-species
         self.sp_insertable = [True] * self._n_species
-        self.sp_prob_swap = [1.0/self._n_species] * self._n_species
-        self.sp_prob_regrow = [1.0/self._n_species] * self._n_species
+        self.sp_prob_swap = [1.0] * self._n_species
+        self.sp_prob_regrow = [1.0] * self._n_species
 
         # Here we handle species-wise exceptions
         for ispec,species in enumerate(species_topologies):
@@ -327,74 +327,164 @@ class Moves(object):
     @max_translate.setter
     def max_translate(self,max_translate):
 
-        if hasattr(self,'_max_translate'):
-            saved = deepcopy(self._max_translate)
-        else:
-            saved = None
-        self._max_translate = max_translate
-
-        if ( not isinstance(self._max_translate,list) or
-             len(self._max_translate) != self._n_boxes  ):
-            self._max_translate = saved
+        if ( not isinstance(max_translate,list) or
+             len(max_translate) != self._n_boxes  ):
             raise ValueError('max_translate must be a list with shape '
                 '(number of boxes, number of species)')
-        for max_translate_box in self._max_translate:
+        for max_translate_box in max_translate:
             if ( not isinstance(max_translate_box,list) or
                  len(max_translate_box) != self._n_species  ):
-                self._max_translate = saved
                 raise ValueError('max_translate must be a list with '
                     'shape (number of boxes, number of species)')
             for max_val in max_translate_box:
                 try:
                     max_val = float(max_val)
                 except (ValueError,TypeError):
-                    self._max_translate = saved
                     raise TypeError('Max translation values must be '
                         'of type float')
                 if max_val < 0.0:
-                    self._max_translate = saved
                     raise ValueError('Max translation values cannot '
                         'be less than zero')
 
+        self._max_translate = max_translate
 
-    def _check_box_species(self):
-        """Check validity of ibox and ispecies for current moves object"""
+    @property
+    def max_rotate(self):
+        return self._max_rotate
 
-        # Infer the number of boxes
-        if (self.ensemble == 'nvt' or
-            self.ensemble == 'npt' or
-            self.ensemble == 'gcmc'):
-            self._n_boxes = 1
-        else:
-            self._n_boxes = 2
+    @max_rotate.setter
+    def max_rotate(self,max_rotate):
 
-        if not isinstance(ibox,int):
-            raise TypeError('The box index ("ibox") must be of type int')
-        if ibox < 0:
-            raise ValueError('The box index ("ibox") cannot be negative')
-        if ibox > 1:
-            raise ValueError('A maximum of two boxes is currently '
-                    'supported. The box index ("ibox") must be 0 or 1')
-        if ibox > 0 and self._n_boxes == 1:
-            raise ValueError('The {} ensemble only supports a single '
-                    'simulation box. The box index ("ibox") must be 0. '
-                    'If you wish to simulate in a multi-box ensemble, '
-                    'you must create a new moves object with the desired '
-                    'ensemble.'.format(self._ensemble))
+        if ( not isinstance(max_rotate,list) or
+             len(max_rotate) != self._n_boxes  ):
+            raise ValueError('max_rotate must be a list with shape '
+                '(number of boxes, number of species)')
+        for max_rotate_box in max_rotate:
+            if ( not isinstance(max_rotate_box,list) or
+                 len(max_rotate_box) != self._n_species  ):
+                raise ValueError('max_rotate must be a list with '
+                    'shape (number of boxes, number of species)')
+            for max_val in max_rotate_box:
+                try:
+                    max_val = float(max_val)
+                except (ValueError,TypeError):
+                    raise TypeError('Max rotation values must be '
+                        'of type float')
+                if max_val < 0.0:
+                    raise ValueError('Max rotation values cannot '
+                        'be less than zero')
 
-        if not isinstance(ispecies,int):
-            raise TypeError('The species index ("ispecies") must be '
-                'of type int')
-        if ispecies < 0:
-            raise ValueError('The species index ("ispecies") cannot '
-                'be negative')
-        if ispecies >= self._n_species:
-            raise ValueError('The Moves object was originally created '
-                'for {} species. If you wish to simulate '
-                'with a different number of species, please '
-                'create a new Moves object.')
+        self._max_rotate = max_rotate
+
+    @property
+    def prob_swap_from_box(self):
+        return self._prob_swap_from_box
+
+    @prob_swap_from_box.setter
+    def prob_swap_from_box(self,prob_swap_from_box):
+        
+        if ( not isinstance(prob_swap_from_box,list) or
+             len(prob_swap_from_box) != self._n_boxes  ):
+            raise ValueError('prob_swap_from_box must be a list with length '
+                '(number of boxes)')
+        for prob_swap in prob_swap_from_box:
+            try:
+                prob_swap = float(prob_swap)
+            except (ValueError,TypeError):
+                raise TypeError('Probability of swapping from a box '
+                        'must be of type float')
+            if prob_swap < 0.0:
+                raise ValueError('Probability of swapping from a box '
+                    'cannot be less than zero')
+
+        self._prob_swap_from_box = prob_swap_from_box
 
 
+    @property
+    def max_volume(self):
+        return self._max_volume
 
+    @max_volume.setter
+    def max_volume(self,max_volume):
+        if ( not isinstance(max_volume,list) or
+             len(max_volume) != self._n_boxes  ):
+            if self.ensemble != 'gemc':
+                raise ValueError('max_volume must be a list with '
+                    'length (number of boxes)')
+        for max_vol in max_volume:
+            try:
+                max_vol = float(max_vol)
+            except (ValueError,TypeError):
+                raise TypeError('Maximum volume change for a box '
+                        'must be of type float')
+            if max_vol < 0.0:
+                raise ValueError('Maximum volume change for a box '
+                    'cannot be less than zero')
+
+        self._max_volume = max_volume
+
+    @property
+    def sp_insertable(self):
+        return self._sp_insertable
+
+    @sp_insertable.setter
+    def sp_insertable(self,sp_insertable):
+
+        if ( not isinstance(sp_insertable,list) or
+             len(sp_insertable) != self._n_species  ):
+            raise ValueError('sp_insertable must be a list with length '
+                '(number of species)')
+        for insertable in sp_insertable:
+            if not isinstance(insertable,bool):
+                raise TypeError('The insertability of each species '
+                        'must be provided as a boolean type.')
+
+        self._sp_insertable = sp_insertable
+
+    @property
+    def sp_prob_swap(self):
+        return self._sp_prob_swap
+
+    @sp_prob_swap.setter
+    def sp_prob_swap(self,sp_prob_swap):
+
+        if ( not isinstance(sp_prob_swap,list) or
+             len(sp_prob_swap) != self._n_species  ):
+            raise ValueError('sp_prob_swap must be a list with length '
+                '(number of species)')
+        for prob_swap in sp_prob_swap:
+            try:
+                prob_swap = float(prob_swap)
+            except (ValueError,TypeError):
+                raise TypeError('Probability of swapping a species '
+                        'must be of type float')
+            if prob_swap < 0.0:
+                raise ValueError('Probability of swapping a species '
+                    'cannot be less than zero')
+
+        self._sp_prob_swap = sp_prob_swap
+
+    @property
+    def sp_prob_regrow(self):
+        return self._sp_prob_regrow
+
+    @sp_prob_regrow.setter
+    def sp_prob_regrow(self,sp_prob_regrow):
+
+        if ( not isinstance(sp_prob_regrow,list) or
+             len(sp_prob_regrow) != self._n_species  ):
+            raise ValueError('sp_prob_regrow must be a list with length '
+                '(number of species)')
+        for prob_regrow in sp_prob_regrow:
+            try:
+                prob_regrow = float(prob_regrow)
+            except (ValueError,TypeError):
+                raise TypeError('Probability of regrowing a species '
+                        'must be of type float')
+            if prob_regrow < 0.0:
+                raise ValueError('Probability of regrowing a species '
+                    'cannot be less than zero')
+
+        self._sp_prob_regrow = sp_prob_regrow
 
 

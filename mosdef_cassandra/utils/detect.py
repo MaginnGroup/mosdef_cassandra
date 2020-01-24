@@ -2,12 +2,12 @@ import shutil
 
 def detect_cassandra_binaries():
 
-    cassandra_exec_names = [ 'cassandra.exe',
-                             'cassandra_gfortran.exe',
-                             'cassandra_pgfortran.exe',
-                             'cassandra_gfortran_openMP.exe',
+    cassandra_exec_names = [ 'cassandra_gfortran_openMP.exe',
                              'cassandra_pgfortran_openMP.exe',
-                             'cassandra_intel_openMP.exe' ]
+                             'cassandra_intel_openMP.exe',
+                             'cassandra.exe',
+                             'cassandra_gfortran.exe',
+                             'cassandra_pgfortran.exe' ]
 
     py2_exec_names = [ 'python2', 'python2.7' ]
 

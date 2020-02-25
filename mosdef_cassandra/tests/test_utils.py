@@ -4,28 +4,29 @@ import numpy as np
 from mosdef_cassandra.tests.base_test import BaseTest
 from mosdef_cassandra.utils.convert_box import convert_to_boxmatrix
 
+
 class TestConvertBox(BaseTest):
     def test_invalid_shape(self):
-        box = [10., 5., 5.]
+        box = [10.0, 5.0, 5.0]
         with pytest.raises(ValueError, match=r"Input must be provided as"):
             box_matrix = convert_to_boxmatrix(box)
 
     def test_invalid_lengths(self):
-        box = [10., 5., -5., 90., 90., 90.]
+        box = [10.0, 5.0, -5.0, 90.0, 90.0, 90.0]
         with pytest.raises(ValueError, match=r"All box lengths and angles"):
             box_matrix = convert_to_boxmatrix(box)
 
     def test_invalid_angles(self):
-        box = [5., 5., 5., -20., 90., 90.]
+        box = [5.0, 5.0, 5.0, -20.0, 90.0, 90.0]
         with pytest.raises(ValueError, match=r"All box lengths and angles"):
             box_matrix = convert_to_boxmatrix(box)
 
-        box = [5., 5., 5., 182., 90., 90.]
+        box = [5.0, 5.0, 5.0, 182.0, 90.0, 90.0]
         with pytest.raises(ValueError, match=r"All box angles"):
             box_matrix = convert_to_boxmatrix(box)
 
     def test_cubic(self):
-        box = [5., 5., 5., 90., 90., 90.]
+        box = [5.0, 5.0, 5.0, 90.0, 90.0, 90.0]
         box_matrix = convert_to_boxmatrix(box)
         assert box_matrix[0][0] == 5.0
         assert box_matrix[1][1] == 5.0
@@ -38,7 +39,7 @@ class TestConvertBox(BaseTest):
         assert box_matrix[2][1] == 0.0
 
     def test_rectangular(self):
-        box = [5., 10., 15., 90., 90., 90.]
+        box = [5.0, 10.0, 15.0, 90.0, 90.0, 90.0]
         box_matrix = convert_to_boxmatrix(box)
         assert box_matrix[0][0] == 5.0
         assert box_matrix[1][1] == 10.0
@@ -51,7 +52,7 @@ class TestConvertBox(BaseTest):
         assert box_matrix[2][1] == 0.0
 
     def test_triclinic(self):
-        box = [10., 10., 10., 30., 75., 80.]
+        box = [10.0, 10.0, 10.0, 30.0, 75.0, 80.0]
         box_matrix = convert_to_boxmatrix(box)
         assert box_matrix[0][0] == 10.0
         assert box_matrix[0][1] == 0.0
@@ -64,7 +65,6 @@ class TestConvertBox(BaseTest):
         assert np.isclose(box_matrix[2][1], 8.337484)
 
     def test_invalid_triclinic(self):
-        box = [10., 10., 10., 60., 5., 90.]
+        box = [10.0, 10.0, 10.0, 60.0, 5.0, 90.0]
         with pytest.raises(ValueError, match=r"Illegal box"):
             box_matrix = convert_to_boxmatrix(box)
-

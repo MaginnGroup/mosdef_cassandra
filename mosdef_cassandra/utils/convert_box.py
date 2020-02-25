@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def convert_to_boxmatrix(dimensions):
     """Convert ``[x, y, z, alpha, beta, gamma]`` to a
     matrix representation.
@@ -64,10 +65,10 @@ def convert_to_boxmatrix(dimensions):
         cos_gamma = np.cos(np.radians(gamma))
         sin_gamma = np.sin(np.radians(gamma))
         # Protect against numerical errors for 90 deg
-        cos_alpha = np.round(cos_alpha,15)
-        cos_beta = np.round(cos_beta,15)
-        cos_gamma = np.round(cos_gamma,15)
-        sin_gamma = np.round(sin_gamma,15)
+        cos_alpha = np.round(cos_alpha, 15)
+        cos_beta = np.round(cos_beta, 15)
+        cos_gamma = np.round(cos_gamma, 15)
+        sin_gamma = np.round(sin_gamma, 15)
         # Calc box dims
         box_matrix[0][0] = x
         box_matrix[1][0] = y * cos_gamma

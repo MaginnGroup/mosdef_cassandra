@@ -239,7 +239,7 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
             box_dims = np.hstack((box.periodicity, box.boundingbox.angles))
         else:
             box_dims = np.hstack((box.lengths, box.angles))
-        box_matrix = convert_box.triclinic_vectors(box_dims)
+        box_matrix = convert_box.convert_to_boxmatrix(box_dims)
         boxes.append(box_matrix)
     inp_data += get_box_info(boxes)
 

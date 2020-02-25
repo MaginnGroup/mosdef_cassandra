@@ -895,7 +895,7 @@ class TestInpFunctions(BaseTest):
                                   'equilibration',500,
                                   cbmc_kappa_ins=2,
                                   cbmc_kappa_dih=5,
-                                  cbmc_rcut=4)
+                                  cbmc_rcut=[])
 
 
 

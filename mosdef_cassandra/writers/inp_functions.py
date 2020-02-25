@@ -672,7 +672,7 @@ def get_seed_info(seed1=None,seed2=None):
     return inp_data
 
 def get_minimum_cutoff(cutoff):
-    if not isinstance(cutoff,float):
+    if not isinstance(cutoff,(float,int)):
         raise TypeError('rcut_min should be of type float')
 
     inp_data = """
@@ -784,7 +784,7 @@ def get_temperature_info(temps):
         list of temperatures with one for each box
     """
     for temp in temps:
-        if not isinstance(temp,float):
+        if not isinstance(temp,(float,int)):
             raise TypeError('Temperature must be of type float')
         if temp < 0.0:
             raise ValueError('Specified temperature ({}) is '
@@ -813,7 +813,7 @@ def get_pressure_info(pressures):
     """
 
     for press in pressures:
-        if not isinstance(press,float):
+        if not isinstance(press,(float,int)):
             raise TypeError('Pressure must be of type float')
 
     inp_data = """
@@ -841,7 +841,7 @@ def get_chemical_potential_info(chem_pots):
 
     for chem_pot in chem_pots:
         if chem_pot != 'none':
-            if not isinstance(chem_pot,float):
+            if not isinstance(chem_pot,(float,int)):
                 raise TypeError('Chemical potentials must "none" or '
                     'be of type float')
 
@@ -941,7 +941,7 @@ def get_move_probability_info(**kwargs):
         if not isinstance(translate,list):
             raise TypeError('Translate probability information not '
                     'formatted properly')
-        if not isinstance(translate[0],float):
+        if not isinstance(translate[0],(float,int)):
             raise TypeError('Probability of translation move must be '
                     'a floating point value')
         for sp_displacements in translate[1:]:
@@ -949,7 +949,7 @@ def get_move_probability_info(**kwargs):
                 raise TypeError('Translate probability information not '
                     'formatted properly')
             for displace in sp_displacements:
-                if not isinstance(displace,float):
+                if not isinstance(displace,(float,int)):
                     raise TypeError('Translate probability information not '
                     'formatted properly')
 
@@ -971,7 +971,7 @@ def get_move_probability_info(**kwargs):
         if not isinstance(rotate,list):
             raise TypeError('Rotation probability information not '
                     'formatted properly')
-        if not isinstance(rotate[0],float):
+        if not isinstance(rotate[0],(float,int)):
             raise TypeError('Probability of rotation move must be '
                     'a floating point value')
         for sp_displacements in rotate[1:]:
@@ -979,7 +979,7 @@ def get_move_probability_info(**kwargs):
                 raise TypeError('Rotation probability information not '
                     'formatted properly')
             for displace in sp_displacements:
-                if not isinstance(displace,float):
+                if not isinstance(displace,(float,int)):
                     raise TypeError('Rotation probability information not '
                     'formatted properly')
 
@@ -999,7 +999,7 @@ def get_move_probability_info(**kwargs):
     # Angle
     if 'angle' in kwargs:
         angle = kwargs['angle']
-        if not isinstance(angle,float):
+        if not isinstance(angle,(float,int)):
             raise TypeError('Angle probability information not '
                     'formatted properly')
 
@@ -1016,7 +1016,7 @@ def get_move_probability_info(**kwargs):
         if not isinstance(dihed,list):
             raise TypeError('Dihedral probability information not '
                     'formatted properly')
-        if not isinstance(dihed[0],float):
+        if not isinstance(dihed[0],(float,int)):
             raise TypeError('Probability of dihedral move must be '
                     'a floating point value')
         for sp_displacements in dihed[1:]:
@@ -1024,7 +1024,7 @@ def get_move_probability_info(**kwargs):
                 raise TypeError('Dihedral probability information not '
                     'formatted properly')
             for displace in sp_displacements:
-                if not isinstance(displace,float):
+                if not isinstance(displace,(float,int)):
                     raise TypeError('Dihedral probability information not '
                     'formatted properly')
 
@@ -1050,14 +1050,14 @@ def get_move_probability_info(**kwargs):
         if len(regrow) != 2:
             raise TypeError('Regrowth probability information not '
                     'formatted properly')
-        if not isinstance(regrow[0],float):
+        if not isinstance(regrow[0],(float,int)):
             raise TypeError('Probability of regrowth move must be '
                     'a floating point value')
         if not isinstance(regrow[1],list):
             raise TypeError('Regrowth probability information not '
                     'formatted properly')
         for sp_probs in regrow[1]:
-            if not isinstance(sp_probs,float):
+            if not isinstance(sp_probs,(float,int)):
                 raise TypeError('Probability of selecting each '
                     'species for a regrowth move must be a '
                     'floating point value')
@@ -1083,14 +1083,14 @@ def get_move_probability_info(**kwargs):
         if len(volume) != 2:
             raise TypeError('Volume probability information not '
                     'formatted properly')
-        if not isinstance(volume[0],float):
+        if not isinstance(volume[0],(float,int)):
             raise TypeError('Probability of volume move must be '
                     'a floating point value')
         if not isinstance(volume[1],list):
             raise TypeError('Volume probability information not '
                     'formatted properly')
         for max_displace in volume[1]:
-            if not isinstance(max_displace,float):
+            if not isinstance(max_displace,(float,int)):
                 raise TypeError('Max displacement for volume move '
                     'must be a floating point value')
 
@@ -1115,7 +1115,7 @@ def get_move_probability_info(**kwargs):
         if len(insert) != 2:
             raise TypeError('Insertion probability information not '
                     'formatted properly')
-        if not isinstance(insert[0],float):
+        if not isinstance(insert[0],(float,int)):
             raise TypeError('Probability of insertion move must be '
                     'a floating point value')
         if not isinstance(insert[1],list):
@@ -1158,7 +1158,7 @@ def get_move_probability_info(**kwargs):
         if len(swap) != 4:
             raise TypeError('Swap probability information not '
                     'formatted properly')
-        if not isinstance(swap[0],float):
+        if not isinstance(swap[0],(float,int)):
             raise TypeError('Probability of swap move must be '
                     'a floating point value')
         if not isinstance(swap[1],list):
@@ -1173,7 +1173,7 @@ def get_move_probability_info(**kwargs):
                 raise TypeError('Swap probability information not '
                     'formatted properly')
             for prob in swap[2]:
-                if not isinstance(prob,float):
+                if not isinstance(prob,(float,int)):
                     raise TypeError('Probability of selecting species '
                             'for a swap move must be a floating point '
                             'value')
@@ -1182,7 +1182,7 @@ def get_move_probability_info(**kwargs):
                 raise TypeError('Swap probability information not '
                     'formatted properly')
             for prob in swap[3]:
-                if not isinstance(prob,float):
+                if not isinstance(prob,(float,int)):
                     raise TypeError('Probability of selecting box '
                             'as donor for a swap move must be a '
                             'floating point value')
@@ -1427,7 +1427,7 @@ def get_cbmc_info(n_insert, n_dihed, cutoffs):
     if not isinstance(cutoffs,list):
         raise TypeError('Cutoff information improperly specified')
     for cutoff in cutoffs:
-        if not isinstance(cutoff,float):
+        if not isinstance(cutoff,(float,int)):
             raise TypeError('CBMC cutoff must be a float')
 
 

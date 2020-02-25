@@ -73,15 +73,18 @@ class System(object):
     @boxes.setter
     def boxes(self,boxes):
         if self._boxes is None:
+            self._boxes = []
             if not isinstance(boxes,list):
                 raise TypeError('"boxes" should be a list. See '
                         'help(mosdef_Cassandra.System) for details.')
             for box in boxes:
-                if ( not isinstance(box,mbuild.Compound) and
-                     not isinstance(box,mbuild.Box) ) :
+                if isinstance(box, mbuild.Compound):
+                    self._boxes.append(mbuild.clone(box))
+                elif isinstance(box, mbuild.Box):
+                    self._boxes.append(deepcopy(box))
+                else:
                     raise TypeError('Each box should be an '
                             'mbuild.Compound or mbuild.Box object')
-            self._boxes = deepcopy(boxes)
         else:
             raise AttributeError('Box(es) cannot be modified after '
                     'System object is created. Create a new System '

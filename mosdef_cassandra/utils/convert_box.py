@@ -35,7 +35,7 @@ def triclinic_vectors(dimensions):
       box is treated as invalid and an all-zero-matrix is returned.
     """
 
-    dim = np.asarray(dimensions, dtype=np.float64)
+    dim = np.asarray(dimensions)
     lx, ly, lz, alpha, beta, gamma = dim
 
     # Only positive edge lengths and angles in (0, 180) are allowed:

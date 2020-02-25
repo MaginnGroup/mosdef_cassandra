@@ -2,7 +2,6 @@ import pytest
 from copy import deepcopy
 
 import mosdef_cassandra as mc
-
 from mosdef_cassandra.tests.base_test import BaseTest
 from mosdef_cassandra.writers.inp_functions import generate_input
 

@@ -1,10 +1,10 @@
-import pytest
 import glob
 import os
 
+import pytest
+
 import mosdef_cassandra.examples as ex
 from mosdef_cassandra.utils.tempdir import *
-
 from mosdef_cassandra.tests.base_test import BaseTest
 
 

@@ -1,6 +1,6 @@
 import pytest
-import mosdef_cassandra as mc
 
+import mosdef_cassandra as mc
 from mosdef_cassandra.tests.base_test import BaseTest
 
 

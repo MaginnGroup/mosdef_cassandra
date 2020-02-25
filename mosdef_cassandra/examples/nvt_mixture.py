@@ -1,15 +1,15 @@
-
 import mbuild
 import foyer
 import mosdef_cassandra as mc
 
+
 def run_nvt_mixture():
     # Use mbuild to create molecules
-    methane = mbuild.load('C',smiles=True)
-    propane = mbuild.load('CCC',smiles=True)
+    methane = mbuild.load("C", smiles=True)
+    propane = mbuild.load("CCC", smiles=True)
 
     # Create an empty mbuild.Box
-    box = mbuild.Box(lengths=[3.,3.,3.])
+    box = mbuild.Box(lengths=[3.0, 3.0, 3.0])
 
     # Load forcefields
     oplsaa = foyer.forcefields.load_OPLSAA()
@@ -23,13 +23,13 @@ def run_nvt_mixture():
     species_list = [typed_methane, typed_propane]
 
     # Use Cassandra to insert some initial number of species
-    mols_to_add = [[100,50]]
+    mols_to_add = [[100, 50]]
 
-    system = mc.System(box_list,species_list,
-                       mols_to_add=mols_to_add)
-    moves = mc.Moves('nvt', species_list)
+    system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
+    moves = mc.Moves("nvt", species_list)
 
-    mc.run(system,moves,200.0,'equilibration',10000)
+    mc.run(system, moves, 200.0, "equilibration", 10000)
+
 
 if __name__ == "__main__":
     run_nvt_mixture()

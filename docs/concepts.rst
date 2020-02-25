@@ -2,20 +2,45 @@
 Concepts
 ========
 
-The goal of mosdef_cassandra is to integrate the Cassandra Monte Carlo (MC)
-code with the Molecular Simulation Design Framework (MoSDeF). The benefits of
-such integration include:
+The goal of mosdef_cassandra is to integrate the `Cassandra Monte Carlo (MC)
+code <https://cassandra.nd.edu>`_ with the `Molecular Simulation Design
+Framework (MoSDeF) <https://mosdef.org>`_. The Cassandra
+`documentation <https://cassandra.nd.edu/index.php/documentation>`_
+contains a fairly comprehensive background on MC simulations. Canonical
+textbooks by `Frenkel and Smit
+<https://www.sciencedirect.com/book/9780122673511/understanding-molecular-simulation>`_,
+`Allen and Tidesley
+<https://www.oxfordscholarship.com/view/10.1093/oso/9780198803195.001.0001/oso-9780198803195>`_,
+and `Tuckerman <https://onlinelibrary.wiley.com/doi/10.1002/anie.201105752>`_ also provide
+useful reference materials. Here however, we focus on the mosdef_cassandra package,
+proceeding with the assumption that the reader has a basic understanding of MC methods as
+applied in molecular simulations.
 
-* Improved reproducibility
-* Ease of sharing simulation inputs
-* Ease of implementing screening over large parameter spaces
+mosdef_cassandra divides the process of setting up a MC simulation into the
+creation of two objects, the ``mosdef_cassandra.System`` object
+and the ``mosdef_cassandra.Moves`` object. Each is described in detail
+below. First, we provide a bit of context for the mosdef_cassandra package.
 
-mosdef_cassandra creates two primary objects, the ``mosdef_cassandra.System``
-object and the ``mosdef_cassandra.Moves`` object. Each is described in detail
-below.
+Philosophy
+----------
 
-``mc.System``
--------------
+Setting up a Monte Carlo simulation should not be difficult. The simulation
+setup procedure should not be prone to error. The process should be easily
+repeatible and extensible. And none of the prior goals should sacrifice the
+complete flexibility required by the expert simulator. These simple ideas
+underpin the development of mosdef_cassandra.
+
+What are the components of a Monte Carlo simulation?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+What is the simplest organization of those components?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Where do we go from here?
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The System object
+-----------------
 
 The ``mc.System`` object contains the following:
 
@@ -35,13 +60,14 @@ normally be one (NVT, NPT, GCMC) or two (GEMC).
 
 ``species_list`` is a ``list`` of the unique chemical species in the system. For
 example, if simulating a mixture of methane and ethane, there are two species.
-Therefore length of ``species_list`` is two. Each element of ``species_list`` is
-a parameterized ``parmed.Structure``. This contains all forcefield details for
+Therefore, the length of ``species_list`` would be two. Each element of ``species_list`` is
+a parameterized ``parmed.Structure``. This structure contains all the forcefield details for
 a given species.
 
 ``mols_in_boxes`` is a ``list`` containing the number of molecules of each
-species currently in each box. ``len(mols_in_boxes) = n_boxes``, where
-``n_boxes`` is the number of simulation boxes. For each box, there is a list
+species currently existing in each box. ``len(mols_in_boxes)`` must equal
+``n_boxes = len(box_list)``. In other words, ``n_boxes`` is the number of
+simulation boxes. For each box ``ibox``, there is a list
 with ``len(mols_in_boxes[ibox]) = n_species``, where ``n_species`` is the number
 of unique species in the system. If setting up a system with a single
 simulation box containing 10 methane molecules and 5 ethane molecules,
@@ -56,8 +82,8 @@ single simulation box to which we wish to add 10 methane molecules and 0 ethane
 molecules, ``mols_to_add = [[10,0]]``.
 
 
-``mc.Moves``
-------------
+The Moves object
+----------------
 
 The ``mc.Moves`` object contains the following:
 

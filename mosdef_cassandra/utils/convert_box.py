@@ -1,7 +1,7 @@
-
 import numpy as np
 
 # NOTE: CODE COPIED FROM MDANALYSIS --> Need to fix
+
 
 def triclinic_vectors(dimensions):
     """Convert ``[lx, ly, lz, alpha, beta, gamma]`` to a
@@ -40,11 +40,13 @@ def triclinic_vectors(dimensions):
 
     # Only positive edge lengths and angles in (0, 180) are allowed:
     if not np.all(dim > 0.0):
-        raise ValueError('Invalid box dimensions. All box lengths'
-                'must be > 0')
+        raise ValueError(
+            "Invalid box dimensions. All box lengths" "must be > 0"
+        )
     if alpha > 180.0 or beta > 180.0 or gamma > 180.0:
-        raise ValueError('Invalid box dimensions. All box angles'
-                'must be > 0')
+        raise ValueError(
+            "Invalid box dimensions. All box angles" "must be > 0"
+        )
 
     # detect orthogonal boxes:
     if alpha == beta == gamma == 90.0:
@@ -74,8 +76,9 @@ def triclinic_vectors(dimensions):
         box_matrix[1, 1] = ly * sin_gamma
         box_matrix[2, 0] = lz * cos_beta
         box_matrix[2, 1] = lz * (cos_alpha - cos_beta * cos_gamma) / sin_gamma
-        box_matrix[2, 2] = np.sqrt(lz * lz - box_matrix[2, 0] ** 2 - \
-                                   box_matrix[2, 1] ** 2)
+        box_matrix[2, 2] = np.sqrt(
+            lz * lz - box_matrix[2, 0] ** 2 - box_matrix[2, 1] ** 2
+        )
         # The discriminant of the above square root is only negative or zero for
         # triplets of box angles that lead to an invalid box (i.e., the sum of
         # any two angles is less than or equal to the third).
@@ -85,5 +88,5 @@ def triclinic_vectors(dimensions):
             # all good, convert to correct dtype:
             box_matrix = box_matrix.astype(dtype=np.float64, copy=False)
         else:
-            raise ValueError('Illegal box')
+            raise ValueError("Illegal box")
     return box_matrix

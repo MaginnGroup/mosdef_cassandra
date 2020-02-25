@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import contextlib
 
+
 @contextlib.contextmanager
 def temporary_cd(dir_path):
     prev_dir = os.getcwd()
@@ -12,6 +13,7 @@ def temporary_cd(dir_path):
     finally:
         os.chdir(prev_dir)
 
+
 @contextlib.contextmanager
 def temporary_directory():
     tmp_dir = tempfile.mkdtemp()
@@ -19,4 +21,3 @@ def temporary_directory():
         yield tmp_dir
     finally:
         shutil.rmtree(tmp_dir)
-

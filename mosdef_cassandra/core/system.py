@@ -1,14 +1,14 @@
-
 from copy import deepcopy
 import numpy as np
 
 import mbuild
 import parmed
 
-class System(object):
 
-    def __init__(self,boxes,species_topologies,mols_in_boxes=None,
-            mols_to_add=None):
+class System(object):
+    def __init__(
+        self, boxes, species_topologies, mols_in_boxes=None, mols_to_add=None
+    ):
         """A class to contain the system to simulate in Cassandra
 
         A System comprises the initial simulation box(es) (empty or
@@ -71,52 +71,63 @@ class System(object):
         return self._boxes
 
     @boxes.setter
-    def boxes(self,boxes):
+    def boxes(self, boxes):
         if self._boxes is None:
             self._boxes = []
-            if not isinstance(boxes,list):
-                raise TypeError('"boxes" should be a list. See '
-                        'help(mosdef_Cassandra.System) for details.')
+            if not isinstance(boxes, list):
+                raise TypeError(
+                    '"boxes" should be a list. See '
+                    "help(mosdef_Cassandra.System) for details."
+                )
             for box in boxes:
                 if isinstance(box, mbuild.Compound):
                     self._boxes.append(mbuild.clone(box))
                 elif isinstance(box, mbuild.Box):
                     self._boxes.append(deepcopy(box))
                 else:
-                    raise TypeError('Each box should be an '
-                            'mbuild.Compound or mbuild.Box object')
+                    raise TypeError(
+                        "Each box should be an "
+                        "mbuild.Compound or mbuild.Box object"
+                    )
         else:
-            raise AttributeError('Box(es) cannot be modified after '
-                    'System object is created. Create a new System '
-                    'object if you wish to change the box(es)' )
+            raise AttributeError(
+                "Box(es) cannot be modified after "
+                "System object is created. Create a new System "
+                "object if you wish to change the box(es)"
+            )
 
     @property
     def species_topologies(self):
         return self._species_topologies
 
     @species_topologies.setter
-    def species_topologies(self,species_topologies):
+    def species_topologies(self, species_topologies):
         if self._species_topologies is None:
-            if not isinstance(species_topologies,list):
-                raise TypeError('"species_topologies" should be a list. '
-                        'See help(mosdef_Cassandra.System) for details.')
+            if not isinstance(species_topologies, list):
+                raise TypeError(
+                    '"species_topologies" should be a list. '
+                    "See help(mosdef_Cassandra.System) for details."
+                )
             for topology in species_topologies:
-                if not isinstance(topology,parmed.Structure):
-                    raise TypeError('Each species should be a '
-                            'parmed.Structure')
+                if not isinstance(topology, parmed.Structure):
+                    raise TypeError(
+                        "Each species should be a " "parmed.Structure"
+                    )
             self._species_topologies = deepcopy(species_topologies)
         else:
-            raise AttributeError('species_topologies cannot be '
-                    'modified after System object is created. '
-                    'Create a new System object if you wish to '
-                    'edit the species_topolgies')
+            raise AttributeError(
+                "species_topologies cannot be "
+                "modified after System object is created. "
+                "Create a new System object if you wish to "
+                "edit the species_topolgies"
+            )
 
     @property
     def mols_in_boxes(self):
         return list(self._mols_in_boxes)
 
     @mols_in_boxes.setter
-    def mols_in_boxes(self,mols_in_boxes):
+    def mols_in_boxes(self, mols_in_boxes):
         if self._mols_in_boxes is None:
             # Make sure mols_in_boxes and mols_to_add are
             # properly formatted even if use specified none
@@ -125,67 +136,89 @@ class System(object):
             if mols_in_boxes is None:
                 mols_in_boxes = [[0] * n_species] * n_boxes
             # Error checking first
-            if not isinstance(mols_in_boxes,list):
-                raise TypeError('"mols_in_boxes" should be a list. '
-                    'See help(mosdef_Cassandra.System) for details.')
+            if not isinstance(mols_in_boxes, list):
+                raise TypeError(
+                    '"mols_in_boxes" should be a list. '
+                    "See help(mosdef_Cassandra.System) for details."
+                )
             if len(mols_in_boxes) != n_boxes:
-                raise ValueError('The number of boxes inferred from the '
+                raise ValueError(
+                    "The number of boxes inferred from the "
                     'length of "mols_in_boxes" must match the '
-                    'number of boxes inferred from the length of '
-                    '"boxes"')
+                    "number of boxes inferred from the length of "
+                    '"boxes"'
+                )
             for species_in_box in mols_in_boxes:
-                if not isinstance(species_in_box,list):
-                    raise TypeError('"mols_in_boxes" should be a list '
-                            'with one list for each box.'
-                            'See help(mosdef_Cassandra.System) for details.')
+                if not isinstance(species_in_box, list):
+                    raise TypeError(
+                        '"mols_in_boxes" should be a list '
+                        "with one list for each box."
+                        "See help(mosdef_Cassandra.System) for details."
+                    )
                 if len(species_in_box) != n_species:
-                    raise ValueError('The number of each species existing '
-                        'in each box must be specified (even if = 0)')
+                    raise ValueError(
+                        "The number of each species existing "
+                        "in each box must be specified (even if = 0)"
+                    )
                 for current_n in species_in_box:
-                    if not isinstance(current_n,int):
-                        raise TypeError('The number of each species existing '
-                                'in each box must be specified '
-                                'as an integer')
+                    if not isinstance(current_n, int):
+                        raise TypeError(
+                            "The number of each species existing "
+                            "in each box must be specified "
+                            "as an integer"
+                        )
             # Save data
             self._mols_in_boxes = deepcopy(mols_in_boxes)
         else:
-            raise AttributeError('mols_in_boxes cannot be '
-                    'modified after System object is created. '
-                    'Create a new System object if you wish to '
-                    'edit mols_in_boxes')
+            raise AttributeError(
+                "mols_in_boxes cannot be "
+                "modified after System object is created. "
+                "Create a new System object if you wish to "
+                "edit mols_in_boxes"
+            )
 
     @property
     def mols_to_add(self):
         return self._mols_to_add
 
     @mols_to_add.setter
-    def mols_to_add(self,mols_to_add):
+    def mols_to_add(self, mols_to_add):
         n_species = len(self.species_topologies)
         n_boxes = len(self.boxes)
         if mols_to_add is None:
             mols_to_add = [[0] * n_species] * n_boxes
-        if not isinstance(mols_to_add,list):
-            raise TypeError('"mols_to_add" should be a list. '
-                'See help(mosdef_Cassandra.System) for details.')
+        if not isinstance(mols_to_add, list):
+            raise TypeError(
+                '"mols_to_add" should be a list. '
+                "See help(mosdef_Cassandra.System) for details."
+            )
         if len(mols_to_add) != n_boxes:
-            raise ValueError('The number of boxes inferred from the '
-                    'length of "mols_to_add" must match the '
-                    'number of boxes inferred from the length of '
-                    '"boxes"')
+            raise ValueError(
+                "The number of boxes inferred from the "
+                'length of "mols_to_add" must match the '
+                "number of boxes inferred from the length of "
+                '"boxes"'
+            )
         for add_to_box in mols_to_add:
-            if not isinstance(add_to_box,list):
-                raise TypeError('"mols_to_add" should be a list '
-                        'with one list for each box. '
-                        'See help(mosdef_Cassandra.System) for details.')
+            if not isinstance(add_to_box, list):
+                raise TypeError(
+                    '"mols_to_add" should be a list '
+                    "with one list for each box. "
+                    "See help(mosdef_Cassandra.System) for details."
+                )
             if len(add_to_box) != n_species:
-                raise ValueError('The number of each species to '
-                    'be added to each box must be specified '
-                    '(even if it is = 0)')
+                raise ValueError(
+                    "The number of each species to "
+                    "be added to each box must be specified "
+                    "(even if it is = 0)"
+                )
             for add_n in add_to_box:
-                if not isinstance(add_n,int):
-                    raise TypeError('The number of each species to '
-                            'be added to each box must be specified '
-                            'as an integer')
+                if not isinstance(add_n, int):
+                    raise TypeError(
+                        "The number of each species to "
+                        "be added to each box must be specified "
+                        "as an integer"
+                    )
 
         self._mols_to_add = deepcopy(mols_to_add)
 
@@ -199,44 +232,51 @@ class System(object):
         n_boxes = len(self.boxes)
 
         atoms_per_species = [len(top.atoms) for top in self.species_topologies]
-        atoms_in_box = [ np.sum(np.multiply(atoms_per_species,
-                                            self.mols_in_boxes[ibox]))
-                         for ibox in range(n_boxes)]
+        atoms_in_box = [
+            np.sum(np.multiply(atoms_per_species, self.mols_in_boxes[ibox]))
+            for ibox in range(n_boxes)
+        ]
 
         # If the box is empty it should be an mbuild.Box object. If occupied
         # it should be an mbuild.Compound object.
-        for ibox,box in enumerate(self.boxes):
-            if isinstance(box,mbuild.Compound):
+        for ibox, box in enumerate(self.boxes):
+            if isinstance(box, mbuild.Compound):
                 if box.n_particles != atoms_in_box[ibox]:
-                    err_msg = ( 'The number of atoms in box {} ({}) '
-                                'does not match the number of atoms '
-                                'calculated to be in the box ({}) from '
-                                'the number of atoms per species ({}) '
-                                'and the number of species specified '
-                                'in each box (mols_in_boxes '
-                                '= {})'.format(ibox+1,
-                                               box.n_particles,
-                                               atoms_in_box[ibox],
-                                               atoms_per_species,
-                                               self.mols_in_boxes[ibox])
-                              )
+                    err_msg = (
+                        "The number of atoms in box {} ({}) "
+                        "does not match the number of atoms "
+                        "calculated to be in the box ({}) from "
+                        "the number of atoms per species ({}) "
+                        "and the number of species specified "
+                        "in each box (mols_in_boxes "
+                        "= {})".format(
+                            ibox + 1,
+                            box.n_particles,
+                            atoms_in_box[ibox],
+                            atoms_per_species,
+                            self.mols_in_boxes[ibox],
+                        )
+                    )
 
                     if box.n_particles == 1:
-                        addtl_msg = ( 'NOTE: mbuild.Compound objects '
-                                      'cannot contain zero particles. '
-                                      'If you wish to specify an empty '
-                                      'box please use an mbuild.Box '
-                                      'object instead.')
-                        raise ValueError(addtl_msg+'\n'+err_msg)
+                        addtl_msg = (
+                            "NOTE: mbuild.Compound objects "
+                            "cannot contain zero particles. "
+                            "If you wish to specify an empty "
+                            "box please use an mbuild.Box "
+                            "object instead."
+                        )
+                        raise ValueError(addtl_msg + "\n" + err_msg)
                     raise ValueError(err_msg)
-            elif isinstance(box,mbuild.Box):
+            elif isinstance(box, mbuild.Box):
                 if sum(self.mols_in_boxes[ibox]) > 0:
-                    raise ValueError('Box {} is an mbuild.Box object '
-                            'but species_in_box ({}) indicates that '
-                            'molecules should already be present. If you '
-                            'wish to provide a starting structure for '
-                            'Box {} then it must be a mbuild.Compound '
-                            'object'.format(ibox+1,
-                                            self.mols_in_boxes[ibox],
-                                            ibox+1))
-
+                    raise ValueError(
+                        "Box {} is an mbuild.Box object "
+                        "but species_in_box ({}) indicates that "
+                        "molecules should already be present. If you "
+                        "wish to provide a starting structure for "
+                        "Box {} then it must be a mbuild.Compound "
+                        "object".format(
+                            ibox + 1, self.mols_in_boxes[ibox], ibox + 1
+                        )
+                    )

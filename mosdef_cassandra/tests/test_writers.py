@@ -85,10 +85,7 @@ class TestInpFunctions(BaseTest):
         assert '# Sim_Type\nnvt' in inp_data
 
         with pytest.raises(ValueError,match=r'Unsupported sim_type'):
-            moves_copy = deepcopy(moves)
-            moves_copy.ensemble = 'gcmcccc'
-            inp_data = generate_input(system,moves_copy,300.,
-                                  'equilibration',500)
+            inp_data = mc.writers.inp_functions.get_sim_type('gccmc')
 
     def test_nbr_species(self,onecomp_system,twocomp_system):
         (system, moves) = onecomp_system

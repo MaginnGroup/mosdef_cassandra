@@ -285,5 +285,181 @@ class TestMoves(BaseTest):
         assert moves.sp_insertable[1] == True
         assert moves.sp_prob_regrow[1] == 0.0
 
+    def test_prob_setters(self,methane_oplsaa):
+        moves = mc.Moves('nvt',[methane_oplsaa])
+        with pytest.raises(TypeError, match=r'prob_translate must'):
+            moves.prob_translate = []
+        with pytest.raises(TypeError, match=r'prob_translate must'):
+            moves.prob_translate = True
+        with pytest.raises(ValueError, match=r'Probability must'):
+            moves.prob_translate = -0.2
+
+        with pytest.raises(TypeError, match=r'prob_rotate must'):
+            moves.prob_rotate = []
+        with pytest.raises(TypeError, match=r'prob_rotate must'):
+            moves.prob_rotate = True
+        with pytest.raises(ValueError, match=r'Probability must'):
+            moves.prob_rotate = -0.2
+
+        with pytest.raises(TypeError, match=r'prob_angle must'):
+            moves.prob_angle = []
+        with pytest.raises(TypeError, match=r'prob_angle must'):
+            moves.prob_angle = True
+        with pytest.raises(ValueError, match=r'Probability must'):
+            moves.prob_angle = -0.2
+
+        with pytest.raises(TypeError, match=r'prob_dihedral must'):
+            moves.prob_dihedral = []
+        with pytest.raises(TypeError, match=r'prob_dihedral must'):
+            moves.prob_dihedral = True
+        with pytest.raises(ValueError, match=r'Probability must'):
+            moves.prob_dihedral = -0.2
+
+        with pytest.raises(TypeError, match=r'prob_regrow must'):
+            moves.prob_regrow = []
+        with pytest.raises(TypeError, match=r'prob_regrow must'):
+            moves.prob_regrow = True
+        with pytest.raises(ValueError, match=r'Probability must'):
+            moves.prob_regrow = -0.2
+
+        with pytest.raises(TypeError, match=r'prob_volume must'):
+            moves.prob_volume = []
+        with pytest.raises(TypeError, match=r'prob_volume must'):
+            moves.prob_volume = True
+        with pytest.raises(ValueError, match=r'Probability must'):
+            moves.prob_volume = -0.2
+        with pytest.raises(ValueError, match=r'Ensemble is nvt.'):
+            moves.prob_volume = 0.02
+
+        moves = mc.Moves('gemc',[methane_oplsaa])
+        with pytest.raises(ValueError, match=r'Ensemble is gemc.'):
+            moves.prob_volume = 0.0
+
+        moves = mc.Moves('nvt',[methane_oplsaa])
+        with pytest.raises(TypeError, match=r'prob_insert must'):
+            moves.prob_insert = []
+        with pytest.raises(TypeError, match=r'prob_insert must'):
+            moves.prob_insert = True
+        with pytest.raises(ValueError, match=r'Probability must'):
+            moves.prob_insert = -0.2
+        with pytest.raises(ValueError, match=r'Ensemble is nvt.'):
+            moves.prob_insert = 0.2
+        moves = mc.Moves('gcmc',[methane_oplsaa])
+        with pytest.raises(ValueError, match=r'Ensemble is gcmc.'):
+            moves.prob_insert = 0.0
+
+        moves = mc.Moves('nvt',[methane_oplsaa])
+        with pytest.raises(TypeError, match=r'prob_swap must'):
+            moves.prob_swap = []
+        with pytest.raises(TypeError, match=r'prob_swap must'):
+            moves.prob_swap = True
+        with pytest.raises(ValueError, match=r'Probability must'):
+            moves.prob_swap = -0.2
+        with pytest.raises(ValueError, match=r'Ensemble is nvt.'):
+            moves.prob_swap = 0.2
+        moves = mc.Moves('gemc',[methane_oplsaa])
+        with pytest.raises(ValueError, match=r'Ensemble is gemc.'):
+            moves.prob_swap = 0.0
+
+    def test_maxval_setters(self,methane_oplsaa):
+        moves = mc.Moves('gemc',[methane_oplsaa])
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_translate = 1.
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_translate = [[1.,1.],[1.]]
+        with pytest.raises(TypeError,match=r'of type float'):
+            moves.max_translate = [[1.0],[True]]
+        with pytest.raises(ValueError,match=r'cannot be less than zero'):
+            moves.max_translate = [[1.0],[-1.0]]
+        moves.max_translate = [[1.0],[1]]
+        assert moves.max_translate[1][0] == 1.0
+
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_rotate = 1.
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_rotate = [[1.,1.],[1.]]
+        with pytest.raises(TypeError,match=r'of type float'):
+            moves.max_rotate = [[1.0],[True]]
+        with pytest.raises(ValueError,match=r'cannot be less than zero'):
+            moves.max_rotate = [[1.0],[-1.0]]
+        moves.max_rotate = [[1.0],[1]]
+        assert moves.max_rotate[1][0] == 1.0
+
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_dihedral = 1.
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_dihedral = [1.,1.,1.]
+        with pytest.raises(TypeError,match=r'of type float'):
+            moves.max_dihedral = [True]
+        with pytest.raises(ValueError,match=r'cannot be less than zero'):
+            moves.max_dihedral = [-1.0]
+        moves.max_dihedral = [1.0]
+        assert moves.max_dihedral[0] == 1.0
+
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.prob_swap_from_box = 1.
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.prob_swap_from_box = [1.,1.,1.]
+        with pytest.raises(TypeError,match=r'of type float'):
+            moves.prob_swap_from_box = [0.5,True]
+        with pytest.raises(ValueError,match=r'cannot be less than zero'):
+            moves.prob_swap_from_box = [0.5,-0.5]
+        moves.prob_swap_from_box = [0.5,0.5]
+        assert moves.prob_swap_from_box[0] == 0.5
+
+        moves = mc.Moves('gemc',[methane_oplsaa])
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_volume = 1.
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_volume = [1.,1.,1.]
+        with pytest.raises(TypeError,match=r'of type float'):
+            moves.max_volume = [True]
+        with pytest.raises(ValueError,match=r'cannot be less than zero'):
+            moves.max_volume = [-100]
+        moves.max_volume = [5000.0]
+        assert moves.max_volume[0] == 5000.0
+        moves = mc.Moves('gemc_npt',[methane_oplsaa])
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_volume = 1.
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.max_volume = [1.,1.,1.]
+        with pytest.raises(TypeError,match=r'of type float'):
+            moves.max_volume = [True,50000.0]
+        with pytest.raises(ValueError,match=r'cannot be less than zero'):
+            moves.max_volume = [-100,100.0]
+        moves.max_volume = [5000.0,50000.0]
+        assert moves.max_volume[1] == 50000.0
+
+        moves = mc.Moves('gemc',[methane_oplsaa])
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.sp_insertable = 1.
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.sp_insertable = [1.,1.,1.]
+        with pytest.raises(TypeError,match=r'as a boolean type'):
+            moves.sp_insertable = [2.0]
+        moves.sp_insertable = [True]
+        assert moves.sp_insertable[0] == True
+
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.sp_prob_swap = 1.
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.sp_prob_swap = [1.,1.,1.]
+        with pytest.raises(TypeError,match=r'of type float'):
+            moves.sp_prob_swap = [True]
+        with pytest.raises(ValueError,match=r'cannot be less than zero'):
+            moves.sp_prob_swap = [-1.0]
+        moves.sp_prob_swap = [1.0]
+        assert moves.sp_prob_swap[0] == 1.0
+
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.sp_prob_regrow = 1.
+        with pytest.raises(ValueError,match=r'must be a list'):
+            moves.sp_prob_regrow = [1.,1.,1.]
+        with pytest.raises(TypeError,match=r'of type float'):
+            moves.sp_prob_regrow = [True]
+        with pytest.raises(ValueError,match=r'cannot be less than zero'):
+            moves.sp_prob_regrow = [-1.0]
+        moves.sp_prob_regrow = [1.0]
+        assert moves.sp_prob_regrow[0] == 1.0
 
 

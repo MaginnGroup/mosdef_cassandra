@@ -38,7 +38,14 @@ def run_gcmc_adsorption():
         "prop_freq": 10,
     }
 
-    mc.run(system, moves, 300.0, "equilibration", 10000, **custom_args)
+    mc.run(
+        system=system,
+        moves=moves,
+        run_type="equilibration",
+        run_length=10000,
+        temperature=300.0,
+        **custom_args,
+    )
 
 
 if __name__ == "__main__":

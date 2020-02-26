@@ -28,7 +28,12 @@ def run(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Write input file
     inp_file = write_input(
-        system, moves, temperature, run_type, length, **kwargs
+        system=system,
+        moves=moves,
+        run_type=run_type,
+        run_length=run_length,
+        temperature=temperature,
+        **kwargs
     )
 
     # Write pdb files (this step will be removed when frag generation

@@ -27,11 +27,11 @@ def run_gcmc():
     moves = mc.Moves("gcmc", species_list)
 
     mc.run(
-        system,
-        moves,
-        300.0,
-        "equilibration",
-        1000,
+        system=system,
+        moves=moves,
+        run_type="equilibration",
+        run_length=1000,
+        temperature=300.0,
         chemical_potentials=[-35.0],
         prop_freq=100,
     )

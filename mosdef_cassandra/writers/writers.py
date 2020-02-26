@@ -63,7 +63,7 @@ def write_configs(system):
             box.save(xyz_name)
 
 
-def write_input(system, moves, temperature, run_type, length, **kwargs):
+def write_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     if "run_name" not in kwargs:
         kwargs["run_name"] = moves.ensemble
@@ -74,7 +74,12 @@ def write_input(system, moves, temperature, run_type, length, **kwargs):
             kwargs["run_name"] = kwargs["run_name"] + "-rst"
 
     inp_data = generate_input(
-        system, moves, temperature, run_type, length, **kwargs
+        system=system,
+        moves=moves,
+        run_type=run_type,
+        run_length=run_length,
+        temperature=temperature,
+        **kwargs
     )
 
     inp_name = kwargs["run_name"] + ".inp"
@@ -85,7 +90,9 @@ def write_input(system, moves, temperature, run_type, length, **kwargs):
     return inp_name
 
 
-def print_inputfile(system, moves, temperature, run_type, length, **kwargs):
+def print_inputfile(
+    system, moves, run_type, run_length, temperature, **kwargs
+):
 
     if "run_name" not in kwargs:
         kwargs["run_name"] = moves.ensemble
@@ -96,7 +103,12 @@ def print_inputfile(system, moves, temperature, run_type, length, **kwargs):
             kwargs["run_name"] = kwargs["run_name"] + "-rst"
 
     inp_data = generate_input(
-        system, moves, temperature, run_type, length, **kwargs
+        system=system,
+        moves=moves,
+        run_type=run_type,
+        run_length=run_length,
+        temperature=temperature,
+        **kwargs
     )
 
     print(inp_data)

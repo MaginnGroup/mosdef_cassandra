@@ -58,35 +58,68 @@ class TestInpFunctions(BaseTest):
         (system, moves) = onecomp_system
         with pytest.raises(ValueError, match=r"Invalid input argument"):
             inp_data = generate_input(
-                system, moves, 300.0, "equilibration", 500, random_arg=1
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
+                random_arg=1,
             )
 
     def test_run_name(self, onecomp_system):
         (system, moves) = onecomp_system
         inp_data = generate_input(
-            system, moves, 300.0, "equilibration", 500, run_name="test name"
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            run_name="test name",
         )
 
         assert "# Run_Name\ntest-name.out" in inp_data
 
         inp_data = generate_input(
-            system, moves, 300.0, "equilibration", 500, run_name="test_name"
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            run_name="test_name",
         )
 
         assert "# Run_Name\ntest_name.out" in inp_data
 
-        inp_data = generate_input(system, moves, 300.0, "equilibration", 500)
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+        )
 
         assert "# Run_Name\nnvt.out" in inp_data
 
         with pytest.raises(TypeError, match=r"must be a string"):
             inp_data = generate_input(
-                system, moves, 300.0, "equilibration", 500, run_name=1
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
+                run_name=1,
             )
 
     def test_sim_type(self, onecomp_system):
         (system, moves) = onecomp_system
-        inp_data = generate_input(system, moves, 300.0, "equilibration", 500)
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+        )
+        
         assert "# Sim_Type\nnvt" in inp_data
 
         with pytest.raises(ValueError, match=r"Unsupported sim_type"):
@@ -94,51 +127,74 @@ class TestInpFunctions(BaseTest):
 
     def test_nbr_species(self, onecomp_system, twocomp_system):
         (system, moves) = onecomp_system
-        inp_data = generate_input(system, moves, 300.0, "equilibration", 500)
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+        )
         assert "# Nbr_Species\n1" in inp_data
         (system, moves) = twocomp_system
-        inp_data = generate_input(system, moves, 300.0, "equilibration", 500)
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+        )
         assert "# Nbr_Species\n2" in inp_data
 
     def test_vdw_style(self, twocomp_system, twobox_system):
         (system, moves) = twocomp_system
 
-        inp_data = generate_input(system, moves, 300.0, "equilibration", 500)
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+        )
         assert "# VDW_Style\nlj cut_tail 12.0" in inp_data
 
         inp_data = generate_input(
-            system, moves, 300.0, "equilibration", 500, vdw_style="none"
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            vdw_style="none",
         )
         assert "# VDW_Style\nnone\n" in inp_data
 
         with pytest.raises(ValueError, match=r"Unsupported vdw_style"):
             inp_data = generate_input(
-                system,
-                moves,
-                300.0,
-                "equilibration",
-                500,
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
                 vdw_style="cutoff",
                 vdw_cutoff=12.0,
             )
 
         inp_data = generate_input(
-            system,
-            moves,
-            300.0,
-            "equilibration",
-            500,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
             cutoff_style="cut",
             vdw_cutoff=15.0,
         )
         assert "# VDW_Style\nlj cut 15.0" in inp_data
 
         inp_data = generate_input(
-            system,
-            moves,
-            300.0,
-            "equilibration",
-            500,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
             cutoff_style="cut_shift",
             vdw_cutoff=15.0,
         )
@@ -146,41 +202,52 @@ class TestInpFunctions(BaseTest):
 
         with pytest.raises(ValueError, match=r"Only one box"):
             inp_data = generate_input(
-                system, moves, 300.0, "equilibration", 500, vdw_cutoff_box2=1.0
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
+                vdw_cutoff_box2=10.0,
             )
 
         inp_data = generate_input(
-            system,
-            moves,
-            300.0,
-            "equilibration",
-            500,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
             cutoff_style="cut_switch",
-            vdw_cutoff=[12.0, 15.0],
+            vdw_cutoff=[12.0,15.0],
         )
         assert "# VDW_Style\nlj cut_switch 12.0 15.0" in inp_data
 
         with pytest.raises(ValueError, match=r"requires an inner"):
             inp_data = generate_input(
-                system,
-                moves,
-                300.0,
-                "equilibration",
-                500,
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
                 cutoff_style="cut_switch",
                 vdw_cutoff=12.0,
             )
 
         (system, moves) = twobox_system
-        inp_data = generate_input(system, moves, 300.0, "equilibration", 500)
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+        )
         assert "# VDW_Style\nlj cut_tail 12.0\nlj cut_tail 12.0" in inp_data
 
         inp_data = generate_input(
-            system,
-            moves,
-            300.0,
-            "equilibration",
-            500,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
             cutoff_style="cut_switch",
             vdw_cutoff_box1=[12.0, 15.0],
             vdw_cutoff_box2=[11.0, 13.0],
@@ -192,11 +259,11 @@ class TestInpFunctions(BaseTest):
 
         with pytest.raises(ValueError, match=r"Unsupported cutoff style"):
             inp_data = generate_input(
-                system,
-                moves,
-                300.0,
-                "equilibration",
-                500,
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
                 cutoff_style="cutoff",
                 vdw_cutoff=12.0,
             )
@@ -204,41 +271,62 @@ class TestInpFunctions(BaseTest):
     def test_charge_style(self, twocomp_system, twobox_system):
         (system, moves) = twocomp_system
 
-        inp_data = generate_input(system, moves, 300.0, "equilibration", 500)
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+        )
         assert "# Charge_Style\ncoul ewald 12.0 1e-05\n" in inp_data
 
         inp_data = generate_input(
-            system, moves, 300.0, "equilibration", 500, charge_style="cut"
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            charge_style="cut"
         )
         assert "# Charge_Style\ncoul cut 12.0\n" in inp_data
 
         inp_data = generate_input(
-            system, moves, 300.0, "equilibration", 500, charge_style="dsf"
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            charge_style="dsf",
         )
         assert "# Charge_Style\ncoul dsf 12.0\n" in inp_data
 
         inp_data = generate_input(
-            system,
-            moves,
-            300.0,
-            "equilibration",
-            500,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
             charge_style="dsf",
             dsf_damping=0.2,
         )
         assert "# Charge_Style\ncoul dsf 12.0 0.2\n" in inp_data
 
         inp_data = generate_input(
-            system, moves, 300.0, "equilibration", 500, charge_style="none"
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            charge_style="none",
         )
         assert "# Charge_Style\nnone\n" in inp_data
 
         inp_data = generate_input(
-            system,
-            moves,
-            300.0,
-            "equilibration",
-            500,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
             charge_cutoff=15.0,
             ewald_accuracy=5e-6,
         )
@@ -246,21 +334,21 @@ class TestInpFunctions(BaseTest):
 
         with pytest.raises(ValueError, match=r"Only one box"):
             inp_data = generate_input(
-                system,
-                moves,
-                300.0,
-                "equilibration",
-                500,
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
                 charge_cutoff_box2=1.0,
             )
 
         (system, moves) = twobox_system
         inp_data = generate_input(
-            system,
-            moves,
-            300.0,
-            "equilibration",
-            500,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
             charge_cutoff_box2=30.0,
             ewald_accuracy=5e-6,
         )
@@ -271,27 +359,35 @@ class TestInpFunctions(BaseTest):
 
     def test_mixing_rule(self, onecomp_system):
         (system, moves) = onecomp_system
-        inp_data = generate_input(system, moves, 300.0, "equilibration", 500)
-
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+        )
         assert "# Mixing_Rule\nlb\n" in inp_data
 
         inp_data = generate_input(
-            system, moves, 300.0, "equilibration", 500, mixing_rule="geometric"
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            mixing_rule="geometric"
         )
-
         assert "# Mixing_Rule\ngeometric\n" in inp_data
 
         mixing_dict = {"ls_138_s1 ls_140_s1": "1.0 1.0"}
         inp_data = generate_input(
-            system,
-            moves,
-            300.0,
-            "equilibration",
-            500,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
             mixing_rule="custom",
             custom_mixing_dict=mixing_dict,
         )
-
         assert (
             "# Mixing_Rule\ncustom\nls_138_s1 ls_140_s1 1.0 1.0\n" in inp_data
         )
@@ -300,17 +396,22 @@ class TestInpFunctions(BaseTest):
             ValueError, match=r"Custom mixing rule requested but"
         ):
             inp_data = generate_input(
-                system,
-                moves,
-                300.0,
-                "equilibration",
-                500,
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
                 mixing_rule="custom",
             )
 
         with pytest.raises(ValueError, match=r"Unsupported mixing rule"):
             inp_data = generate_input(
-                system, moves, 300.0, "equilibration", 500, mixing_rule="other"
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
+                mixing_rule="other",
             )
 
     def test_seeds(self, onecomp_system):

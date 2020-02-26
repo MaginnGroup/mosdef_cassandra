@@ -99,7 +99,32 @@ We now combine the four components created above into a single
     contain any forcefield parameters.
 
 
+Now we create a ``Moves`` object. This object contains all selections related to
+the ``# Move_Probabilities`` section of the Cassandra input file. In addition
+to the probability of performing different types of MC moves, the ``Moves``
+object also contains the maximum move sizes (e.g., maximum translation distance),
+whether each species is insertable, and so on. To create the moves object, we
+must specify the ensemble we wish to perform our MC simulation in and the 
+``species_list``.
 
+.. code-block:: python
+
+    ensemble = 'nvt'
+    moves = mc.Moves(ensemble, species_list)
+
+Many attributes of the moves object can be edited after it is created. This allows
+complete control over all the move-related selections in Cassandra.
+
+The only remaining step is to run the simulation. The ``mc.run`` function requires
+five arguments: the ``System`` object, the ``Moves`` object, the temperature,
+a selection of ``equilibration`` or ``production``, and the number of steps to run.
+
+.. code-block:: python
+
+    mc.run(system, moves, 300.0, 'equilibration', 10000)
+
+A large number of additional keyword arguments can be provided inline or as part
+of a keyword dictionary. See XX for details.
 
 
 

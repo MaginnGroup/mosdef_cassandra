@@ -198,13 +198,13 @@ jobs:
         conda config --add channels conda-forge
         conda update -c defaults conda
         conda update --all
-        conda create -n  test-environment
+        conda create --yes -n test-environment python=$(python.version) --file requirements-test.txt
       displayName: Create a new test environment
 
     - bash: |
         conda activate test-environment
-        conda install --yes python=$(python.version) --file requirements-test.txt
-        conda install --yes python=$(python.version) --file requirements-test.txt
+        echo "PYTHON VERSION:"
+        python --version
         python -m pip install --user .
       displayName: clone,install foyer,mbuild; install mosdef_cassandra
 

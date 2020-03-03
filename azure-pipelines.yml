@@ -100,20 +100,20 @@ jobs:
         cd foyer
         conda install --yes python=$(python.version) --file requirements-dev.txt
         conda install --yes python=$(python.version) --file requirements-dev.txt
-        pip install .
-        pip uninstall mbuild -y
+        python -m pip install --user .
+        python -m pip uninstall mbuild -y
         cd ..
         cd mbuild
         conda install --yes python=$(python.version) --file requirements-dev.txt
         conda install --yes python=$(python.version) --file requirements-dev.txt
-        pip install .
+        python -m pip install .
         cd ..
-        pip install .
+        python -m pip install .
       displayName: clone,install foyer,mbuild; install mosdef_cassandra
 
     - bash: |
         source activate bleeding-test-environment
-        pip install pytest-azurepipelines
+        python -m pip install pytest-azurepipelines
         python -m pytest mosdef_cassandra/tests -v --cov=./
       displayName: Run Tests
 
@@ -205,12 +205,12 @@ jobs:
         conda activate test-environment
         conda install --yes python=$(python.version) --file requirements-test.txt
         conda install --yes python=$(python.version) --file requirements-test.txt
-        pip install .
+        python -m pip install --user .
       displayName: clone,install foyer,mbuild; install mosdef_cassandra
 
     - bash: |
         conda activate test-environment
-        pip install pytest-azurepipelines
+        python -m pip install --user pytest-azurepipelines
         python -m pytest mosdef_cassandra/tests -v --cov=./
       displayName: Run Tests
 

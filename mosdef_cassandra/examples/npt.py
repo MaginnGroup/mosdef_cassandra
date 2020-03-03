@@ -15,11 +15,11 @@ def run_npt():
     oplsaa = foyer.forcefields.load_OPLSAA()
 
     # Use foyer to apply forcefields
-    typed_methane = oplsaa.apply(methane)
+    methane_ff = oplsaa.apply(methane)
 
     # Create box and species list
     box_list = [box]
-    species_list = [typed_methane]
+    species_list = [methane_ff]
 
     # Use Cassandra to insert some initial number of species
     mols_to_add = [[5]]

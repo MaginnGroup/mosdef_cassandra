@@ -16,11 +16,11 @@ def run_gcmc_adsorption():
 
     # Use foyer to apply forcefields
     typed_lattice = trappe.apply(lattice)
-    typed_methane = oplsaa.apply(methane)
+    methane_ff = oplsaa.apply(methane)
 
     # Create box and species list
     box_list = [lattice]
-    species_list = [typed_lattice, typed_methane]
+    species_list = [typed_lattice, methane_ff]
 
     # Since we have an occupied box we need to specify
     # the number of each species present in the intial config

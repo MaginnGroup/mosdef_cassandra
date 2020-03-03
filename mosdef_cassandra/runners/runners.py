@@ -44,6 +44,7 @@ def run(system, moves, temperature, run_type, length, **kwargs):
     # Run fragment generation (again, will be removed...)
     print("Generating fragment libraries...")
     successful_fraglib = _run_fraglib_setup(
+        py2,
         fraglib_setup,
         cassandra,
         inp_file,
@@ -86,7 +87,7 @@ def restart(system, moves, temperature, run_type, length, **kwargs):
     _run_cassandra(cassandra, inp_file, log_file)
 
 
-def _run_fraglib_setup(fraglib_setup, cassandra, inp_file, log_file, nspecies):
+def _run_fraglib_setup(py2, fraglib_setup, cassandra, inp_file, log_file, nspecies):
     """Builds the fragment libraries required to run Cassandra.
 
     Requires python2.
@@ -97,8 +98,9 @@ def _run_fraglib_setup(fraglib_setup, cassandra, inp_file, log_file, nspecies):
         species_pdb_files += "species{}.pdb ".format(isp + 1)
 
     fraglib_cmd = (
-        "python2 {fraglib_setup} {cassandra} {inp_file} "
+        "{py2} {fraglib_setup} {cassandra} {inp_file} "
         "{species_pdb_files}".format(
+            py2=py2,
             fraglib_setup=fraglib_setup,
             cassandra=cassandra,
             inp_file=inp_file,

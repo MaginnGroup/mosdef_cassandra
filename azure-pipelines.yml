@@ -99,12 +99,10 @@ jobs:
         git clone https://github.com/rsdefever/mbuild.git
         cd foyer
         conda install --yes python=$(python.version) --file requirements-dev.txt
-        conda install --yes python=$(python.version) --file requirements-dev.txt
         python -m pip install --user .
         python -m pip uninstall mbuild -y
         cd ..
         cd mbuild
-        conda install --yes python=$(python.version) --file requirements-dev.txt
         conda install --yes python=$(python.version) --file requirements-dev.txt
         python -m pip install .
         cd ..
@@ -211,6 +209,6 @@ jobs:
     - bash: |
         conda activate test-environment
         python -m pip install --user pytest-azurepipelines
-        python -m pytest mosdef_cassandra/tests -v --cov=./
+        python -m pytest mosdef_cassandra/tests -v
       displayName: Run Tests
 

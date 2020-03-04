@@ -10,7 +10,7 @@ from mosdef_cassandra.writers.writers import write_pdb
 from mosdef_cassandra.utils.detect import detect_cassandra_binaries
 
 
-def run(system, moves, temperature, run_type, length, **kwargs):
+def run(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
@@ -28,7 +28,12 @@ def run(system, moves, temperature, run_type, length, **kwargs):
 
     # Write input file
     inp_file = write_input(
-        system, moves, temperature, run_type, length, **kwargs
+        system=system,
+        moves=moves,
+        run_type=run_type,
+        run_length=run_length,
+        temperature=temperature,
+        **kwargs
     )
 
     # Write pdb files (this step will be removed when frag generation
@@ -62,7 +67,7 @@ def run(system, moves, temperature, run_type, length, **kwargs):
         )
 
 
-def restart(system, moves, temperature, run_type, length, **kwargs):
+def restart(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
@@ -80,7 +85,12 @@ def restart(system, moves, temperature, run_type, length, **kwargs):
 
     # Write input file
     inp_file = write_input(
-        system, moves, temperature, run_type, length, **kwargs
+        system=system,
+        moves=moves,
+        run_type=run_type,
+        run_length=run_length,
+        temperature=temperature,
+        **kwargs
     )
 
     print("Running Cassandra...")

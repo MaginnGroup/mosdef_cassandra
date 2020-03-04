@@ -28,7 +28,13 @@ def run_nvt_mixture():
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
     moves = mc.Moves("nvt", species_list)
 
-    mc.run(system, moves, 200.0, "equilibration", 10000)
+    mc.run(
+        system=system,
+        moves=moves,
+        run_type="equilibration",
+        run_length=10000,
+        temperature=200.0,
+    )
 
 
 if __name__ == "__main__":

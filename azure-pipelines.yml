@@ -144,7 +144,7 @@ jobs:
 - job: StandardMoSDeF
   strategy:
     matrix:
-     Python37Ubuntu:
+      Python37Ubuntu:
         imageName: 'ubuntu-18.04'
         python.version: 3.7
       Python36Ubuntu:

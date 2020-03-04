@@ -19,12 +19,12 @@ jobs:
 - job: BleedingMoSDeF
   strategy:
     matrix:
-#      Python37Ubuntu:
-#        imageName: 'ubuntu-18.04'
-#        python.version: 3.7
-#      Python36Ubuntu:
-#        imageName: 'ubuntu-18.04'
-#        python.version: 3.6
+      Python37Ubuntu:
+        imageName: 'ubuntu-18.04'
+        python.version: 3.7
+      Python36Ubuntu:
+        imageName: 'ubuntu-18.04'
+        python.version: 3.6
       Python37macOS:
         imageName: 'macOS-10.14'
         python.version: 3.7
@@ -144,12 +144,12 @@ jobs:
 - job: StandardMoSDeF
   strategy:
     matrix:
-#     Python37Ubuntu:
-#        imageName: 'ubuntu-18.04'
-#        python.version: 3.7
-#      Python36Ubuntu:
-#        imageName: 'ubuntu-18.04'
-#        python.version: 3.6
+     Python37Ubuntu:
+        imageName: 'ubuntu-18.04'
+        python.version: 3.7
+      Python36Ubuntu:
+        imageName: 'ubuntu-18.04'
+        python.version: 3.6
       Python37macOS:
         imageName: 'macOS-10.14'
         python.version: 3.7

@@ -1,12 +1,12 @@
 Installation
 ============
 
-The package must be installed from source.  A conda installation will be
-added in the future.
+At this stage, the package must be installed from source.  A conda
+installation will be added in the near future.
 
 First, make sure you have the required dependencies. These include:
 
-* Cassandra V1.2
+* Cassandra >= 1.2
 * mbuild
 * foyer
 
@@ -30,6 +30,10 @@ Cassandra must be installed from source. Once you have downloaded the tarball
     mv Src/cassandra_gfortran.exe ./bin/.
     cp Script/Frag_Library_Setup/library_setup.py ./bin/.
 
+.. warning::
+  gfortran >= 9.0 causes problems with compilation. Please use gfortran < 9.0
+  to compile Cassandra.
+
 And finally add ``Cassandra_V1.2/bin`` to your ``PATH``:
 
 .. code-block:: bash
@@ -41,7 +45,7 @@ run it every time you open a new terminal window.
 
 .. warning::
     Though a conda installation of Cassandra is available,
-    it is not currently compatibile with mosdef_cassandra.
+    it is not currently compatibile with MoSDeF Cassandra.
 
 Run the following commands to install mosdef_cassandra:
 
@@ -72,3 +76,10 @@ line is:
     Cassandra:
     /afs/crc.nd.edu/user/r/rdefever/software/Cassandra_V1.2/bin/cassandra_gfortran_openMP.exe
 
+.. warning::
+  openbabel is not a required dependency for mbuild or MoSDeF Cassandra.
+  However, most of the examples require openbabel to generate
+  an ``mbuild.Compound`` from a SMILES string
+  (e.g., ``molecule = mbuild.load("CC", smiles=True)``). Therefore, we highly
+  recommend installing openbabel via conda:
+  ``conda install -c conda-forge openbabel``.

@@ -19,12 +19,12 @@ jobs:
 - job: BleedingMoSDeF
   strategy:
     matrix:
-      Python37Ubuntu:
-        imageName: 'ubuntu-18.04'
-        python.version: 3.7
-      Python36Ubuntu:
-        imageName: 'ubuntu-18.04'
-        python.version: 3.6
+#      Python37Ubuntu:
+#        imageName: 'ubuntu-18.04'
+#        python.version: 3.7
+#      Python36Ubuntu:
+#        imageName: 'ubuntu-18.04'
+#        python.version: 3.6
       Python37macOS:
         imageName: 'macOS-10.14'
         python.version: 3.7
@@ -56,8 +56,8 @@ jobs:
       condition: eq( variables['Agent.OS'], 'Linux' )
 
     - bash: |
-        brew install gcc
-        brew upgrade gcc
+        brew install gcc@8
+        brew upgrade gcc@8
         gfortran --version
       displayName: Install gfortran macOS
       condition: eq( variables['Agent.OS'], 'Darwin' )
@@ -131,12 +131,12 @@ jobs:
 - job: StandardMoSDeF
   strategy:
     matrix:
-      Python37Ubuntu:
-        imageName: 'ubuntu-18.04'
-        python.version: 3.7
-      Python36Ubuntu:
-        imageName: 'ubuntu-18.04'
-        python.version: 3.6
+#     Python37Ubuntu:
+#        imageName: 'ubuntu-18.04'
+#        python.version: 3.7
+#      Python36Ubuntu:
+#        imageName: 'ubuntu-18.04'
+#        python.version: 3.6
       Python37macOS:
         imageName: 'macOS-10.14'
         python.version: 3.7
@@ -153,6 +153,12 @@ jobs:
 
     - bash : echo "##vso[task.prependpath]$(Build.SourcesDirectory)/mosdef_cassandra/tests/files/Cassandra_V1.2/bin"
       displayName: Add Cassandra to path
+
+    # On Hosted macOS, the agent user doesn't have ownership of Miniconda's installation directory/
+    # We need to take ownership if we want to update conda or install packages globally
+    - bash: sudo chown -R $USER $CONDA
+      displayName: Take ownership of conda installation
+      condition: eq( variables['Agent.OS'], 'Darwin' )
 
     - bash: |
         sudo apt-get update

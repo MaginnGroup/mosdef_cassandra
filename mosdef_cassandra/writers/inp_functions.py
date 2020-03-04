@@ -7,7 +7,7 @@ import mosdef_cassandra.utils.convert_box as convert_box
 NM_TO_A = 10.0
 
 
-def generate_input(system, moves, temperature, run_type, length, **kwargs):
+def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     """Construct an input file section by section (with defaults)
 
     Default options are provided based upon the mosdef_cassandra.System
@@ -22,13 +22,13 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
         system to be simulated
     moves : mosdef_cassandra.Moves
         move probabilities
-    temperature : float
-        temperature of the system
     run_type : str
         'equil' or 'prod'
-    length : float
+    run_length : float
         simulation length in units of (default=steps), or your choice
         as specified by the 'units' option in **kwargs
+    temperature : float
+        temperature of the system
     **kwargs : dict
         keyword arguments. Details below.
 
@@ -411,7 +411,12 @@ def generate_input(system, moves, temperature, run_type, length, **kwargs):
         block_avg_freq = None
 
     inp_data += get_simulation_length_info(
-        units, prop_freq, coord_freq, length, steps_per_sweep, block_avg_freq
+        units,
+        prop_freq,
+        coord_freq,
+        run_length,
+        steps_per_sweep,
+        block_avg_freq,
     )
 
     # Properties section
@@ -1494,7 +1499,7 @@ def get_simulation_length_info(
     units,
     prop_freq,
     coord_freq,
-    length,
+    run_length,
     steps_per_sweep=None,
     block_avg_freq=None,
 ):
@@ -1508,7 +1513,7 @@ def get_simulation_length_info(
         frequency of writing property info
    coord_freq : int
         frequency of writing coordinates to file
-   length : int
+   run_length : int
         number of (units) to run the simulation
    steps_per_sweep : int, optional
         number of steps in a MC sweep
@@ -1527,8 +1532,8 @@ def get_simulation_length_info(
         raise ValueError("prop_freq must be an integer")
     if not isinstance(coord_freq, int):
         raise ValueError("coord_freq must be an integer")
-    if not isinstance(length, int):
-        raise ValueError("length must be an integer")
+    if not isinstance(run_length, int):
+        raise ValueError("run_length must be an integer")
     if steps_per_sweep is not None:
         if not isinstance(steps_per_sweep, int):
             raise ValueError("steps_per_sweep must be an integer")
@@ -1541,8 +1546,11 @@ def get_simulation_length_info(
 units {units}
 prop_freq {prop_freq}
 coord_freq {coord_freq}
-run {length}""".format(
-        units=units, prop_freq=prop_freq, coord_freq=coord_freq, length=length
+run {run_length}""".format(
+        units=units,
+        prop_freq=prop_freq,
+        coord_freq=coord_freq,
+        run_length=run_length,
     )
 
     if steps_per_sweep is not None:
@@ -1723,7 +1731,7 @@ def _get_possible_kwargs(desc=False):
         "chemical_potentials": "list of floats, specify the desired chemical potential for each species",
         "thermal_stat_freq": "int, frequency of printing/updating non-volume moves",
         "vol_stat_freq": "int, frequency of printing/updating volume moves",
-        "units": 'str, units for run/thermo/coord length/freqs. "minutes" or "steps" or "sweeps"',
+        "units": 'str, units for run/thermo/coord run_length/freqs. "minutes" or "steps" or "sweeps"',
         "prop_freq": "int, frequency of writing thermo properties",
         "coord_freq": "int, frequency of writing coordinates",
         "steps_per_sweep": "int, number of MC steps defined as a single sweep",

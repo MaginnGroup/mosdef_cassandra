@@ -10,7 +10,7 @@ from mosdef_cassandra.writers.writers import write_pdb
 from mosdef_cassandra.utils.detect import detect_cassandra_binaries
 
 
-def run(system, moves, temperature, run_type, length, **kwargs):
+def run(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
@@ -28,7 +28,12 @@ def run(system, moves, temperature, run_type, length, **kwargs):
 
     # Write input file
     inp_file = write_input(
-        system, moves, temperature, run_type, length, **kwargs
+        system=system,
+        moves=moves,
+        run_type=run_type,
+        run_length=run_length,
+        temperature=temperature,
+        **kwargs
     )
 
     # Write pdb files (this step will be removed when frag generation
@@ -44,6 +49,7 @@ def run(system, moves, temperature, run_type, length, **kwargs):
     # Run fragment generation (again, will be removed...)
     print("Generating fragment libraries...")
     successful_fraglib = _run_fraglib_setup(
+        py2,
         fraglib_setup,
         cassandra,
         inp_file,
@@ -61,7 +67,7 @@ def run(system, moves, temperature, run_type, length, **kwargs):
         )
 
 
-def restart(system, moves, temperature, run_type, length, **kwargs):
+def restart(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
@@ -79,14 +85,19 @@ def restart(system, moves, temperature, run_type, length, **kwargs):
 
     # Write input file
     inp_file = write_input(
-        system, moves, temperature, run_type, length, **kwargs
+        system=system,
+        moves=moves,
+        run_type=run_type,
+        run_length=run_length,
+        temperature=temperature,
+        **kwargs
     )
 
     print("Running Cassandra...")
     _run_cassandra(cassandra, inp_file, log_file)
 
 
-def _run_fraglib_setup(fraglib_setup, cassandra, inp_file, log_file, nspecies):
+def _run_fraglib_setup(py2, fraglib_setup, cassandra, inp_file, log_file, nspecies):
     """Builds the fragment libraries required to run Cassandra.
 
     Requires python2.
@@ -97,8 +108,9 @@ def _run_fraglib_setup(fraglib_setup, cassandra, inp_file, log_file, nspecies):
         species_pdb_files += "species{}.pdb ".format(isp + 1)
 
     fraglib_cmd = (
-        "python2 {fraglib_setup} {cassandra} {inp_file} "
+        "{py2} {fraglib_setup} {cassandra} {inp_file} "
         "{species_pdb_files}".format(
+            py2=py2,
             fraglib_setup=fraglib_setup,
             cassandra=cassandra,
             inp_file=inp_file,

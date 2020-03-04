@@ -25,12 +25,12 @@ jobs:
       Python36Ubuntu:
         imageName: 'ubuntu-18.04'
         python.version: 3.6
-      #Python37macOS:
-      #  imageName: 'macOS-10.14'
-      #  python.version: 3.7
-      #Python36macOS:
-      #  imageName: 'macOS-latest'
-      #  python.version: 3.6
+      Python37macOS:
+        imageName: 'macOS-10.14'
+        python.version: 3.7
+      Python36macOS:
+        imageName: 'macOS-latest'
+        python.version: 3.6
 
   pool:
     vmImage: $(imageName)
@@ -42,6 +42,12 @@ jobs:
     - bash : echo "##vso[task.prependpath]$(Build.SourcesDirectory)/mosdef_cassandra/tests/files/Cassandra_V1.2/bin"
       displayName: Add Cassandra to path
 
+    # On Hosted macOS, the agent user doesn't have ownership of Miniconda's installation directory/
+    # We need to take ownership if we want to update conda or install packages globally
+    - bash: sudo chown -R $USER $CONDA
+      displayName: Take ownership of conda installation
+      condition: eq( variables['Agent.OS'], 'Darwin' )
+
     - bash: |
         sudo apt-get update
         sudo apt-get install gfortran
@@ -50,9 +56,9 @@ jobs:
       condition: eq( variables['Agent.OS'], 'Linux' )
 
     - bash: |
-        brew install gcc
-        brew upgrade gcc
-        gfortran --version
+        brew install gcc@8
+        brew upgrade gcc@8
+        gfortran-8 --version
       displayName: Install gfortran macOS
       condition: eq( variables['Agent.OS'], 'Darwin' )
 
@@ -65,7 +71,20 @@ jobs:
         cp cassandra_gfortran.exe ../bin/.
         cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
         cd ../../../../../
-      displayName: Build Cassandra
+      displayName: Build Cassandra Linux
+      condition: eq( variables['Agent.OS'], 'Linux' )
+
+    - bash: |
+        cd mosdef_cassandra/tests/files/
+        tar -xzvf Cassandra_V1.2.tar.gz
+        cd Cassandra_V1.2/Src
+        make -f Makefile.gfortran FC=gfortran-8
+        mkdir ../bin
+        cp cassandra_gfortran.exe ../bin/.
+        cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
+        cd ../../../../../
+      displayName: Build Cassandra macOS
+      condition: eq( variables['Agent.OS'], 'Darwin' )
 
     - bash: |
         echo Working directory:
@@ -86,35 +105,32 @@ jobs:
         conda config --set always_yes yes --set changeps1 no
         conda config --add channels omnia
         conda config --add channels janschulz
-        conda config --add channels conda-forge
         conda config --add channels mosdef
+        conda config --add channels conda-forge
         conda update -c defaults conda
         conda update --all
         conda create -n  bleeding-test-environment
       displayName: Create a new bleeding test environment
 
     - bash: |
-        conda activate bleeding-test-environment
+        source activate bleeding-test-environment
         git clone https://github.com/mosdef-hub/foyer.git
         git clone https://github.com/rsdefever/mbuild.git
         cd foyer
         conda install --yes python=$(python.version) --file requirements-dev.txt
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        pip install -e .
-        pip uninstall mbuild -y
+        python -m pip install --user .
+        python -m pip uninstall mbuild -y
         cd ..
         cd mbuild
-        git checkout --track origin/fix-cassandramcf-nobonds
         conda install --yes python=$(python.version) --file requirements-dev.txt
-        conda install --yes python=$(python.version) --file requirements-dev.txt
-        pip install -e .
+        python -m pip install .
         cd ..
-        pip install -e .
+        python -m pip install .
       displayName: clone,install foyer,mbuild; install mosdef_cassandra
 
     - bash: |
         source activate bleeding-test-environment
-        pip install pytest-azurepipelines
+        python -m pip install pytest-azurepipelines
         python -m pytest mosdef_cassandra/tests -v --cov=./
       displayName: Run Tests
 
@@ -124,3 +140,113 @@ jobs:
         codecov --file ./coverage.xml --token cb1e0c33-6709-4714-86b1-4f5db28ffede
       condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['python.version'], '3.7' ) )
       displayName: Upload coverage
+
+- job: StandardMoSDeF
+  strategy:
+    matrix:
+      Python37Ubuntu:
+        imageName: 'ubuntu-18.04'
+        python.version: 3.7
+      Python36Ubuntu:
+        imageName: 'ubuntu-18.04'
+        python.version: 3.6
+      Python37macOS:
+        imageName: 'macOS-10.14'
+        python.version: 3.7
+      Python36macOS:
+        imageName: 'macOS-10.14'
+        python.version: 3.6
+
+  pool:
+    vmImage: $(imageName)
+
+  steps:
+    - bash: echo "##vso[task.prependpath]$CONDA/bin"
+      displayName: Add Conda to path
+
+    - bash : echo "##vso[task.prependpath]$(Build.SourcesDirectory)/mosdef_cassandra/tests/files/Cassandra_V1.2/bin"
+      displayName: Add Cassandra to path
+
+    # On Hosted macOS, the agent user doesn't have ownership of Miniconda's installation directory/
+    # We need to take ownership if we want to update conda or install packages globally
+    - bash: sudo chown -R $USER $CONDA
+      displayName: Take ownership of conda installation
+      condition: eq( variables['Agent.OS'], 'Darwin' )
+
+    - bash: |
+        sudo apt-get update
+        sudo apt-get install gfortran
+        gfortran --version
+      displayName: Install gfortran Linux
+      condition: eq( variables['Agent.OS'], 'Linux' )
+
+    - bash: |
+        brew install gcc@8
+        brew upgrade gcc@8
+        gfortran-8 --version
+      displayName: Install gfortran macOS
+      condition: eq( variables['Agent.OS'], 'Darwin' )
+
+    - bash: |
+        cd mosdef_cassandra/tests/files/
+        tar -xzvf Cassandra_V1.2.tar.gz
+        cd Cassandra_V1.2/Src
+        make -f Makefile.gfortran
+        mkdir ../bin
+        cp cassandra_gfortran.exe ../bin/.
+        cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
+        cd ../../../../../
+      displayName: Build Cassandra Linux
+      condition: eq( variables['Agent.OS'], 'Linux' )
+
+    - bash: |
+        cd mosdef_cassandra/tests/files/
+        tar -xzvf Cassandra_V1.2.tar.gz
+        cd Cassandra_V1.2/Src
+        make -f Makefile.gfortran FC=gfortran-8
+        mkdir ../bin
+        cp cassandra_gfortran.exe ../bin/.
+        cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
+        cd ../../../../../
+      displayName: Build Cassandra macOS
+      condition: eq( variables['Agent.OS'], 'Darwin' )
+
+    - bash: |
+        echo Working directory:
+        pwd
+        echo ls:
+        ls
+        echo PATH:
+        echo "$PATH"
+        echo CASSANDRA:
+        which cassandra_gfortran.exe
+        echo PYTHON2
+        which python2
+        echo LIBRARY_SETUP:
+        which library_setup.py
+      displayName: Check cassandra install
+
+    - bash: |
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels omnia
+        conda config --add channels janschulz
+        conda config --add channels mosdef
+        conda config --add channels conda-forge
+        conda update -c defaults conda
+        conda update --all
+        conda create --yes -n test-environment python=$(python.version) --file requirements-test.txt
+      displayName: Create a new test environment
+
+    - bash: |
+        source activate test-environment
+        echo "PYTHON VERSION:"
+        python --version
+        python -m pip install --user .
+      displayName: clone,install foyer,mbuild; install mosdef_cassandra
+
+    - bash: |
+        source activate test-environment
+        python -m pip install --user pytest-azurepipelines
+        python -m pytest mosdef_cassandra/tests -v
+      displayName: Run Tests
+

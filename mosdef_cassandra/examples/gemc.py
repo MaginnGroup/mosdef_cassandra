@@ -52,7 +52,14 @@ def run_gemc():
         "properties": thermo_props,
     }
 
-    mc.run(system, moves, 151.0, "equilibration", 250, **custom_args)
+    mc.run(
+        system=system,
+        moves=moves,
+        run_type="equilibration",
+        run_length=250,
+        temperature=151.0,
+        **custom_args,
+    )
 
     # Set max translate and volume for production
     moves.max_translate = [[0.5], [14.0]]
@@ -62,7 +69,14 @@ def run_gemc():
     custom_args["run_name"] = "prod"
     custom_args["restart_name"] = "equil"
 
-    mc.restart(system, moves, 151.0, "production", 750, **custom_args)
+    mc.restart(
+        system=system,
+        moves=moves,
+        run_type="production",
+        run_length=750,
+        temperature=151.0,
+        **custom_args,
+    )
 
 
 if __name__ == "__main__":

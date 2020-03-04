@@ -58,7 +58,7 @@ jobs:
     - bash: |
         brew install gcc@8
         brew upgrade gcc@8
-        gfortran --version
+        gfortran-8 --version
       displayName: Install gfortran macOS
       condition: eq( variables['Agent.OS'], 'Darwin' )
 
@@ -71,7 +71,20 @@ jobs:
         cp cassandra_gfortran.exe ../bin/.
         cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
         cd ../../../../../
-      displayName: Build Cassandra
+      displayName: Build Cassandra Linux
+      condition: eq( variables['Agent.OS'], 'Linux' )
+
+    - bash: |
+        cd mosdef_cassandra/tests/files/
+        tar -xzvf Cassandra_V1.2.tar.gz
+        cd Cassandra_V1.2/Src
+        make -f Makefile.gfortran FC=gfortran-8
+        mkdir ../bin
+        cp cassandra_gfortran.exe ../bin/.
+        cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
+        cd ../../../../../
+      displayName: Build Cassandra macOS
+      condition: eq( variables['Agent.OS'], 'Darwin' )
 
     - bash: |
         echo Working directory:
@@ -170,7 +183,7 @@ jobs:
     - bash: |
         brew install gcc@8
         brew upgrade gcc@8
-        gfortran --version
+        gfortran-8 --version
       displayName: Install gfortran macOS
       condition: eq( variables['Agent.OS'], 'Darwin' )
 
@@ -183,7 +196,20 @@ jobs:
         cp cassandra_gfortran.exe ../bin/.
         cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
         cd ../../../../../
-      displayName: Build Cassandra
+      displayName: Build Cassandra Linux
+      condition: eq( variables['Agent.OS'], 'Linux' )
+
+    - bash: |
+        cd mosdef_cassandra/tests/files/
+        tar -xzvf Cassandra_V1.2.tar.gz
+        cd Cassandra_V1.2/Src
+        make -f Makefile.gfortran FC=gfortran-8
+        mkdir ../bin
+        cp cassandra_gfortran.exe ../bin/.
+        cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
+        cd ../../../../../
+      displayName: Build Cassandra macOS
+      condition: eq( variables['Agent.OS'], 'Darwin' )
 
     - bash: |
         echo Working directory:

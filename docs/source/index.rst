@@ -1,5 +1,7 @@
-
 .. include:: ../../README.rst
+
+Table of Contents
+=================
 
 .. toctree::
    :maxdepth: 2
@@ -12,7 +14,7 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption Guides
+   :caption: Guides
 
    guides/philosophy
    guides/system
@@ -21,13 +23,13 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption API
+   :caption: API
 
    api/api.rst
 
 .. toctree::
    :maxdepth: 2
-   :caption Reference
+   :caption: Reference
 
    reference/develop
    reference/citing

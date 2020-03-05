@@ -1,7 +1,6 @@
 
 MoSDeF Cassandra
-================
-
+================ 
 |Citing|
 |CodeCov|
 |Azure|
@@ -26,7 +25,7 @@ Resources
 ~~~~~~~~~
 
 * Reference Documentation: Examples, tutorials, guides, and API documentation
-* :doc:`Installation guide <install>`: Instructions for installing MoSDeF Cassandra
+* :doc:`Installation guide <docs/source/getting_started/install>`: Instructions for installing MoSDeF Cassandra
 * `GitHub repository <https://github.com/rsdefever/mosdef_cassandra>`_: View the source code, contribute, and raise issues
 * `Cassandra <https://cassandra.nd.edu>`_: Home of the Cassandra Monte Carlo package
 * `MoSDeF tools <https://mosdef.org>`_: A generic collection of tools for constructing systems and applying forcefield parameters for particle-based simulations
@@ -35,12 +34,12 @@ Citation
 ~~~~~~~~
 
 Please cite **MoSDeF Cassandra**, **Cassandra**, and the **MoSDeF** suite of
-tools if you use this tool in your research. See :doc:`here <citing>` for details.
+tools if you use this tool in your research. See :doc:`here <docs/source/resources/citing>` for details.
 
 Installation
 ~~~~~~~~~~~~
 
-Installation instructions are :doc:`here <install>`. A conda installation will
+Installation instructions are :doc:`here <docs/source/getting_started/install>`. A conda installation will
 be added in the near future.
 
 Examples
@@ -93,22 +92,3 @@ Monte Carlo calculation is contained in the script below.
       temperature=300.0
   )
 
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   install
-   getting_started
-   concepts
-   api
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

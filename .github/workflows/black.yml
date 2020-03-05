@@ -24,4 +24,5 @@ jobs:
 
     # Run the black code formatter
     - name: Black code formatter
-      uses: lgeiger/black-action@v1.0.1
+      uses: lgeiger/black-action@master
+      args: ". --check"

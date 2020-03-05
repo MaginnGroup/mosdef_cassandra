@@ -1,63 +1,5 @@
-
-Concepts
-========
-
-The goal of mosdef_cassandra is to integrate the Cassandra Monte Carlo (MC)
-code with the Molecular Simulation Design Framework (MoSDeF). The benefits of
-such integration include:
-
-* Improved reproducibility
-* Ease of sharing simulation inputs
-* Ease of implementing screening over large parameter spaces
-
-mosdef_cassandra creates two primary objects, the ``mosdef_cassandra.System``
-object and the ``mosdef_cassandra.Moves`` object. Each is described in detail
-below.
-
-``mc.System``
--------------
-
-The ``mc.System`` object contains the following:
-
-* ``box_list``
-* ``species_list``
-* ``mols_in_boxes``
-* ``mols_to_add``
-
-These items comprise a complete description of the system to be simulated in
-Cassandra. The box information, forcefield information, number of species,
-and coordinates of any initial structure are contained within this object.
-
-``box_list`` is a ``list`` of the simulation boxes. For boxes that are initially
-empty, the element of the list is a ``mbuild.Box``. For boxes that are already
-occupied, the list element is a ``mbuild.Compound``. The length of ``box_list`` will
-normally be one (NVT, NPT, GCMC) or two (GEMC).
-
-``species_list`` is a ``list`` of the unique chemical species in the system. For
-example, if simulating a mixture of methane and ethane, there are two species.
-Therefore length of ``species_list`` is two. Each element of ``species_list`` is
-a parameterized ``parmed.Structure``. This contains all forcefield details for
-a given species.
-
-``mols_in_boxes`` is a ``list`` containing the number of molecules of each
-species currently in each box. ``len(mols_in_boxes) = n_boxes``, where
-``n_boxes`` is the number of simulation boxes. For each box, there is a list
-with ``len(mols_in_boxes[ibox]) = n_species``, where ``n_species`` is the number
-of unique species in the system. If setting up a system with a single
-simulation box containing 10 methane molecules and 5 ethane molecules,
-``mols_in_boxes = [[10,5]]``.
-
-``mols_to_add`` is a ``list`` containing the number of molecules of each
-species to add each box before beginning the simulation. The format of
-``mols_to_add`` is analogous to the format of ``mols_in_boxes``.
-``len(mols_to_add) = n_boxes``, and for each box, there is a list
-with ``len(mols_to_add[ibox]) = n_species``. If setting up a system with a
-single simulation box to which we wish to add 10 methane molecules and 0 ethane
-molecules, ``mols_to_add = [[10,0]]``.
-
-
-``mc.Moves``
-------------
+The Moves object
+================
 
 The ``mc.Moves`` object contains the following:
 
@@ -81,6 +23,21 @@ The ``mc.Moves`` object contains the following:
 ``ensemble`` is a string describing the desired ensemble for the simulation. The
 ensemble and ``species_list`` determine the default values assigned to all the
 other attributes of the ``mc.Moves`` object.
+
+Printing the contents of the Moves object
++++++++++++++++++++++++++++++++++++++++++
+
+Imagine we have created a moves object as follows:
+
+.. code-block:: python
+
+  moves = mc.Moves('nvt', species_list)
+
+We can then print the current contents with:
+
+.. code-block:: python
+
+  moves.print()
 
 Default move probabilities:
 +++++++++++++++++++++++++++
@@ -145,5 +102,3 @@ box 2 to 30.0 Angstroms, set ``max_translate = [[2.0,2.0],[30.0,2.0]]``.
     species is set to ``0.0`` degrees. Species that are multi-particle but
     contain zero bonds are considered fixed; the maximum translation
     and rotation are set to ``0.0`` Angstroms and ``0.0`` degrees, respectively.
-
-

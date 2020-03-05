@@ -7,7 +7,7 @@ MoSDeF compatible wrapper for Cassandra Monte Carlo code
 
 WARNING: This package is under development and should not be considered ready for production use.
 
-### Example usage
+### Example
 
 First we import the required packages. `mbuild` for system construction, `foyer` for atomtyping
 and forcefield application, and `mosdef_cassandra` for Monte Carlo simulation.
@@ -56,28 +56,35 @@ and the simulation length (by default, number of MC moves). Other arguments can 
 added with keywords or by specifying a dictionary of keywords and arguments.
 
     # Run simulation
-    mc.run(system, moves, 300., 'equil', 10000)
+    mc.run(
+		system=system,
+		moves=moves,
+		run_type="equilibration",
+        run_length=10000,
+        temperature=300.0
+    )
 
-Assuming all runs smoothly, your current directory will now contain a number of
+If everything works correctly, the current directory will now contain a number of
 new files. The standard output and standard error from the simulation can be found
 in `mosdef_cassandra.log`.
 
 ### Installation
 
-To install this package, run the following commands (recommended to do from within a conda environment)
+It is highly recommended that you install `mosdef_cassandra` within a conda
+environment. You can create and activate a new conda environment with the following:
 
-    git clone git@github.com:rsdefever/mosdef_cassandra.git
-    cd mosdef_cassandra/
-    pip install .
+	conda create --name cassandra python=3.7
+	conda activate cassandra
 
-### Dependencies
+#### Dependencies
 
-`mosdef_cassandra` requires `mbuild` and `foyer`. These can be installed via conda:
+`mosdef_cassandra` requires `mbuild` and `foyer`. `openbabel` is highly recommended.
+These can be installed via conda:
 
-    conda install -c conda-forge -c omnia -c mosdef mbuild
-    conda install -c conda-forge -c omnia -c mosdef foyer
+    conda install -c omnia -c mosdef -c conda-forge mbuild foyer
+    conda install -c conda-forge openbabel
 
-`mosdef_cassandra` also requires the Cassandra Monte Carlo code.
+`mosdef_cassandra` requires the Cassandra Monte Carlo code.
 It can be found [here](https://cassandra.nd.edu/). Once you have installed
 Cassandra (see installation instructions at prior link), you will need to
 make sure that the Cassandra executable (e.g., `cassandra_gfortran.exe`)
@@ -97,13 +104,20 @@ compiling Cassandra and then adding the appropriate location to your `PATH`:
 
 You will also need a `python2` installation and on your `PATH`.
 
+#### Installing mosdef_cassandra
+
+To install `mosdef_cassandra`, run the following commands
+
+    git clone git@github.com:rsdefever/mosdef_cassandra.git
+    cd mosdef_cassandra/
+    pip install .
+
 ### Future plans
-* Addition of fragment library generation to `mosdef_cassandra` so that a call
-to a separate python script is not required.
+* conda installation
 
 ### Known issues
 * Control of 1-4 scaling in MCF files
 
 ### List of Cassandra capabilities that are not (yet) supported
-* Mie potential (support coming with migration to topology.Topology object)
-* Fixed angles (support coming with migration to topology.Topology object)
+* Mie potential (support coming with migration to gmso.Topology object)
+* Fixed angles (support coming with migration to gmso.Topology object)

@@ -4,18 +4,28 @@ Installation
 At this stage, the package must be installed from source.  A conda
 installation will be added in the near future.
 
-First, make sure you have the required dependencies. These include:
+First, clone MoSDeF Cassandra from GitHub to a location of your choosing:
+
+.. code-block:: bash
+
+    git clone git@github.com:rsdefever/mosdef_cassandra.git
+
+Next, install the required dependencies. These include:
 
 * Cassandra >= 1.2
 * mbuild
 * foyer
+* numpy
 
-mbuild and foyer can be installed via conda:
+mbuild, foyer, and numpy can be installed via conda:
 
 .. code-block:: bash
 
-    conda install -c omnia -c mosdef -c conda-forge mbuild
-    conda install -c omnia -c mosdef -c conda-forge foyer
+    conda install -c omnia -c mosdef -c conda-forge --file mosdef_cassandra/requirements.txt
+    conda install -c conda-forge openbabel
+
+The second line installs openbabel. It is not a strict requirement,
+but is **highly recommended** and necessary for many of the examples.
 
 Cassandra must be installed from source. Once you have downloaded the tarball
 (available `here <https://cassandra.nd.edu/index.php/download>`_):
@@ -34,7 +44,16 @@ Cassandra must be installed from source. Once you have downloaded the tarball
   gfortran >= 9.0 causes problems with compilation. Please use gfortran < 9.0
   to compile Cassandra.
 
-And finally add ``Cassandra_V1.2/bin`` to your ``PATH``:
+.. note::
+    You may also wish to use the openMP version. In that case use the
+    ``Makefile.gfortran.openMP`` and move the relevant executable to
+    ``bin/``. Depending on system size, Cassandra the openMP version
+    may offer speedups for up to ~8 cores. The number of OMP threads
+    can be controlled by setting the ``OMP_NUM_THREADS`` environment
+    variable, e.g., ``export OMP_NUM_THREADS=8``.
+
+
+Add ``Cassandra_V1.2/bin`` to your ``PATH``:
 
 .. code-block:: bash
 
@@ -47,12 +66,12 @@ run it every time you open a new terminal window.
     Though a conda installation of Cassandra is available,
     it is not currently compatibile with MoSDeF Cassandra.
 
-Run the following commands to install mosdef_cassandra:
+Finally, run the following commands to complete the installation of
+mosdef_cassandra:
 
 .. code-block:: bash
 
-    git clone git@github.com:rsdefever/mosdef_cassandra.git
-    cd mosdef_cassandra/
+    cd PATH_TO_REPO/mosdef_cassandra/
     pip install .
 
 You can test your installation by opening up a Python interpreter and typing:
@@ -76,10 +95,3 @@ line is:
     Cassandra:
     /afs/crc.nd.edu/user/r/rdefever/software/Cassandra_V1.2/bin/cassandra_gfortran_openMP.exe
 
-.. warning::
-  openbabel is not a required dependency for mbuild or MoSDeF Cassandra.
-  However, most of the examples require openbabel to generate
-  an ``mbuild.Compound`` from a SMILES string
-  (e.g., ``molecule = mbuild.load("CC", smiles=True)``). Therefore, we highly
-  recommend installing openbabel via conda:
-  ``conda install -c conda-forge openbabel``.

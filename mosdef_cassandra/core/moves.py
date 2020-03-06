@@ -596,3 +596,85 @@ class Moves(object):
                 )
 
         self._sp_prob_regrow = sp_prob_regrow
+
+    def print(self):
+        """Print the current contents of Moves"""
+
+        contents = """
+Ensemble:  {ensemble}
+
+Probability of selecting each move type:
+
+Translate: {prob_translate}
+Rotate:    {prob_rotate}
+Regrow:    {prob_regrow}
+Volume:    {prob_volume}
+Insert:    {prob_insert}
+Delete:    {prob_delete}
+Swap:      {prob_swap}
+Angle:     {prob_angle}
+Dihedral:  {prob_dihedral}
+""".format(
+            ensemble=self.ensemble,
+            prob_translate=self.prob_translate,
+            prob_rotate=self.prob_rotate,
+            prob_regrow=self.prob_regrow,
+            prob_volume=self.prob_volume,
+            prob_insert=self.prob_insert,
+            prob_delete=self.prob_insert,
+            prob_swap=self.prob_swap,
+            prob_angle=self.prob_angle,
+            prob_dihedral=self.prob_dihedral,
+        )
+
+        contents += "\n\nPer species quantities:\n\n"
+        contents += "                         "
+        for idx in range(self._n_species):
+            contents += "species{idx}     ".format(idx=idx + 1)
+        contents += "\n"
+        contents += "                         "
+        for idx in range(self._n_species):
+            contents += "========     ".format(idx=idx + 1)
+        contents += "\n"
+        contents += "Max translate (Ang):     "
+        for (box, max_translate_box) in enumerate(self.max_translate):
+            for (idx, max_translate) in enumerate(max_translate_box):
+                contents += "{max_trans:4.2f}          ".format(
+                    max_trans=max_translate
+                )
+            contents += "(box {box})".format(box=box + 1)
+            contents += "\n"
+        contents += "Max rotate (deg):        "
+        for (box, max_rotate_box) in enumerate(self.max_rotate):
+            for (idx, max_rotate) in enumerate(max_rotate_box):
+                contents += "{max_rot:4.2f}         ".format(
+                    max_rot=max_rotate
+                )
+            contents += "(box {box})".format(box=box + 1)
+            contents += "\n"
+        contents += "Insertable:              "
+        for (idx, insert) in enumerate(self.sp_insertable):
+            contents += "{insert}          ".format(insert=insert)
+        contents += "\n"
+        contents += "Max dihedral:            "
+        for (idx, max_dih) in enumerate(self.max_dihedral):
+            contents += "{max_dih:4.2f}          ".format(max_dih=max_dih)
+        contents += "\n"
+        contents += "Prob swap:               "
+        for (idx, prob_swap) in enumerate(self.sp_prob_swap):
+            contents += "{prob_swap:4.2f}          ".format(
+                prob_swap=prob_swap
+            )
+        contents += "\n"
+        contents += "Prob regrow:             "
+        for (idx, prob_regrow) in enumerate(self.sp_prob_regrow):
+            contents += "{regrow:4.2f}          ".format(regrow=prob_regrow)
+        contents += "\n"
+
+        contents += "\n\nMax volume (Ang^3):\n"
+        for (box, max_vol) in enumerate(self.max_volume):
+            contents += "Box {box}: {max_vol}\n".format(
+                box=box + 1, max_vol=max_vol
+            )
+
+        print(contents)

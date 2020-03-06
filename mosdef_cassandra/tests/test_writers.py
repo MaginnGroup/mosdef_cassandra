@@ -119,7 +119,7 @@ class TestInpFunctions(BaseTest):
             run_length=500,
             temperature=300.0,
         )
-        
+
         assert "# Sim_Type\nnvt" in inp_data
 
         with pytest.raises(ValueError, match=r"Unsupported sim_type"):
@@ -217,7 +217,7 @@ class TestInpFunctions(BaseTest):
             run_length=500,
             temperature=300.0,
             cutoff_style="cut_switch",
-            vdw_cutoff=[12.0,15.0],
+            vdw_cutoff=[12.0, 15.0],
         )
         assert "# VDW_Style\nlj cut_switch 12.0 15.0" in inp_data
 
@@ -286,7 +286,7 @@ class TestInpFunctions(BaseTest):
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
-            charge_style="cut"
+            charge_style="cut",
         )
         assert "# Charge_Style\ncoul cut 12.0\n" in inp_data
 
@@ -374,7 +374,7 @@ class TestInpFunctions(BaseTest):
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
-            mixing_rule="geometric"
+            mixing_rule="geometric",
         )
         assert "# Mixing_Rule\ngeometric\n" in inp_data
 
@@ -432,7 +432,7 @@ class TestInpFunctions(BaseTest):
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
-            seeds=[1,2],
+            seeds=[1, 2],
         )
 
         assert "# Seed_Info\n1 2\n" in inp_data
@@ -454,7 +454,7 @@ class TestInpFunctions(BaseTest):
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
-                seeds=[100,-1],
+                seeds=[100, -1],
             )
 
     def test_rcut_min(self, onecomp_system):
@@ -563,7 +563,7 @@ class TestInpFunctions(BaseTest):
                 run_length=500,
                 temperature=300.0,
                 max_molecules=100,
-           )
+            )
 
         with pytest.raises(ValueError, match=r"Length of list specified"):
             inp_data = generate_input(
@@ -578,22 +578,22 @@ class TestInpFunctions(BaseTest):
     def test_boxes(self, onecomp_system, twobox_system, gcmc_system):
         (system, moves) = onecomp_system
         inp_data = generate_input(
-                system=system,
-                moves=moves,
-                run_type="equilibration",
-                run_length=500,
-                temperature=300.0,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
         )
 
         assert "# Box_Info\n1\ncubic\n50.0\n" in inp_data
 
         (system, moves) = twobox_system
         inp_data = generate_input(
-                system=system,
-                moves=moves,
-                run_type="equilibration",
-                run_length=500,
-                temperature=300.0,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
         )
 
         assert "# Box_Info\n2\ncubic\n50.0\n\ncubic\n50.0\n" in inp_data
@@ -648,7 +648,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature='hi',
+                temperature="hi",
             )
 
     def test_pressure(self, twocomptwobox_system):
@@ -1229,7 +1229,7 @@ class TestInpFunctions(BaseTest):
             temperature=300.0,
         )
         assert "# Run_Type\nequilibration 1000 \n" in inp_data
-        
+
         inp_data = generate_input(
             system=system,
             moves=moves,
@@ -1322,12 +1322,12 @@ class TestInpFunctions(BaseTest):
             in inp_data
         )
         inp_data = generate_input(
-                system=system,
-                moves=moves,
-                run_type="equilibration",
-                run_length=500,
-                temperature=300.0,
-                block_avg_freq=10,
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            block_avg_freq=10,
         )
         assert (
             "# Simulation_Length_Info\nunits steps\nprop_freq 500\ncoord_freq 5000\nrun 500\nblock_averages 10\n"
@@ -1377,7 +1377,6 @@ class TestInpFunctions(BaseTest):
                 run_length=500,
                 temperature=300.0,
                 block_avg_freq=10.2,
-
             )
         with pytest.raises(ValueError, match=r"must be an integer"):
             inp_data = generate_input(
@@ -1558,5 +1557,3 @@ class TestInpFunctions(BaseTest):
                 cbmc_kappa_dih=5,
                 cbmc_rcut=[],
             )
-
-

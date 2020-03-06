@@ -463,11 +463,8 @@ class TestMoves(BaseTest):
         moves.sp_prob_regrow = [1.0]
         assert moves.sp_prob_regrow[0] == 1.0
 
-    def test_print_moves(self,methane_oplsaa):
+    def test_print_moves(self, methane_oplsaa):
         """Simple test to make sure moves object is printed"""
 
         moves = mc.Moves("gemc", [methane_oplsaa])
         moves.print()
-
-
-

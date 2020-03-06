@@ -97,7 +97,9 @@ def restart(system, moves, run_type, run_length, temperature, **kwargs):
     _run_cassandra(cassandra, inp_file, log_file)
 
 
-def _run_fraglib_setup(py2, fraglib_setup, cassandra, inp_file, log_file, nspecies):
+def _run_fraglib_setup(
+    py2, fraglib_setup, cassandra, inp_file, log_file, nspecies
+):
     """Builds the fragment libraries required to run Cassandra.
 
     Requires python2.

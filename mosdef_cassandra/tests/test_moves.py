@@ -468,6 +468,3 @@ class TestMoves(BaseTest):
 
         moves = mc.Moves("gemc", [methane_oplsaa])
         moves.print()
-
-
-

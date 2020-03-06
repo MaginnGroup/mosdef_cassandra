@@ -57,9 +57,9 @@ added with keywords or by specifying a dictionary of keywords and arguments.
 
     # Run simulation
     mc.run(
-		system=system,
-		moves=moves,
-		run_type="equilibration",
+        system=system,
+        moves=moves,
+        run_type="equilibration",
         run_length=10000,
         temperature=300.0
     )

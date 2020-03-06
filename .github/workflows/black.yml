@@ -27,6 +27,7 @@ jobs:
         args: ". --check"
   azure:
     needs: black
+    runs-on: ubuntu-latest
     steps:
     - name: Azure pipelines
       uses: Azure/pipelines@v1

@@ -6,8 +6,8 @@ MoSDeF Cassandra
 
 .. |Citing| image:: https://img.shields.io/badge/cite-mosdef__cassandra-blue
    :target: reference/citing.html
-.. |Codecov| image:: https://codecov.io/gh/rsdefever/mosdef_cassandra/branch/master/graph/badge.svg?token=xsgvdWprHp
-.. |Azure| image:: https://img.shields.io/azure-devops/build/rdefever/aa33040a-0348-429f-a1ed-c9a8c69222c1/1
+.. |Codecov| image:: https://codecov.io/gh/MaginnGroup/mosdef_cassandra/branch/master/graph/badge.svg
+.. |Azure| image:: https://dev.azure.com/MaginnGroup/mosdef_cassandra/_apis/build/status/MaginnGroup.mosdef_cassandra?branchName=master
 
 Overview
 ~~~~~~~~

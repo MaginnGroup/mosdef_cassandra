@@ -2,45 +2,59 @@
 MoSDeF Cassandra
 ================ 
 |Citing|
+|License|
 |CodeCov|
 |Azure|
 
 .. |Citing| image:: https://img.shields.io/badge/cite-mosdef__cassandra-blue
-   :target: https://githib.com/rsdefever/mosdef_cassandra
-.. |Codecov| image:: https://codecov.io/gh/rsdefever/mosdef_cassandra/branch/master/graph/badge.svg?token=xsgvdWprHp
-.. |Azure| image:: https://img.shields.io/azure-devops/build/rdefever/aa33040a-0348-429f-a1ed-c9a8c69222c1/1
+   :target: https://mosdef-cassandra.readthedocs.io/en/latest/reference/citing.html
+.. |Codecov| image:: https://codecov.io/gh/MaginnGroup/mosdef_cassandra/branch/master/graph/badge.svg
+.. |Azure| image:: https://dev.azure.com/MaginnGroup/mosdef_cassandra/_apis/build/status/MaginnGroup.mosdef_cassandra?branchName=master
+.. |License| image:: https://img.shields.io/github/license/maginngroup/mosdef_cassandra
 
 Overview
 ~~~~~~~~
 
-**MoSDeF Cassandra** is a Python wrapper for the **Cassandra** Monte Carlo code.
-The wrapper interfaces with the **MoSDeF** tools and provides a user-friendly
-interface to Cassandra without sacrificing any capabilities of Cassandra.
+**MoSDeF Cassandra** is a Python wrapper for the
+`Cassandra <https://cassandra.nd.edu>`_ Monte Carlo code.
+The wrapper interfaces with the `MoSDeF <https://mosdef.org>`_
+tools and provides a user-friendly interface to Cassandra
+without sacrificing any capabilities of Cassandra.
 
-.. warning::
-  **MoSDeF Cassandra** is still in early development (0.x releases). The API may
-  change unexpectedly.
+Warning
+~~~~~~~
+
+**MoSDeF Cassandra** is still in early development (0.x releases). The API may
+change unexpectedly.
 
 Resources
 ~~~~~~~~~
 
-* Reference Documentation: Examples, tutorials, guides, and API documentation
-* :doc:`Installation guide <docs/source/getting_started/install>`: Instructions for installing MoSDeF Cassandra
-* `GitHub repository <https://github.com/rsdefever/mosdef_cassandra>`_: View the source code, contribute, and raise issues
-* `Cassandra <https://cassandra.nd.edu>`_: Home of the Cassandra Monte Carlo package
-* `MoSDeF tools <https://mosdef.org>`_: A generic collection of tools for constructing systems and applying forcefield parameters for particle-based simulations
+* `Reference documentation <https://mosdef-cassandra.readthedocs.io>`_:
+  Examples, tutorials, guides, and API documentation
+* `Installation guide <https://mosdef-cassandra.readthedocs.io/en/latest/getting_started/install.html>`_:
+  Instructions for installing MoSDeF Cassandra
+* `GitHub repository <https://github.com/MaginnGroup/mosdef_cassandra>`_:
+  View the source code, contribute, and raise issues
+* `Cassandra <https://cassandra.nd.edu>`_:
+  Home of the Cassandra Monte Carlo package
+* `MoSDeF tools <https://mosdef.org>`_:
+  A generic collection of tools for constructing systems and applying
+  forcefield parameters for particle-based simulations
 
 Citation
 ~~~~~~~~
 
 Please cite **MoSDeF Cassandra**, **Cassandra**, and the **MoSDeF** suite of
-tools if you use this tool in your research. See :doc:`here <docs/source/resources/citing>` for details.
+tools if you use this tool in your research. Details 
+`here <https://mosdef-cassandra.readthedocs.io/en/latest/reference/citing.html>`_.
 
 Installation
 ~~~~~~~~~~~~
 
-Installation instructions are :doc:`here <docs/source/getting_started/install>`. A conda installation will
-be added in the near future.
+Installation instructions are
+`here <https://mosdef-cassandra.readthedocs.io/en/latest/getting_started/install.html>`_.
+A conda installation will be added in the near future.
 
 Examples
 ~~~~~~~~
@@ -91,4 +105,13 @@ Monte Carlo calculation is contained in the script below.
       run_length=1000,
       temperature=300.0
   )
+
+Credits
+~~~~~~~
+
+Development of MoSDeF Cassandra was supported by the National Science Foundation
+under grant NSF Grant Number 1835874. Any opinions, findings, and conclusions or
+recommendations expressed in this material are those of the author(s) and do
+not necessarily reflect the views of the National Science Foundation.
+
 

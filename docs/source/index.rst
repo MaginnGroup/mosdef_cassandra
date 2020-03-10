@@ -6,8 +6,8 @@ MoSDeF Cassandra
 
 .. |Citing| image:: https://img.shields.io/badge/cite-mosdef__cassandra-blue
    :target: reference/citing.html
-.. |Codecov| image:: https://codecov.io/gh/rsdefever/mosdef_cassandra/branch/master/graph/badge.svg?token=xsgvdWprHp
-.. |Azure| image:: https://img.shields.io/azure-devops/build/rdefever/aa33040a-0348-429f-a1ed-c9a8c69222c1/1
+.. |Codecov| image:: https://codecov.io/gh/MaginnGroup/mosdef_cassandra/branch/master/graph/badge.svg
+.. |Azure| image:: https://dev.azure.com/MaginnGroup/mosdef_cassandra/_apis/build/status/MaginnGroup.mosdef_cassandra?branchName=master
 
 Overview
 ~~~~~~~~
@@ -25,7 +25,7 @@ Resources
 
 * :doc:`Installation guide <getting_started/install>`: Instructions for installing MoSDeF Cassandra
 * :ref:`keyconcepts`: How we think about MoSDeF Cassandra
-* `GitHub repository <https://github.com/rsdefever/mosdef_cassandra>`_: View the source code, contribute, and raise issues
+* `GitHub repository <https://github.com/MaginnGroup/mosdef_cassandra>`_: View the source code, contribute, and raise issues
 * `Cassandra <https://cassandra.nd.edu>`_: Home of the Cassandra Monte Carlo package
 * `MoSDeF tools <https://mosdef.org>`_: A collection of tools for constructing systems and applying forcefield parameters for particle-based simulations
 
@@ -91,7 +91,7 @@ Monte Carlo calculation is contained in the script below.
       temperature=300.0
   )
 
-Several additional examples can be found `here <getting_started/examples>`_.
+Several additional examples can be found :doc:`here <getting_started/examples>`.
 
 Credits
 ~~~~~~~
@@ -101,7 +101,7 @@ under grant NSF Grant Number 1835874. Any opinions, findings, and conclusions or
 recommendations expressed in this material are those of the author(s) and do
 not necessarily reflect the views of the National Science Foundation.
 
-See `here <reference/credits>`_ for complete credits.
+See :doc:`here <reference/credits>` for complete credits.
 
 Table of Contents
 =================

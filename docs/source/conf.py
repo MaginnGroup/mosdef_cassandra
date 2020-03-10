@@ -16,20 +16,16 @@ import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 
-import mosdef_cassandra
-
-
 # -- Project information -----------------------------------------------------
 
 project = "mosdef_cassandra"
-copyright = "2020, Ryan S. DeFever"
+copyright = "2020, University of Notre Dame"
 author = "Ryan S. DeFever"
 
 # The short X.Y version
 version = ""
 # The full version, including alpha/beta/rc tags
 release = ""
-
 
 # -- General configuration ---------------------------------------------------
 

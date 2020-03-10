@@ -2,6 +2,8 @@ import datetime
 import subprocess
 import mbuild
 import parmed
+import unyt as u
+import warnings
 
 from mosdef_cassandra.writers.writers import write_mcfs
 from mosdef_cassandra.writers.writers import write_configs
@@ -19,6 +21,27 @@ def run(system, moves, run_type, run_length, temperature, **kwargs):
     # Sanity checks
     # TODO: Write more of these
     _check_system(system, moves)
+    temperature = _check_temperature(temperature)
+    # Check distance arguments
+    for arg in ['rcut_min', 'vdw_cutoff', 'charge_cutoff']:
+        if arg in kwargs:
+            kwargs[arg] = _check_distance(kwargs[arg])
+    # Check chemical potential
+    if kwargs['chemical_potentials']:
+        mu_list = list()
+        for mu in kwargs['chemical_potentials']:
+            if isinstance(mu, (float, int)):
+                mu = _check_mu(mu)
+            mu_list.append(mu)
+        kwargs['chemical_potentials'] = mu_list
+
+    # Check pressure
+    if 'pressure' in kwargs:
+        kwargs['pressure'] = _check_pressure(kwargs['pressure'])
+
+    # Prune unyt units from values
+    kwargs = _prepare_units(kwargs)
+    temperature = float(temperature.value)
 
     # Write MCF files
     write_mcfs(system)
@@ -187,6 +210,56 @@ def _run_cassandra(cassandra, inp_file, log_file):
     if p.returncode != 0 or "error" in err.lower():
         print("Cassandra error, see {}".format(log_file))
 
+def _prepare_units(kwargs):
+    for kwarg in kwargs:
+        if isinstance(kwargs[kwarg], (list, tuple)):
+            temp_list = list()
+            for x in kwargs[kwarg]:
+                if isinstance(x, u.unyt_array):
+                    x = float(x.value)
+                temp_list.append(x)
+                kwargs[kwarg] = temp_list
+        else:
+            if isinstance(kwargs[kwarg], u.unyt_array):
+                kwargs[kwarg] = float(kwargs[kwarg].value)
+
+    return kwargs
+
+def _check_temperature(temperature):
+    if not isinstance(temperature, u.unyt_array):
+        warnings.warn('Temperature assumed to be in K')
+        temperature *= u.K
+    else:
+        temperature.convert_to_units(u.K)
+
+    return temperature
+
+def _check_pressure(pressure):
+    if not instance(pressure, u.unyt_array):
+        warnings.warn('Pressure assumed to be in bar')
+        pressure *= u.bar
+    else:
+        pressure.convert_to_units(u.bar)
+
+    return pressure
+
+def _check_distance(distance):
+    if not isinstance(distance, u.unyt_array):
+        warnings.warn('Distance assumed to be in angstroms')
+        distance *= u.angstrom
+    else:
+        distance.convert_to_units(u.angstrom)
+
+    return distance
+
+def _check_mu(mu):
+    if not isinstance(mu, u.unyt_array):
+        warnings.warn('Chemical potential assumed to be in kJ/mol')
+        mu *= u.kJ/u.mol
+    else:
+        mu.convert_to_units(u.kJ/u.mol)
+
+    return mu
 
 def _check_system(system, moves):
     """Run a series of sanity checks on the System and Moves objects

@@ -19,9 +19,11 @@ Overview
 The wrapper interfaces with the `MoSDeF <https://mosdef.org>`_ tools and provides a user-friendly
 interface to Cassandra without sacrificing any capabilities of Cassandra.
 
-.. warning::
-  **MoSDeF Cassandra** is still in early development (0.x releases). The API may
-  change unexpectedly.
+Warning
+~~~~~~~
+
+**MoSDeF Cassandra** is still in early development (0.x releases). The API may
+change unexpectedly.
 
 Resources
 ~~~~~~~~~

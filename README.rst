@@ -2,6 +2,7 @@
 MoSDeF Cassandra
 ================ 
 |Citing|
+|License|
 |CodeCov|
 |Azure|
 
@@ -9,6 +10,7 @@ MoSDeF Cassandra
    :target: https://mosdef-cassandra.readthedocs.io/en/latest/reference/citing.html
 .. |Codecov| image:: https://codecov.io/gh/MaginnGroup/mosdef_cassandra/branch/master/graph/badge.svg
 .. |Azure| image:: https://dev.azure.com/MaginnGroup/mosdef_cassandra/_apis/build/status/MaginnGroup.mosdef_cassandra?branchName=master
+.. |License| image:: https://img.shields.io/github/license/maginngroup/mosdef_cassandra
 
 Overview
 ~~~~~~~~
@@ -25,7 +27,7 @@ Resources
 ~~~~~~~~~
 
 * `Reference documentation <https://mosdef-cassandra.readthedocs.io>`_: Examples, tutorials, guides, and API documentation
-* `Installation guide <https://mosdef-cassandra.readthedocs.io/en/latest/getting_started/install.html>_`: Instructions for installing MoSDeF Cassandra
+* `Installation guide <https://mosdef-cassandra.readthedocs.io/en/latest/getting_started/install.html>`_: Instructions for installing MoSDeF Cassandra
 * `GitHub repository <https://github.com/MaginnGroup/mosdef_cassandra>`_: View the source code, contribute, and raise issues
 * `Cassandra <https://cassandra.nd.edu>`_: Home of the Cassandra Monte Carlo package
 * `MoSDeF tools <https://mosdef.org>`_: A generic collection of tools for constructing systems and applying forcefield parameters for particle-based simulations

@@ -8,7 +8,7 @@ First, clone MoSDeF Cassandra from GitHub to a location of your choosing:
 
 .. code-block:: bash
 
-    git clone git@github.com:rsdefever/mosdef_cassandra.git
+    git clone git@github.com:maginngroup/mosdef_cassandra.git
 
 Next, install the required dependencies. These include:
 
@@ -91,7 +91,7 @@ line is:
     Using the following executables for Cassandra:
     Python: /usr/bin/python2
     library_setup:
-    /afs/crc.nd.edu/user/r/rdefever/software/Cassandra_V1.2/bin/library_setup.py
+    /user/username/software/Cassandra_V1.2/bin/library_setup.py
     Cassandra:
-    /afs/crc.nd.edu/user/r/rdefever/software/Cassandra_V1.2/bin/cassandra_gfortran_openMP.exe
+    /user/username/software/Cassandra_V1.2/bin/cassandra_gfortran_openMP.exe
 

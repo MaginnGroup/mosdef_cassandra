@@ -15,9 +15,11 @@ MoSDeF Cassandra
 Overview
 ~~~~~~~~
 
-**MoSDeF Cassandra** is a Python wrapper for the `Cassandra <https://cassandra.nd.edu>`_ Monte Carlo code.
-The wrapper interfaces with the `MoSDeF <https://mosdef.org>`_ tools and provides a user-friendly
-interface to Cassandra without sacrificing any capabilities of Cassandra.
+**MoSDeF Cassandra** is a Python wrapper for the
+`Cassandra <https://cassandra.nd.edu>`_ Monte Carlo code.
+The wrapper interfaces with the `MoSDeF <https://mosdef.org>`_
+tools and provides a user-friendly interface to Cassandra
+without sacrificing any capabilities of Cassandra.
 
 Warning
 ~~~~~~~
@@ -28,23 +30,31 @@ change unexpectedly.
 Resources
 ~~~~~~~~~
 
-* `Reference documentation <https://mosdef-cassandra.readthedocs.io>`_: Examples, tutorials, guides, and API documentation
-* `Installation guide <https://mosdef-cassandra.readthedocs.io/en/latest/getting_started/install.html>`_: Instructions for installing MoSDeF Cassandra
-* `GitHub repository <https://github.com/MaginnGroup/mosdef_cassandra>`_: View the source code, contribute, and raise issues
-* `Cassandra <https://cassandra.nd.edu>`_: Home of the Cassandra Monte Carlo package
-* `MoSDeF tools <https://mosdef.org>`_: A generic collection of tools for constructing systems and applying forcefield parameters for particle-based simulations
+* `Reference documentation <https://mosdef-cassandra.readthedocs.io>`_:
+  Examples, tutorials, guides, and API documentation
+* `Installation guide <https://mosdef-cassandra.readthedocs.io/en/latest/getting_started/install.html>`_:
+  Instructions for installing MoSDeF Cassandra
+* `GitHub repository <https://github.com/MaginnGroup/mosdef_cassandra>`_:
+  View the source code, contribute, and raise issues
+* `Cassandra <https://cassandra.nd.edu>`_:
+  Home of the Cassandra Monte Carlo package
+* `MoSDeF tools <https://mosdef.org>`_:
+  A generic collection of tools for constructing systems and applying
+  forcefield parameters for particle-based simulations
 
 Citation
 ~~~~~~~~
 
 Please cite **MoSDeF Cassandra**, **Cassandra**, and the **MoSDeF** suite of
-tools if you use this tool in your research. See `here <https://mosdef-cassandra.readthedocs.io/en/latest/reference/citing.html>`_ for details.
+tools if you use this tool in your research. Details 
+`here <https://mosdef-cassandra.readthedocs.io/en/latest/reference/citing.html>`_.
 
 Installation
 ~~~~~~~~~~~~
 
-Installation instructions are `here <https://mosdef-cassandra.readthedocs.io/en/latest/getting_started/install.html>`_. A conda installation will
-be added in the near future.
+Installation instructions are
+`here <https://mosdef-cassandra.readthedocs.io/en/latest/getting_started/install.html>`_.
+A conda installation will be added in the near future.
 
 Examples
 ~~~~~~~~

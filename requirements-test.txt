@@ -4,4 +4,4 @@ foyer >= 0.7.3
 mbuild >= 0.10.5
 openbabel
 pytest
-unyt
+unyt >= 2.4

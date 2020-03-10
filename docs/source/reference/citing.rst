@@ -37,7 +37,7 @@ and the second is for the MoSDeF Cassandra package:
     title = {MoSDeF Cassandra},
     year = {2020},
     journal = {GitHub repository},
-    howpublished = {\url{https://github.com/rsdefever/mosdef_cassandra}}
+    howpublished = {\url{https://github.com/MaginnGroup/mosdef_cassandra}}
   }
 
 Please also consider citing references associated with the MoSDeF tools. If

@@ -25,7 +25,7 @@ Resources
 
 * :doc:`Installation guide <getting_started/install>`: Instructions for installing MoSDeF Cassandra
 * :ref:`keyconcepts`: How we think about MoSDeF Cassandra
-* `GitHub repository <https://github.com/rsdefever/mosdef_cassandra>`_: View the source code, contribute, and raise issues
+* `GitHub repository <https://github.com/MaginnGroup/mosdef_cassandra>`_: View the source code, contribute, and raise issues
 * `Cassandra <https://cassandra.nd.edu>`_: Home of the Cassandra Monte Carlo package
 * `MoSDeF tools <https://mosdef.org>`_: A collection of tools for constructing systems and applying forcefield parameters for particle-based simulations
 
@@ -91,7 +91,7 @@ Monte Carlo calculation is contained in the script below.
       temperature=300.0
   )
 
-Several additional examples can be found `here <getting_started/examples>`_.
+Several additional examples can be found :doc:`here <getting_started/examples>`.
 
 Credits
 ~~~~~~~
@@ -101,7 +101,7 @@ under grant NSF Grant Number 1835874. Any opinions, findings, and conclusions or
 recommendations expressed in this material are those of the author(s) and do
 not necessarily reflect the views of the National Science Foundation.
 
-See `here <reference/credits>`_ for complete credits.
+See :doc:`here <reference/credits>` for complete credits.
 
 Table of Contents
 =================

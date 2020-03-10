@@ -38,7 +38,7 @@ Cassandra must be installed from source. Once you have downloaded the tarball
     cd ../
     mkdir bin/
     mv Src/cassandra_gfortran.exe ./bin/.
-    cp Script/Frag_Library_Setup/library_setup.py ./bin/.
+    cp Scripts/Frag_Library_Setup/library_setup.py ./bin/.
 
 .. warning::
   gfortran >= 9.0 causes problems with compilation. Please use gfortran < 9.0

@@ -21,7 +21,7 @@ mbuild, foyer, and numpy can be installed via conda:
 
 .. code-block:: bash
 
-    conda install -c omnia -c mosdef -c conda-forge --file mosdef_cassandra/requirements.txt
+    conda install -c conda-forge -c mosdef -c omnia --file mosdef_cassandra/requirements.txt
     conda install -c conda-forge openbabel
 
 The second line installs openbabel. It is not a strict requirement,

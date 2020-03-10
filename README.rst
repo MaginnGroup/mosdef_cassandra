@@ -15,8 +15,8 @@ MoSDeF Cassandra
 Overview
 ~~~~~~~~
 
-**MoSDeF Cassandra** is a Python wrapper for the **Cassandra** Monte Carlo code.
-The wrapper interfaces with the **MoSDeF** tools and provides a user-friendly
+**MoSDeF Cassandra** is a Python wrapper for the `Cassandra <https://cassandra.nd.edu>`_ Monte Carlo code.
+The wrapper interfaces with the `MoSDeF <https://mosdef.org>`_ tools and provides a user-friendly
 interface to Cassandra without sacrificing any capabilities of Cassandra.
 
 .. warning::

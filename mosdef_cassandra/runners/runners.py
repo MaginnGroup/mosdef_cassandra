@@ -27,7 +27,7 @@ def run(system, moves, run_type, run_length, temperature, **kwargs):
         if arg in kwargs:
             kwargs[arg] = _check_distance(kwargs[arg])
     # Check chemical potential
-    if kwargs['chemical_potentials']:
+    if 'chemical_potentials' in kwargs:
         mu_list = list()
         for mu in kwargs['chemical_potentials']:
             if isinstance(mu, (float, int)):
@@ -235,7 +235,7 @@ def _check_temperature(temperature):
     return temperature
 
 def _check_pressure(pressure):
-    if not instance(pressure, u.unyt_array):
+    if not isinstance(pressure, u.unyt_array):
         warnings.warn('Pressure assumed to be in bar')
         pressure *= u.bar
     else:

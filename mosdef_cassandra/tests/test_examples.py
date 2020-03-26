@@ -28,7 +28,7 @@ class TestExamples(BaseTest):
 
                 completed = False
                 for line in log_data:
-                    if "Energy of final" in line:
+                    if "Cassandra simulation complete" in line:
                         completed = True
                 assert completed
 
@@ -51,7 +51,7 @@ class TestExamples(BaseTest):
 
                 completed = False
                 for line in log_data:
-                    if "Energy of final" in line:
+                    if "Cassandra simulation complete" in line:
                         completed = True
                 assert completed
 
@@ -74,7 +74,7 @@ class TestExamples(BaseTest):
 
                 completed = False
                 for line in log_data:
-                    if "Energy of final" in line:
+                    if "Cassandra simulation complete" in line:
                         completed = True
                 assert completed
 
@@ -97,7 +97,7 @@ class TestExamples(BaseTest):
 
                 completed = False
                 for line in log_data:
-                    if "Energy of final" in line:
+                    if "Cassandra simulation complete" in line:
                         completed = True
                 assert completed
 
@@ -120,7 +120,7 @@ class TestExamples(BaseTest):
 
                 completed = False
                 for line in log_data:
-                    if "Energy of final" in line:
+                    if "Cassandra simulation complete" in line:
                         completed = True
                 assert completed
 
@@ -143,6 +143,6 @@ class TestExamples(BaseTest):
 
                 completed = False
                 for line in log_data:
-                    if "Energy of final" in line:
+                    if "Cassandra simulation complete" in line:
                         completed = True
                 assert completed

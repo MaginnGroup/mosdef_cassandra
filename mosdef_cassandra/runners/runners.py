@@ -14,7 +14,7 @@ def run(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
-    py2, fraglib_setup, cassandra = detect_cassandra_binaries()
+    py, fraglib_setup, cassandra = detect_cassandra_binaries()
 
     # Sanity checks
     # TODO: Write more of these
@@ -49,7 +49,7 @@ def run(system, moves, run_type, run_length, temperature, **kwargs):
     # Run fragment generation (again, will be removed...)
     print("Generating fragment libraries...")
     successful_fraglib = _run_fraglib_setup(
-        py2,
+        py,
         fraglib_setup,
         cassandra,
         inp_file,
@@ -71,7 +71,7 @@ def restart(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
-    py2, fraglib_setup, cassandra = detect_cassandra_binaries()
+    py, fraglib_setup, cassandra = detect_cassandra_binaries()
 
     kwargs["restart"] = True
 
@@ -98,11 +98,11 @@ def restart(system, moves, run_type, run_length, temperature, **kwargs):
 
 
 def _run_fraglib_setup(
-    py2, fraglib_setup, cassandra, inp_file, log_file, nspecies
+    py, fraglib_setup, cassandra, inp_file, log_file, nspecies
 ):
     """Builds the fragment libraries required to run Cassandra.
 
-    Requires python2.
+    Requires python.
     """
 
     species_pdb_files = ""
@@ -110,9 +110,9 @@ def _run_fraglib_setup(
         species_pdb_files += "species{}.pdb ".format(isp + 1)
 
     fraglib_cmd = (
-        "{py2} {fraglib_setup} {cassandra} {inp_file} "
+        "{py} {fraglib_setup} {cassandra} {inp_file} "
         "{species_pdb_files}".format(
-            py2=py2,
+            py=py,
             fraglib_setup=fraglib_setup,
             cassandra=cassandra,
             inp_file=inp_file,

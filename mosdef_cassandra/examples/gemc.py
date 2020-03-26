@@ -33,7 +33,7 @@ def run_gemc():
 
     thermo_props = [
         "energy_total",
-        "energy_lj",
+        "energy_intervdw",
         "pressure",
         "volume",
         "nmols",

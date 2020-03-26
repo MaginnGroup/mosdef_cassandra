@@ -12,7 +12,7 @@ def detect_cassandra_binaries():
         "cassandra_pgfortran.exe",
     ]
 
-    py2_exec_names = ["python2", "python2.7"]
+    py_exec_names = ["python"]
 
     for name in cassandra_exec_names:
         cassandra = shutil.which(name)
@@ -27,18 +27,18 @@ def detect_cassandra_binaries():
             "'library_setup.py' must be in your PATH"
         )
 
-    for name in py2_exec_names:
-        py2 = shutil.which(name)
-        if py2 is not None:
+    for name in py_exec_names:
+        py = shutil.which(name)
+        if py is not None:
             break
-    if py2 is None:
+    if py is None:
         raise ValueError(
-            "Error detecting python2. library_setup.py requires python2"
+            "Error detecting python. library_setup.py requires python."
         )
 
     print("Using the following executables for Cassandra:")
-    print("Python: {}".format(py2))
+    print("Python: {}".format(py))
     print("library_setup: {}".format(fraglib_setup))
     print("Cassandra: {}".format(cassandra))
 
-    return py2, fraglib_setup, cassandra
+    return py, fraglib_setup, cassandra

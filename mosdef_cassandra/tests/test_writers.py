@@ -1399,7 +1399,7 @@ class TestInpFunctions(BaseTest):
         )
 
         assert (
-            "# Property_Info 1\nenergy_total\nenergy_lj\nenergy_elec\nenergy_intra\nenthalpy\npressure\nvolume\nnmols\nmass_density\n"
+            "# Property_Info 1\nenergy_total\nenergy_intra\nenergy_inter\nenthalpy\npressure\nvolume\nnmols\nmass_density\n"
             in inp_data
         )
 
@@ -1413,7 +1413,7 @@ class TestInpFunctions(BaseTest):
         )
 
         assert (
-            "# Property_Info 1\nenergy_total\nenergy_lj\nenergy_elec\nenergy_intra\nenthalpy\npressure\nvolume\nnmols\nmass_density\n\n# Property_Info 2\nenergy_total\nenergy_lj\nenergy_elec\nenergy_intra\nenthalpy\npressure\nvolume\nnmols\nmass_density\n"
+            "# Property_Info 1\nenergy_total\nenergy_intra\nenergy_inter\nenthalpy\npressure\nvolume\nnmols\nmass_density\n\n# Property_Info 2\nenergy_total\nenergy_intra\nenergy_inter\nenthalpy\npressure\nvolume\nnmols\nmass_density\n"
             in inp_data
         )
 

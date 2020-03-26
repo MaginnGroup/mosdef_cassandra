@@ -6,14 +6,14 @@ ISRELEASED = True
 if ISRELEASED:
     __version__ = VERSION
 else:
-    __version__ = VERSION + '.dev0'
+    __version__ = VERSION + ".dev0"
 #####################################
 
 requirements = [
-    'numpy',
-    'parmed',
-    'networkx',
-    'mbuild >=0.10.5',
+    "numpy",
+    "parmed",
+    "networkx",
+    "mbuild >=0.10.5",
 ]
 
 setup(
@@ -25,5 +25,5 @@ setup(
     author_email="rdefever@nd.edu",
     url="https://github.com/MaginnGroup/mosdef_cassandra",
     install_requires=requirements,
-    python_requires='>=3.6, <4',
+    python_requires=">=3.6, <4",
 )

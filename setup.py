@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 #####################################
 VERSION = "0.1.1"
-ISRELEASED = False
+ISRELEASED = True
 if ISRELEASED:
     __version__ = VERSION
 else:
@@ -13,8 +13,7 @@ requirements = [
     'numpy',
     'parmed',
     'networkx',
-    'mbuild >= 0.10.5',
-    'cassandra >= 1.2.2',
+    'mbuild >=0.10.5',
 ]
 
 setup(

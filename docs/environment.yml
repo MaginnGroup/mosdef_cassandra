@@ -1,17 +1,18 @@
 # ReadTheDocs uses the `environment.yaml` so make sure to update that as well
 # if you change the dependencies of JupyterHub in the various `requirements.txt`
-name: mc_docs
+name: mc-docs
 channels:
   - conda-forge
   - mosdef
   - omnia
-  - defaults
-
 dependencies:
-- numpy
-- parmed
-- networkx
-- mbuild >= 0.10.5
-- cassandra >= 1.2.2
-- pip:
-  - -r requirements.txt
+  - python=3.7
+  - numpy
+  - parmed
+  - mbuild >= 0.10.5
+  - foyer >= 0.7.3
+  - cassandra >= 1.2.2
+  - pip:
+    - sphinx
+    - sphinx_rtd_theme
+    - networkx

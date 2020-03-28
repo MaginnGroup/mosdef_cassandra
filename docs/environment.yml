@@ -2,7 +2,7 @@
 # if you change the dependencies of JupyterHub in the various `requirements.txt`
 name: mc-docs
 channels:
-  - conda-forge
+  - https://metachannel.conda-forge.org/conda-forge/cassandra,mosdef_cassandra,mbuild,numpy,parmed
   - mosdef
   - omnia
 dependencies:
@@ -12,6 +12,7 @@ dependencies:
   - mbuild >= 0.10.5
   - foyer >= 0.7.3
   - cassandra >= 1.2.2
+  - pip
   - pip:
     - sphinx
     - sphinx_rtd_theme

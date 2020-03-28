@@ -1,9 +1,9 @@
 Quickstart Guide
 ================
 
-The following assumes you have already installed mosdef_cassandra
-as detailed in our installation instructions. More details on the
-``System`` and ``Moves`` objects can be found under Concepts.
+The following assumes you have already installed MoSDeF Cassandra
+as detailed in our installation instructions. Details of the
+``System`` and ``Moves`` objects can be found under Guides.
 
 Let's start by setting up an NVT Monte Carlo simulation of OPLS-AA
 methane. We will use the ``mbuild`` and ``foyer`` packages to create

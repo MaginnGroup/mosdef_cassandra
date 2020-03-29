@@ -1,0 +1,7 @@
+sphinx
+sphinx_rtd_theme
+networkx
+numpy
+parmed
+mbuild
+foyer

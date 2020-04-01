@@ -58,6 +58,9 @@ class Moves(object):
         else:
             self._n_boxes = 2
 
+        # Set 'restricted_insertions'
+        self.restricted_insert = None
+
         # Define default probabilities
         # Most are ensemble-dependent
         self.prob_angle = 0.0
@@ -172,6 +175,61 @@ class Moves(object):
             if sum(self.max_rotate[0]) == 0.0:
                 self.prob_translate += self.prob_rotate
                 self.prob_rotate = 0.0
+
+    @property
+    def restricted_insert(self):
+        return self._restricted_insert
+
+    @restricted_insert.setter
+    def restricted_insert(self, restricted_insert):
+        if restricted_insert == None:
+            self._restricted_insert = restricted_insert
+        else:
+            if self.ensemble == 'gcmc':
+                if len(restricted_insert) != 1:
+                    raise ValueError("{} ensemble only has 1 box"
+                    'but restricted_insertion of length {}'
+                    'was passed.'.format(
+                        self.ensemble,
+                        len(restricted_insert)))
+            if self.ensemble in ['gemc', 'gemc_npt']:
+                if len(restricted_insert) != 2:
+                    raise ValueError("{} ensemble requires 2 boxes"
+                    'but restricted_insertion of length {}'
+                    'was passed.'.format(
+                        self.ensemble,
+                        len(restricted_insert)))
+
+            for restriction in restricted_insert:
+                if restriction:
+                    if not isinstance(restriction, dict):
+                        raise TypeError("restricted_insert must be a"
+                        "dictionary of length 1")
+                    restrict_type = list(restriction.keys())[0]
+                    restrict_args = list(restriction.values())[0]
+                    # key: restriction type
+                    # value: Number of arguments required
+                    valid_restrict_types = {"sphere": 1,
+                                            "cylinder": 1,
+                                            "slitpore": 1,
+                                            "interface": 2
+                                            }
+                    if restrict_type not in valid_restrict_types.keys():
+                        raise ValueError(
+                            'Invalid restriction type "{}".  Supported '
+                            "restriction types include {}".format(
+                                restrict_type,
+                                valid_restrict_types.keys()))
+                    if len(restrict_args) != valid_restrict_types[restrict_type]:
+                        raise ValueError(
+                            'Invalid number of arguments passed.'
+                            '{} arguments for restriction type {}'
+                            'were passed.  {} are required'.format(
+                                len(restrict_args),
+                                restrict_type,
+                                valid_restrict_types[restrict_type]))
+
+            self._restricted_insert = restricted_insert
 
     @property
     def ensemble(self):

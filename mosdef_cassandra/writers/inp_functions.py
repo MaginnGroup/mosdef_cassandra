@@ -241,7 +241,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             box_dims = np.hstack((box.lengths, box.angles))
         box_matrix = convert_box.convert_to_boxmatrix(box_dims)
         boxes.append(box_matrix)
-    inp_data += get_box_info(boxes)
+    inp_data += get_box_info(boxes, moves.restricted_insert)
 
     temperatures = [temperature] * nbr_boxes
     inp_data += get_temperature_info(temperatures)
@@ -818,7 +818,7 @@ def get_molecule_files(max_molecules_dict):
     return inp_data
 
 
-def get_box_info(boxes):
+def get_box_info(boxes, restricted_inserts):
     """Get the box info section of the input file
 
     Parameters
@@ -846,7 +846,7 @@ def get_box_info(boxes):
         else:
             box_types.append("cell_matrix")
 
-    for box, box_type in zip(boxes, box_types):
+    for box, box_type, restriction in zip(boxes, box_types, restricted_inserts):
         inp_data += """
 {box_type}""".format(
             box_type=box_type
@@ -883,6 +883,12 @@ def get_box_info(boxes):
                 cy=box[2][1] * NM_TO_A,
                 cz=box[2][2] * NM_TO_A,
             )
+
+        if restriction != None:
+            inp_data+= """restricted_insertion {} {}
+            """.format(
+                list(restriction.keys())[0],
+                list(restriction.values())[0])
 
     inp_data += """!------------------------------------------------------------------------------
 """

@@ -192,6 +192,8 @@ class Moves(object):
                     'was passed.'.format(
                         self.ensemble,
                         len(restricted_insert)))
+                # Check if restricted insertions are correct type
+                _check_restriction_type(restricted_insert)
             elif self.ensemble in ['gemc', 'gemc_npt']:
                 if len(restricted_insert) != 2:
                     raise ValueError("{} ensemble requires 2 boxes"
@@ -199,17 +201,15 @@ class Moves(object):
                     'was passed.'.format(
                         self.ensemble,
                         len(restricted_insert)))
+                # Loop through restrictions for each box
+                # Check if restricted insertions are correct type
+                for restriction in restricted_insert:
+                    _check_restriction_type(restriction)
             else:
                 raise ValueError("Restricted insertions are only valid"
                     'for GCMC, GEMC, and GEMC-NPT ensembles.'
                     'The {} ensemble was passed.'.format(
                         self.ensemble))
-
-            # Loop through restrictions for each box
-            # Check if restriction insertions are correct type
-            for restriction in restricted_insert:
-                _check_restriction_type(restriction)
-
 
             self._restricted_insert = restricted_insert
 
@@ -745,7 +745,7 @@ def _check_restriction_type(restriction):
     if restriction:
         if not isinstance(restriction, dict):
             raise TypeError("restricted_insert must be a"
-            "dictionary of length 1")
+            " dictionary of length 1")
         restrict_type = list(restriction.keys())[0]
         restrict_args = list(restriction.values())[0]
         # key: restriction type

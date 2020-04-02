@@ -192,13 +192,18 @@ class Moves(object):
                     'was passed.'.format(
                         self.ensemble,
                         len(restricted_insert)))
-            if self.ensemble in ['gemc', 'gemc_npt']:
+            elif self.ensemble in ['gemc', 'gemc_npt']:
                 if len(restricted_insert) != 2:
                     raise ValueError("{} ensemble requires 2 boxes"
                     'but restricted_insertion of length {}'
                     'was passed.'.format(
                         self.ensemble,
                         len(restricted_insert)))
+            else:
+                raise ValueError("Restricted insertions are only valid"
+                    'for GCMC, GEMC, and GEMC-NPT ensembles.'
+                    'The {} ensemble was passed.'.format(
+                        self.ensemble))
 
             # Loop through restrictions for each box
             # Check if restriction insertions are correct type
@@ -711,6 +716,28 @@ Dihedral:  {prob_dihedral}
             contents += "Box {box}: {max_vol}\n".format(
                 box=box + 1, max_vol=max_vol
             )
+        
+        if self.restricted_insert != None:
+            contents += "\nRestricted Insertions (Ang):\n"
+            for (box, restriction) in enumerate(self.restricted_insert):
+                if restriction:
+                    if 'sphere' in restriction:
+                        contents += "Box {box}: sphere, R = {r_value}\n".format(
+                            box=box + 1, r_value=restriction['sphere'])
+                    elif 'cylinder' in restriction:
+                        contents += "Box {box}: cylinder, R = {r_value}\n".format(
+                            box=box + 1, r_value=restriction['cylinder'])
+                    elif 'slitpore' in restriction:
+                        contents += "Box {box}: slitpore, z_max = {z_max}\n".format(
+                            box=box + 1, z_max=restriction['slitpore'])
+                    elif 'interface' in restriction:
+                        contents += "Box {box}: interface, z_min = {z_min}, z_max = {z_max}\n".format(
+                            box=box + 1, z_min=restriction['interface'][0],
+                            z_max=restriction['interface'][1])
+                else:
+                    contents += "Box {box}: None\n".format(
+                        box=box + 1
+                    )
 
         print(contents)
 

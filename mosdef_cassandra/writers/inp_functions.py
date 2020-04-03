@@ -317,7 +317,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             moves.prob_swap_from_box,
         ]
 
-    inp_data += get_move_probability_info(**move_prob_dict)
+    inp_data += get_move_probability_info(moves, **move_prob_dict)
 
     # Start type info
     start_types = []
@@ -884,13 +884,24 @@ def get_box_info(boxes, restricted_inserts):
                 cz=box[2][2] * NM_TO_A,
             )
 
-        if restriction != None:
-            inp_data+= """restricted_insertion {} {}
-            """.format(
-                list(restriction.keys())[0],
-                list(restriction.values())[0])
+        """This is kind of hacky to deal with `restricted_insert`
+        being either a list of dict or a dict
+        """
+        if len(restricted_inserts) == 2:
+            if restriction != None:
+                inp_data+= """restricted_insertion {} {}
+                """.format(
+                    list(restriction.keys())[0],
+                    list(restriction.values())[0])
+        else:
+            if restriction != None:
+                inp_data+= """restricted_insertion {} {}
+                """.format(
+                    list(restricted_inserts.keys())[0],
+                    list(restricted_inserts.values())[0])
 
-    inp_data += """!------------------------------------------------------------------------------
+    inp_data += """
+!------------------------------------------------------------------------------
 """
 
     return inp_data
@@ -988,7 +999,7 @@ def get_chemical_potential_info(chem_pots):
     return inp_data
 
 
-def get_move_probability_info(**kwargs):
+def get_move_probability_info(moves, **kwargs):
     """Get the Move_Probability_Info section of the input file
 
    Parameters
@@ -1327,9 +1338,12 @@ def get_move_probability_info(**kwargs):
             prob_insert=insert[0]
         )
 
-        for insertable in insert[1]:
+        for insertable in insert[1]: 
             if insertable:
-                inp_data += """cbmc """
+                if moves.restricted_insert:
+                    inp_data += """restricted """
+                else:
+                    inp_data += """cbmc """
             else:
                 inp_data += """none """
 

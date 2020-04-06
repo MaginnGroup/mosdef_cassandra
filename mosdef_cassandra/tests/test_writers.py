@@ -1557,3 +1557,32 @@ class TestInpFunctions(BaseTest):
                 cbmc_kappa_dih=5,
                 cbmc_rcut=[],
             )
+
+    def test_write_restricted_gcmc(self, gcmc_system):
+        (system, moves) = gcmc_system
+        moves.restricted_insert = {'sphere': 3}
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            chemical_potentials=["none", 10.0],
+        )
+
+        assert "\nrestricted_insertion sphere 3\n" in inp_data
+
+    def test_write_restricted_gemc_npt(self, twocomptwobox_system):
+        (system, moves) = twocomptwobox_system
+        moves.restricted_insert = [None, {'sphere': 3}]
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            pressure=1,
+            chemical_potentials=["none", 10.0],
+        )
+
+        assert "\nrestricted_insertion sphere 3\n" in inp_data

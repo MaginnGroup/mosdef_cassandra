@@ -115,6 +115,12 @@ class TestMoves(BaseTest):
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
 
+    def test_restricted_gcmc(self, methane_oplsaa):
+        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves.restricted_insert = {'slitpore': 3}
+
+        assert moves.restricted_insert == {'slitpore': 3}
+
     def test_ensemble_gemc(self, methane_oplsaa):
         moves = mc.Moves("gemc", [methane_oplsaa])
         assert moves.ensemble == "gemc"
@@ -148,6 +154,12 @@ class TestMoves(BaseTest):
         # Should be insertable and regrow-able
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
+
+    def test_restricted_gemc(self, methane_oplsaa):
+        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves.restricted_insert = [None, {'slitpore': 3}]
+
+        assert moves.restricted_insert == [None, {'slitpore': 3}]
 
     def test_ensemble_gemcnpt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
@@ -183,6 +195,12 @@ class TestMoves(BaseTest):
         # Should be insertable and regrow-able
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
+
+    def test_restricted_gemc_npt(self, methane_oplsaa):
+        moves = mc.Moves("gemc_npt", [methane_oplsaa])
+        moves.restricted_insert = [None, {'slitpore': 3}]
+
+        assert moves.restricted_insert == [None, {'slitpore': 3}]
 
     def test_single_site_nvt(self, methane_trappe):
 

@@ -58,8 +58,13 @@ class Moves(object):
         else:
             self._n_boxes = 2
 
-        # Set 'restricted_insertions'
-        self.restricted_insert = None
+        # Set 'restricted_typed' and 'restricted_value'
+        if self._n_boxes == 1:
+            self.restricted_type = None
+            self.restricted_value = None
+        elif self._n_boxes == 2:
+            self.restricted_type = [None, None]
+            self.restricted_value = [None, None]
 
         # Define default probabilities
         # Most are ensemble-dependent
@@ -177,41 +182,68 @@ class Moves(object):
                 self.prob_rotate = 0.0
 
     @property
-    def restricted_insert(self):
-        return self._restricted_insert
+    def restricted_type(self):
+        return self._restricted_type
 
-    @restricted_insert.setter
-    def restricted_insert(self, restricted_insert):
-        if restricted_insert == None:
-            self._restricted_insert = restricted_insert
-        else:
+    @restricted_type.setter
+    def restricted_type(self, restricted_type):
+        if restricted_type:
             if self.ensemble == 'gcmc':
-                if len(restricted_insert) != 1:
+                if len(restricted_type) != 1:
                     raise ValueError("{} ensemble only has 1 box"
                     'but restricted_insertion of length {}'
                     'was passed.'.format(
                         self.ensemble,
-                        len(restricted_insert)))
-                # Check if restricted insertions are correct type
-                _check_restriction_type(restricted_insert)
+                        len(restricted_type)))
             elif self.ensemble in ['gemc', 'gemc_npt']:
-                if len(restricted_insert) != 2:
+                if len(restricted_type) != 2:
                     raise ValueError("{} ensemble requires 2 boxes"
                     'but restricted_insertion of length {}'
                     'was passed.'.format(
                         self.ensemble,
-                        len(restricted_insert)))
+                        len(restricted_type)))
                 # Loop through restrictions for each box
                 # Check if restricted insertions are correct type
-                for restriction in restricted_insert:
-                    _check_restriction_type(restriction)
             else:
                 raise ValueError("Restricted insertions are only valid"
                     'for GCMC, GEMC, and GEMC-NPT ensembles.'
                     'The {} ensemble was passed.'.format(
                         self.ensemble))
 
-            self._restricted_insert = restricted_insert
+            self._restricted_type = restricted_type
+        else:
+            self._restricted_type = restricted_type
+
+    @property
+    def restricted_value(self):
+        return self._restricted_value
+
+    @restricted_value.setter
+    def restricted_value(self, restricted_value):
+        if restricted_value:
+            if len(self.restricted_type) != len(restricted_value):
+                raise ValueError("'restricted_type' is a list of length"
+                        " {} but 'restricted_value' is a list of length"
+                        " {}.".format(
+                            len(self.restricted_type),
+                            len(restricted_value))
+                        )
+            else:
+                for typ, value in zip(self.restricted_type, restricted_value):
+                    if typ and value:
+                        pass
+                    else:
+                        raise ValueError("'None' must be passed to both"
+                        " 'restricted_value' and 'restricted_type'.")
+                    _check_restriction_type(typ, value)
+
+                self._restricted_value = restricted_value
+        else:
+            if self.restricted_type:
+                raise ValueError("'None' must be passed to both"
+                " 'restricted_value' and 'restricted_type'.")
+            else:
+                self._restricted_value = restricted_value
 
     @property
     def ensemble(self):
@@ -741,40 +773,32 @@ Dihedral:  {prob_dihedral}
 
         print(contents)
 
-def _check_restriction_type(restriction):
-    if restriction:
-        if not isinstance(restriction, dict):
-            raise TypeError("restricted_insert must be a"
-            " dictionary of length 1")
-        restrict_type = list(restriction.keys())[0]
-        restrict_args = list(restriction.values())[0]
-        # key: restriction type
-        # value: Number of arguments required
-        valid_restrict_types = ["sphere",
-                                "cylinder",
-                                "slitpore",
-                                "interface"
-                                ]
-        # Check restriction insertion type
-        if restrict_type not in valid_restrict_types:
+def _check_restriction_type(restriction_type, restriction_value):
+    valid_restrict_types = ["sphere",
+                            "cylinder",
+                            "slitpore",
+                            "interface"
+                            ]
+    # Check restriction insertion type
+    if restriction_type not in valid_restrict_types:
+        raise ValueError(
+            'Invalid restriction type "{}".  Supported '
+            "restriction types include {}".format(
+                restrict_type,
+                valid_restrict_types))
+    # Check if correct number of arguments passed
+    if restriction_type == 'interface':
+        if len(restriction_value) != 2:
             raise ValueError(
-                'Invalid restriction type "{}".  Supported '
-                "restriction types include {}".format(
-                    restrict_type,
-                    valid_restrict_types))
-        # Check if correct number of arguments passed
-        if restrict_type == 'interface':
-            if len(restrict_args) != 2:
-                raise ValueError(
-                    'Invalid number of arguments passed.'
-                    '{} arguments for restriction type {}'
-                    'were passed.  2 are required'.format(
-                        len(restrict_args),
-                        restrict_type))
-        else:
-            if not isinstance(restrict_args, (float, int)):
-                raise TypeError(
-                    'Restriction type is {}.  Only'
-                    'a single argument of type "int"'
-                    'or "float" should be passed'.format(
-                        restrict_type))
+                'Invalid number of arguments passed.'
+                '{} arguments for restriction type {}'
+                'were passed.  2 are required'.format(
+                    len(restriction_value),
+                    restriction_type))
+    else:
+        if not isinstance(restriction_value, (float, int)):
+            raise TypeError(
+                'Restriction type is {}.  Only'
+                'a single argument of type "int"'
+                'or "float" should be passed'.format(
+                    restrict_type))

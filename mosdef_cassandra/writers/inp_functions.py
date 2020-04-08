@@ -241,7 +241,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             box_dims = np.hstack((box.lengths, box.angles))
         box_matrix = convert_box.convert_to_boxmatrix(box_dims)
         boxes.append(box_matrix)
-    inp_data += get_box_info(boxes, moves.restricted_insert)
+    inp_data += get_box_info(boxes, moves)
 
     temperatures = [temperature] * nbr_boxes
     inp_data += get_temperature_info(temperatures)
@@ -818,7 +818,7 @@ def get_molecule_files(max_molecules_dict):
     return inp_data
 
 
-def get_box_info(boxes, restricted_inserts):
+def get_box_info(boxes, moves):
     """Get the box info section of the input file
 
     Parameters
@@ -846,7 +846,7 @@ def get_box_info(boxes, restricted_inserts):
         else:
             box_types.append("cell_matrix")
 
-    for box, box_type, restriction in zip(boxes, box_types, restricted_inserts):
+    for box, box_type, typ, value in zip(boxes, box_types, moves.restricted_type, moves.restricted_value):
         inp_data += """
 {box_type}""".format(
             box_type=box_type
@@ -884,21 +884,20 @@ def get_box_info(boxes, restricted_inserts):
                 cz=box[2][2] * NM_TO_A,
             )
 
-        """This is kind of hacky to deal with `restricted_insert`
-        being either a list of dict or a dict
-        """
-        if len(restricted_inserts) == 2:
-            if restriction != None:
+        if typ != None:
+            if typ == 'interface':
+                inp_data+= """restricted_insertion {} {} {}
+                """.format(
+                        typ,
+                        value[0],
+                        value[1]
+                        )
+            else:
                 inp_data+= """restricted_insertion {} {}
                 """.format(
-                    list(restriction.keys())[0],
-                    list(restriction.values())[0])
-        else:
-            if restriction != None:
-                inp_data+= """restricted_insertion {} {}
-                """.format(
-                    list(restricted_inserts.keys())[0],
-                    list(restricted_inserts.values())[0])
+                        typ,
+                        value
+                        )
 
     inp_data += """
 !------------------------------------------------------------------------------
@@ -1340,7 +1339,7 @@ def get_move_probability_info(moves, **kwargs):
 
         for insertable in insert[1]: 
             if insertable:
-                if moves.restricted_insert:
+                if moves.restricted_type:
                     inp_data += """restricted """
                 else:
                     inp_data += """cbmc """

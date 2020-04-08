@@ -191,23 +191,23 @@ class Moves(object):
             if self.ensemble == 'gcmc':
                 if len(restricted_type) != 1:
                     raise ValueError("{} ensemble only has 1 box"
-                    'but restricted_insertion of length {}'
-                    'was passed.'.format(
+                    ' but restricted_insertion of length {}'
+                    ' was passed.'.format(
                         self.ensemble,
                         len(restricted_type)))
             elif self.ensemble in ['gemc', 'gemc_npt']:
                 if len(restricted_type) != 2:
                     raise ValueError("{} ensemble requires 2 boxes"
-                    'but restricted_insertion of length {}'
-                    'was passed.'.format(
+                    ' but restricted_insertion of length {}'
+                    ' was passed.'.format(
                         self.ensemble,
                         len(restricted_type)))
                 # Loop through restrictions for each box
                 # Check if restricted insertions are correct type
             else:
                 raise ValueError("Restricted insertions are only valid"
-                    'for GCMC, GEMC, and GEMC-NPT ensembles.'
-                    'The {} ensemble was passed.'.format(
+                    ' for GCMC, GEMC, and GEMC-NPT ensembles.'
+                    ' The {} ensemble was passed.'.format(
                         self.ensemble))
 
             self._restricted_type = restricted_type
@@ -231,11 +231,12 @@ class Moves(object):
             else:
                 for typ, value in zip(self.restricted_type, restricted_value):
                     if typ and value:
+                        _check_restriction_type(typ, value)
+                    elif typ == None and value == None:
                         pass
                     else:
                         raise ValueError("'None' must be passed to both"
                         " 'restricted_value' and 'restricted_type'.")
-                    _check_restriction_type(typ, value)
 
                 self._restricted_value = restricted_value
         else:
@@ -749,23 +750,24 @@ Dihedral:  {prob_dihedral}
                 box=box + 1, max_vol=max_vol
             )
         
-        if self.restricted_insert != None:
+        if self.restricted_type != None:
             contents += "\nRestricted Insertions (Ang):\n"
-            for (box, restriction) in enumerate(self.restricted_insert):
-                if restriction:
-                    if 'sphere' in restriction:
+            for box, (typ, value) in enumerate(zip(self.restricted_type,
+                self.restricted_value)):
+                if typ:
+                    if typ == 'sphere':
                         contents += "Box {box}: sphere, R = {r_value}\n".format(
-                            box=box + 1, r_value=restriction['sphere'])
-                    elif 'cylinder' in restriction:
+                            box=box + 1, r_value=value)
+                    elif typ == 'cylinder':
                         contents += "Box {box}: cylinder, R = {r_value}\n".format(
-                            box=box + 1, r_value=restriction['cylinder'])
-                    elif 'slitpore' in restriction:
+                            box=box + 1, r_value=value)
+                    elif typ == 'slitpore':
                         contents += "Box {box}: slitpore, z_max = {z_max}\n".format(
-                            box=box + 1, z_max=restriction['slitpore'])
-                    elif 'interface' in restriction:
+                            box=box + 1, z_max=value)
+                    elif typ == 'interface':
                         contents += "Box {box}: interface, z_min = {z_min}, z_max = {z_max}\n".format(
-                            box=box + 1, z_min=restriction['interface'][0],
-                            z_max=restriction['interface'][1])
+                            box=box + 1, z_min=value[0],
+                            z_max=value[1])
                 else:
                     contents += "Box {box}: None\n".format(
                         box=box + 1
@@ -784,7 +786,7 @@ def _check_restriction_type(restriction_type, restriction_value):
         raise ValueError(
             'Invalid restriction type "{}".  Supported '
             "restriction types include {}".format(
-                restrict_type,
+                restriction_type,
                 valid_restrict_types))
     # Check if correct number of arguments passed
     if restriction_type == 'interface':
@@ -801,4 +803,4 @@ def _check_restriction_type(restriction_type, restriction_value):
                 'Restriction type is {}.  Only'
                 'a single argument of type "int"'
                 'or "float" should be passed'.format(
-                    restrict_type))
+                    restriction_type))

@@ -117,9 +117,11 @@ class TestMoves(BaseTest):
 
     def test_restricted_gcmc(self, methane_oplsaa):
         moves = mc.Moves("gcmc", [methane_oplsaa])
-        moves.restricted_insert = {'slitpore': 3}
+        moves.restricted_type = ['slitpore']
+        moves.restricted_value = [3]
 
-        assert moves.restricted_insert == {'slitpore': 3}
+        assert moves.restricted_type == ['slitpore']
+        assert moves.restricted_value == [3]
 
     def test_ensemble_gemc(self, methane_oplsaa):
         moves = mc.Moves("gemc", [methane_oplsaa])
@@ -157,9 +159,11 @@ class TestMoves(BaseTest):
 
     def test_restricted_gemc(self, methane_oplsaa):
         moves = mc.Moves("gemc", [methane_oplsaa])
-        moves.restricted_insert = [None, {'slitpore': 3}]
+        moves.restricted_type = [None, 'slitpore']
+        moves.restricted_value = [None, 3]
 
-        assert moves.restricted_insert == [None, {'slitpore': 3}]
+        assert moves.restricted_type == [None, 'slitpore']
+        assert moves.restricted_value == [None, 3]
 
     def test_ensemble_gemcnpt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
@@ -198,9 +202,11 @@ class TestMoves(BaseTest):
 
     def test_restricted_gemc_npt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
-        moves.restricted_insert = [None, {'slitpore': 3}]
+        moves.restricted_type = [None, 'slitpore']
+        moves.restricted_value = [None, 3]
 
-        assert moves.restricted_insert == [None, {'slitpore': 3}]
+        assert moves.restricted_type == [None, 'slitpore']
+        assert moves.restricted_value == [None, 3]
 
     def test_single_site_nvt(self, methane_trappe):
 

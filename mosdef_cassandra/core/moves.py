@@ -59,12 +59,12 @@ class Moves(object):
             self._n_boxes = 2
 
         # Set 'restricted_typed' and 'restricted_value'
-        if self._n_boxes == 1:
+        if self.ensemble in ['gcmc', 'gemc', 'gemc_npt']:
+            self.restricted_type = [[None] * self._n_species] * self._n_boxes
+            self.restricted_value = [[None] * self._n_species] * self._n_boxes
+        else:
             self.restricted_type = None
             self.restricted_value = None
-        elif self._n_boxes == 2:
-            self.restricted_type = [None, None]
-            self.restricted_value = [None, None]
 
         # Define default probabilities
         # Most are ensemble-dependent
@@ -195,15 +195,28 @@ class Moves(object):
                     ' was passed.'.format(
                         self.ensemble,
                         len(restricted_type)))
+                if not isinstance(restricted_type[0], (list, tuple)):
+                    raise TypeError("'restricted_type' specified for"
+                    " a box must be an iterable.")
+                if len(restricted_type[0]) != self._n_species:
+                    raise ValueError("{} species specified"
+                    ' but restricted_type for {}'
+                    ' species was passed.'.format(
+                        self._n_species,
+                        len(restricted_type[0])))
             elif self.ensemble in ['gemc', 'gemc_npt']:
                 if len(restricted_type) != 2:
                     raise ValueError("{} ensemble requires 2 boxes"
-                    ' but restricted_insertion of length {}'
+                    ' but restricted_type of length {}'
                     ' was passed.'.format(
                         self.ensemble,
                         len(restricted_type)))
-                # Loop through restrictions for each box
-                # Check if restricted insertions are correct type
+                if len(restricted_type[0]) != self._n_species:
+                    raise ValueError("{} species specified"
+                    ' but restricted_typed for only {}'
+                    ' species was passed.'.format(
+                        self._n_species,
+                        len(restricted_type[0])))
             else:
                 raise ValueError("Restricted insertions are only valid"
                     ' for GCMC, GEMC, and GEMC-NPT ensembles.'
@@ -228,15 +241,25 @@ class Moves(object):
                             len(self.restricted_type),
                             len(restricted_value))
                         )
+            if not isinstance(restricted_value[0], (list, tuple)):
+                raise TypeError("'restricted_value' specified for"
+                " a box must be an iterable.")
+            if len(restricted_value[0]) != self._n_species:
+                raise ValueError("{} species specified"
+                ' but restricted_value for only {}'
+                ' species was passed.'.format(
+                    self._n_species,
+                    len(restricted_value[0])))
             else:
-                for typ, value in zip(self.restricted_type, restricted_value):
-                    if typ and value:
-                        _check_restriction_type(typ, value)
-                    elif typ == None and value == None:
-                        pass
-                    else:
-                        raise ValueError("'None' must be passed to both"
-                        " 'restricted_value' and 'restricted_type'.")
+                for box in range(self._n_boxes):
+                    for typ, value in zip(self.restricted_type[box], restricted_value[box]):
+                        if typ and value:
+                            _check_restriction_type(typ, value)
+                        elif typ == None and value == None:
+                            pass
+                        else:
+                            raise ValueError("'None' must be passed to both"
+                            " 'restricted_value' and 'restricted_type'.")
 
                 self._restricted_value = restricted_value
         else:
@@ -752,26 +775,26 @@ Dihedral:  {prob_dihedral}
         
         if self.restricted_type != None:
             contents += "\nRestricted Insertions (Ang):\n"
-            for box, (typ, value) in enumerate(zip(self.restricted_type,
-                self.restricted_value)):
-                if typ:
+            for box in range(self._n_boxes):
+                for species, (typ, value) in enumerate(zip(self.restricted_type[box], self.restricted_value[box])):
                     if typ == 'sphere':
-                        contents += "Box {box}: sphere, R = {r_value}\n".format(
-                            box=box + 1, r_value=value)
+                        contents += "Box {box}, Species {species}: sphere, R = {r_value}\n".format(
+                            box=box + 1, species=species + 1, r_value=value)
                     elif typ == 'cylinder':
-                        contents += "Box {box}: cylinder, R = {r_value}\n".format(
-                            box=box + 1, r_value=value)
+                        contents += "Box {box}, Species {species}: cylinder, R = {r_value}\n".format(
+                            box=box + 1, species=species + 1, r_value=value)
                     elif typ == 'slitpore':
-                        contents += "Box {box}: slitpore, z_max = {z_max}\n".format(
-                            box=box + 1, z_max=value)
+                        contents += "Box {box}, Species {species}: slitpore, z_max = {z_max}\n".format(
+                            box=box + 1, species=species + 1, z_max=value)
                     elif typ == 'interface':
-                        contents += "Box {box}: interface, z_min = {z_min}, z_max = {z_max}\n".format(
-                            box=box + 1, z_min=value[0],
+                        contents += "Box {box}, Species {species}: interface, z_min = {z_min}, z_max = {z_max}\n".format(
+                            box=box + 1, species=species + 1, z_min=value[0],
                             z_max=value[1])
-                else:
-                    contents += "Box {box}: None\n".format(
-                        box=box + 1
-                    )
+                    else:
+                        contents += "Box {box}, Species {species}: None\n".format(
+                            box=box + 1,
+                            species=species + 1
+                        )
 
         print(contents)
 

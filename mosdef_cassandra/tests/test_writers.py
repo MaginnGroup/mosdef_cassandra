@@ -1560,8 +1560,8 @@ class TestInpFunctions(BaseTest):
 
     def test_write_restricted_gcmc(self, gcmc_system):
         (system, moves) = gcmc_system
-        moves.restricted_type = ['sphere']
-        moves.restricted_value = [3]
+        moves.restricted_type = [[None, 'sphere']]
+        moves.restricted_value = [[None, 3]]
         inp_data = generate_input(
             system=system,
             moves=moves,
@@ -1575,8 +1575,8 @@ class TestInpFunctions(BaseTest):
 
     def test_write_restricted_gemc_npt(self, twocomptwobox_system):
         (system, moves) = twocomptwobox_system
-        moves.restricted_type = [None, 'sphere']
-        moves.restricted_value = [None, 3]
+        moves.restricted_type = [[None, None], [None, 'sphere']]
+        moves.restricted_value = [[None, None], [None, 3]]
         inp_data = generate_input(
             system=system,
             moves=moves,

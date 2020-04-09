@@ -852,17 +852,17 @@ def get_box_info(boxes, moves):
             box_types.append("cell_matrix")
     
     if moves.restricted_type and moves.restricted_value:
-        for box, box_type, typ, value in zip(boxes, box_types, moves.restricted_type, moves.restricted_value):
+        for box, box_type, restrict_types, restrict_vals in zip(boxes, box_types, moves.restricted_type, moves.restricted_value):
             inp_data += """
 {box_type}""".format(
                 box_type=box_type
-        )
+            )
             if box_type == "cubic":
                 inp_data += """
 {dim}
 """.format(
-                    dim=box[0][0] * NM_TO_A
-                )
+                dim=box[0][0] * NM_TO_A
+             )
 
             elif box_type == "orthogonal":
                 inp_data += """
@@ -871,7 +871,7 @@ def get_box_info(boxes, moves):
                     dim1=box[0][0] * NM_TO_A,
                     dim2=box[1][1] * NM_TO_A,
                     dim3=box[2][2] * NM_TO_A,
-                )
+                    )
 
             else:
                 inp_data += """
@@ -888,9 +888,9 @@ def get_box_info(boxes, moves):
                     cx=box[2][0] * NM_TO_A,
                     cy=box[2][1] * NM_TO_A,
                     cz=box[2][2] * NM_TO_A,
-                )
+                    )
 
-            if typ != None:
+            for typ, value in zip(restrict_types, restrict_vals):
                 if typ == 'interface':
                     inp_data+= """restricted_insertion {} {} {}
                     """.format(
@@ -898,38 +898,34 @@ def get_box_info(boxes, moves):
                             value[0],
                             value[1]
                             )
-                else:
+                elif typ:
                     inp_data+= """restricted_insertion {} {}
                     """.format(
                             typ,
                             value
                             )
 
-        inp_data += """
-!------------------------------------------------------------------------------
-"""
-
     else:
         for box, box_type in zip(boxes, box_types):
             inp_data += """
 {box_type}""".format(
-                box_type=box_type
+                    box_type=box_type
         )
             if box_type == "cubic":
                 inp_data += """
 {dim}
 """.format(
-                    dim=box[0][0] * NM_TO_A
-                )
+                dim=box[0][0] * NM_TO_A
+            )
 
             elif box_type == "orthogonal":
                 inp_data += """
 {dim1} {dim2} {dim3}
 """.format(
-                    dim1=box[0][0] * NM_TO_A,
-                    dim2=box[1][1] * NM_TO_A,
-                    dim3=box[2][2] * NM_TO_A,
-                )
+                dim1=box[0][0] * NM_TO_A,
+                dim2=box[1][1] * NM_TO_A,
+                dim3=box[2][2] * NM_TO_A,
+            )
 
             else:
                 inp_data += """
@@ -937,18 +933,18 @@ def get_box_info(boxes, moves):
 {ay} {by} {cy}
 {az} {bz} {cz}
 """.format(
-                    ax=box[0][0] * NM_TO_A,
-                    ay=box[0][1] * NM_TO_A,
-                    az=box[0][2] * NM_TO_A,
-                    bx=box[1][0] * NM_TO_A,
-                    by=box[1][1] * NM_TO_A,
-                    bz=box[1][2] * NM_TO_A,
-                    cx=box[2][0] * NM_TO_A,
-                    cy=box[2][1] * NM_TO_A,
-                    cz=box[2][2] * NM_TO_A,
-                )
+                ax=box[0][0] * NM_TO_A,
+                ay=box[0][1] * NM_TO_A,
+                az=box[0][2] * NM_TO_A,
+                bx=box[1][0] * NM_TO_A,
+                by=box[1][1] * NM_TO_A,
+                bz=box[1][2] * NM_TO_A,
+                cx=box[2][0] * NM_TO_A,
+                cy=box[2][1] * NM_TO_A,
+                cz=box[2][2] * NM_TO_A,
+            )
 
-        inp_data += """
+    inp_data += """
 !------------------------------------------------------------------------------
 """
 
@@ -1390,8 +1386,8 @@ def get_move_probability_info(**kwargs):
         # Check if there are restricted_insertions
         if "restricted_insertion" in kwargs:
             restriction = kwargs["restricted_insertion"]
-            for insertable, restricted in zip(insert[1], restriction[0]):
-                if insertable and resricted:
+            for insertable, restricted in zip(insert[1], restriction[0][0]):
+                if insertable and restricted:
                     inp_data += """restricted """
                 elif insertable and not restricted:
                     inp_data += """cbmc """

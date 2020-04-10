@@ -115,8 +115,8 @@ class TestMoves(BaseTest):
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
 
-    @pytest.mark.parametrize('typ,value', [('slitpore', 3), ('cylinder', 3), ('sphere',
-        3), ('interface', [3,3])])
+    @pytest.mark.parametrize('typ,value', [('slitpore', 1), ('cylinder', 1), ('sphere',
+        1), ('interface', [1,2])])
     def test_restricted_gcmc(self, methane_oplsaa, typ, value):
         moves = mc.Moves("gcmc", [methane_oplsaa])
         moves.restricted_type = [[typ]]
@@ -159,8 +159,8 @@ class TestMoves(BaseTest):
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
 
-    @pytest.mark.parametrize('typ,value', [('slitpore', 3), ('cylinder', 3), ('sphere',
-        3), ('interface', [3,3])])
+    @pytest.mark.parametrize('typ,value', [('slitpore', 1), ('cylinder', 1), ('sphere',
+        1), ('interface', [1,2])])
     def test_restricted_gemc(self, methane_oplsaa, typ, value):
         moves = mc.Moves("gemc", [methane_oplsaa])
         moves.restricted_type = [[None], [typ]]

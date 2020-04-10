@@ -891,6 +891,7 @@ def get_box_info(boxes, moves):
                     )
 
             for typ, value in zip(restrict_types, restrict_vals):
+                _check_restricted_insertions(box, typ, value)
                 if typ == 'interface':
                     inp_data+= """restricted_insertion {} {} {}
                     """.format(
@@ -1837,3 +1838,28 @@ def _get_possible_kwargs(desc=False):
         return valid_kwargs
     else:
         return list(valid_kwargs.keys())
+
+def _check_restricted_insertions(box, restriction_type, restriction_value):
+    """Check that restricted insertion values are valid given the box size
+
+    Note: Only checking cubic boxes currently
+    """
+    box_max = np.array([box[0][0], box[1][1], box[2][2]])
+    if restriction_type in ['cylinder', 'sphere']:
+        if np.any(restriction_value*2 > box_max):
+            raise ValueError("Restricted insertion 'r_max' value is"
+                " greater than the box coordinates.")
+    elif restriction_type == 'slitpore':
+        if restriction_value*2 > box_max[2]:
+            raise ValueError("Restricted insertion 'z_max' value is"
+                " greater than the z-coordinate of the box.")
+    elif restriction_type == 'interface':
+        interface_z = restriction_value[1] - restriction_value[0]
+        if restriction_value[1] > box_max[2]:
+            raise ValueError("Restricted insertion 'z_max' passed"
+                " for 'interface' is"
+                " greater than the z-coordinate of the box.")
+        elif interface_z > box_max[2]:
+            raise ValueError("Restricted insertion value passed"
+                " for 'interface' is"
+                " greater than the z-coordinate of the box.")

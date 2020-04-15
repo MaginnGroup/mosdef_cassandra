@@ -227,7 +227,7 @@ class Moves(object):
             )
         if self.ensemble in ["gemc", "gemc_npt"] and len(restricted_type) != 2:
             raise ValueError(
-                "GEMC ensembles contain 2 box but"
+                "GEMC ensembles contain 2 boxes but"
                 " `restricted_type` of length {}"
                 " was passed.".format(len(restricted_type))
             )
@@ -925,7 +925,7 @@ def _check_restriction_type(restriction_type, restriction_value):
     else:
         if not isinstance(restriction_value, (float, int)):
             raise TypeError(
-                "Restriction type is {}.  Only"
-                'a single argument of type "int"'
+                "Restriction type is {}. A"
+                ' single argument of type "int"'
                 'or "float" should be passed'.format(restriction_type)
             )

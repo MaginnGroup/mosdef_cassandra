@@ -1582,14 +1582,15 @@ class TestInpFunctions(BaseTest):
 
         if typ == "interface":
             assert (
-                "\nrestricted_insertion {} {} {}\n".format(
-                    typ, value[0], value[1]
+                "\nrestricted_insertion {} {:0.1f} {:0.1f}\n".format(
+                    typ, value[0] * 10, value[1] * 10
                 )
                 in inp_data
             )
         else:
             assert (
-                "\nrestricted_insertion {} {}\n".format(typ, value) in inp_data
+                "\nrestricted_insertion {} {:0.1f}\n".format(typ, value * 10)
+                in inp_data
             )
 
     @pytest.mark.parametrize(
@@ -1639,14 +1640,15 @@ class TestInpFunctions(BaseTest):
 
         if typ == "interface":
             assert (
-                "\nrestricted_insertion {} {} {}\n".format(
-                    typ, value[0], value[1]
+                "\nrestricted_insertion {} {:0.1f} {:0.1f}\n".format(
+                    typ, value[0] * 10, value[1] * 10
                 )
                 in inp_data
             )
         else:
             assert (
-                "\nrestricted_insertion {} {}\n".format(typ, value) in inp_data
+                "\nrestricted_insertion {} {:0.1f}\n".format(typ, value * 10)
+                in inp_data
             )
 
     @pytest.mark.parametrize(

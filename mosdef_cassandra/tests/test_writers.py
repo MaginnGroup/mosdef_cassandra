@@ -1558,8 +1558,15 @@ class TestInpFunctions(BaseTest):
                 cbmc_rcut=[],
             )
 
-    @pytest.mark.parametrize('typ,value', [('slitpore', 1), ('cylinder', 1), ('sphere',
-        1), ('interface', [1,2])])
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 1),
+            ("cylinder", 1),
+            ("sphere", 1),
+            ("interface", [1, 2]),
+        ],
+    )
     def test_write_restricted_gcmc(self, gcmc_system, typ, value):
         (system, moves) = gcmc_system
         moves.restricted_type = [[None, typ]]
@@ -1572,14 +1579,28 @@ class TestInpFunctions(BaseTest):
             temperature=300.0,
             chemical_potentials=["none", 10.0],
         )
-        
-        if typ == 'interface':
-            assert "\nrestricted_insertion {} {} {}\n".format(typ, value[0], value[1]) in inp_data
-        else:
-            assert "\nrestricted_insertion {} {}\n".format(typ, value) in inp_data
 
-    @pytest.mark.parametrize('typ,value', [('slitpore', 3), ('cylinder', 3), ('sphere',
-        3), ('interface', [3,5])])
+        if typ == "interface":
+            assert (
+                "\nrestricted_insertion {} {} {}\n".format(
+                    typ, value[0], value[1]
+                )
+                in inp_data
+            )
+        else:
+            assert (
+                "\nrestricted_insertion {} {}\n".format(typ, value) in inp_data
+            )
+
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 3),
+            ("cylinder", 3),
+            ("sphere", 3),
+            ("interface", [3, 5]),
+        ],
+    )
     def test_fail_restricted_gcmc(self, gcmc_system, typ, value):
         (system, moves) = gcmc_system
         moves.restricted_type = [[None, typ]]
@@ -1594,8 +1615,15 @@ class TestInpFunctions(BaseTest):
                 chemical_potentials=["none", 10.0],
             )
 
-    @pytest.mark.parametrize('typ,value', [('slitpore', 1), ('cylinder', 1), ('sphere',
-        1), ('interface', [1,2])])
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 1),
+            ("cylinder", 1),
+            ("sphere", 1),
+            ("interface", [1, 2]),
+        ],
+    )
     def test_write_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
         (system, moves) = twocomptwobox_system
         moves.restricted_type = [[None, None], [None, typ]]
@@ -1607,16 +1635,29 @@ class TestInpFunctions(BaseTest):
             run_length=500,
             temperature=300.0,
             pressure=1,
-            chemical_potentials=["none", 10.0],
         )
 
-        if typ == 'interface':
-            assert "\nrestricted_insertion {} {} {}\n".format(typ, value[0], value[1]) in inp_data
+        if typ == "interface":
+            assert (
+                "\nrestricted_insertion {} {} {}\n".format(
+                    typ, value[0], value[1]
+                )
+                in inp_data
+            )
         else:
-            assert "\nrestricted_insertion {} {}\n".format(typ, value) in inp_data
+            assert (
+                "\nrestricted_insertion {} {}\n".format(typ, value) in inp_data
+            )
 
-    @pytest.mark.parametrize('typ,value', [('slitpore', 6), ('cylinder', 6), ('sphere',
-        6), ('interface', [1,7])])
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 6),
+            ("cylinder", 6),
+            ("sphere", 6),
+            ("interface", [1, 7]),
+        ],
+    )
     def test_fail_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
         (system, moves) = twocomptwobox_system
         moves.restricted_type = [[None, None], [None, typ]]
@@ -1629,5 +1670,4 @@ class TestInpFunctions(BaseTest):
                 run_length=500,
                 temperature=300.0,
                 pressure=1,
-                chemical_potentials=["none", 10.0],
             )

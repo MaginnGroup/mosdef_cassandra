@@ -115,8 +115,15 @@ class TestMoves(BaseTest):
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
 
-    @pytest.mark.parametrize('typ,value', [('slitpore', 1), ('cylinder', 1), ('sphere',
-        1), ('interface', [1,2])])
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 1),
+            ("cylinder", 1),
+            ("sphere", 1),
+            ("interface", [1, 2]),
+        ],
+    )
     def test_restricted_gcmc(self, methane_oplsaa, typ, value):
         moves = mc.Moves("gcmc", [methane_oplsaa])
         moves.restricted_type = [[typ]]
@@ -159,8 +166,15 @@ class TestMoves(BaseTest):
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
 
-    @pytest.mark.parametrize('typ,value', [('slitpore', 1), ('cylinder', 1), ('sphere',
-        1), ('interface', [1,2])])
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 1),
+            ("cylinder", 1),
+            ("sphere", 1),
+            ("interface", [1, 2]),
+        ],
+    )
     def test_restricted_gemc(self, methane_oplsaa, typ, value):
         moves = mc.Moves("gemc", [methane_oplsaa])
         moves.restricted_type = [[None], [typ]]
@@ -206,10 +220,10 @@ class TestMoves(BaseTest):
 
     def test_restricted_gemc_npt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
-        moves.restricted_type = [[None], ['slitpore']]
+        moves.restricted_type = [[None], ["slitpore"]]
         moves.restricted_value = [[None], [3]]
 
-        assert moves.restricted_type == [[None], ['slitpore']]
+        assert moves.restricted_type == [[None], ["slitpore"]]
         assert moves.restricted_value == [[None], [3]]
 
     def test_single_site_nvt(self, methane_trappe):

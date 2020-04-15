@@ -896,14 +896,14 @@ def get_box_info(boxes, moves):
                     inp_data+= """restricted_insertion {} {} {}
                     """.format(
                             typ,
-                            value[0],
-                            value[1]
+                            value[0] * NM_TO_A,
+                            value[1] * NM_TO_A
                             )
                 elif typ:
                     inp_data+= """restricted_insertion {} {}
                     """.format(
                             typ,
-                            value
+                            value * NM_TO_A
                             )
 
     else:

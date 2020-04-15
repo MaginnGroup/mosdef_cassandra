@@ -146,3 +146,26 @@ class TestExamples(BaseTest):
                     if "Cassandra simulation complete" in line:
                         completed = True
                 assert completed
+
+    def test_run_gcmc_restricted(self):
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                ex.run_gcmc_restricted()
+                log_files = sorted(
+                    glob.glob("./mosdef_cassandra*.log"), key=os.path.getmtime
+                )
+                log_file = log_files[-1]
+                log_data = []
+                save_data = False
+                with open(log_file) as log:
+                    for line in log:
+                        if "CASSANDRA STANDARD" in line:
+                            save_data = True
+                        if save_data == True:
+                            log_data.append(line)
+
+                completed = False
+                for line in log_data:
+                    if "Cassandra simulation complete" in line:
+                        completed = True
+                assert completed

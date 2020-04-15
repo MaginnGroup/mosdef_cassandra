@@ -242,7 +242,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         box_matrix = convert_box.convert_to_boxmatrix(box_dims)
         boxes.append(box_matrix)
     inp_data += get_box_info(
-        boxes, moves.restricted_type, moves.restricted_value
+        boxes, moves._restricted_type, moves._restricted_value
     )
 
     temperatures = [temperature] * nbr_boxes
@@ -318,10 +318,10 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             moves.sp_prob_swap,
             moves.prob_swap_from_box,
         ]
-    if moves.restricted_type and moves.restricted_value:
+    if moves._restricted_type and moves._restricted_value:
         move_prob_dict["restricted_insertion"] = [
-            moves.restricted_type,
-            moves.restricted_value,
+            moves._restricted_type,
+            moves._restricted_value,
         ]
 
     inp_data += get_move_probability_info(**move_prob_dict)

@@ -1569,8 +1569,9 @@ class TestInpFunctions(BaseTest):
     )
     def test_write_restricted_gcmc(self, gcmc_system, typ, value):
         (system, moves) = gcmc_system
-        moves.restricted_type = [[None, typ]]
-        moves.restricted_value = [[None, value]]
+        moves.add_restricted_insertions(
+            system.species_topologies, [[None, typ]], [[None, value]]
+        )
         inp_data = generate_input(
             system=system,
             moves=moves,
@@ -1604,8 +1605,9 @@ class TestInpFunctions(BaseTest):
     )
     def test_fail_restricted_gcmc(self, gcmc_system, typ, value):
         (system, moves) = gcmc_system
-        moves.restricted_type = [[None, typ]]
-        moves.restricted_value = [[None, value]]
+        moves.add_restricted_insertions(
+            system.species_topologies, [[None, typ]], [[None, value]]
+        )
         with pytest.raises(ValueError, match=r"Restricted insertion"):
             inp_data = generate_input(
                 system=system,
@@ -1627,8 +1629,12 @@ class TestInpFunctions(BaseTest):
     )
     def test_write_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
         (system, moves) = twocomptwobox_system
-        moves.restricted_type = [[None, None], [None, typ]]
-        moves.restricted_value = [[None, None], [None, value]]
+        moves.add_restricted_insertions(
+            system.species_topologies,
+            [[None, None], [None, typ]],
+            [[None, None], [None, value]],
+        )
+
         inp_data = generate_input(
             system=system,
             moves=moves,
@@ -1662,8 +1668,11 @@ class TestInpFunctions(BaseTest):
     )
     def test_fail_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
         (system, moves) = twocomptwobox_system
-        moves.restricted_type = [[None, None], [None, typ]]
-        moves.restricted_value = [[None, None], [None, value]]
+        moves.add_restricted_insertions(
+            system.species_topologies,
+            [[None, None], [None, typ]],
+            [[None, None], [None, value]],
+        )
         with pytest.raises(ValueError, match=r"Restricted insertion"):
             inp_data = generate_input(
                 system=system,

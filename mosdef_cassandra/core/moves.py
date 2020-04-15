@@ -58,13 +58,13 @@ class Moves(object):
         else:
             self._n_boxes = 2
 
-        # Set 'restricted_typed' and 'restricted_value'
-        if self.ensemble in ['gcmc', 'gemc', 'gemc_npt']:
-            self.restricted_type = [[None] * self._n_species] * self._n_boxes
-            self.restricted_value = [[None] * self._n_species] * self._n_boxes
+        # Set '_restricted_typed' and '_restricted_value'
+        if self.ensemble in ["gcmc", "gemc", "gemc_npt"]:
+            self._restricted_type = [[None] * self._n_species] * self._n_boxes
+            self._restricted_value = [[None] * self._n_species] * self._n_boxes
         else:
-            self.restricted_type = None
-            self.restricted_value = None
+            self._restricted_type = None
+            self._restricted_value = None
 
         # Define default probabilities
         # Most are ensemble-dependent
@@ -181,47 +181,129 @@ class Moves(object):
                 self.prob_translate += self.prob_rotate
                 self.prob_rotate = 0.0
 
-    @property
+    def add_restricted_insertions(
+        self, species_topologies, restricted_type, restricted_value
+    ):
+        """Add restricted insertions for specific species and boxes
+
+        Parameters
+        ----------
+        species_topologies : list
+            list of ``parmed.Structures``, with one species per element
+        restricted_type : list
+            list of restricted insertion types, with one species per element.
+        restricted_value : list
+            list of restricted insertion values, with one species per element.
+        """
+        if self.ensemble not in ["gcmc", "gemc", "gemc_npt"]:
+            raise ValueError(
+                "Restricted insertions are only valid for"
+                " 'gcmc', 'gemc', and 'gemc_npt' ensembles."
+            )
+        if len(restricted_type) != len(restricted_value):
+            raise ValueError(
+                "Length of 'restricted_type' and "
+                " 'restricted_value' must match."
+            )
+        for box in restricted_type:
+            if len(box) != len(species_topologies):
+                raise ValueError(
+                    "Length of 'species' and "
+                    " length of species list in 'restricted_type'"
+                    " must match."
+                )
+        for box in restricted_value:
+            if len(box) != len(species_topologies):
+                raise ValueError(
+                    "Length of 'species' and "
+                    " length of species list in 'restricted_value'"
+                    " must match."
+                )
+        if self.ensemble == "gcmc" and len(restricted_type) != 1:
+            raise ValueError(
+                "GCMC ensemble contains 1 box but"
+                " `restricted_type` of length {}"
+                " was passed.".format(len(restricted_type))
+            )
+        if self.ensemble in ["gemc", "gemc_npt"] and len(restricted_type) != 2:
+            raise ValueError(
+                "GEMC ensembles contain 2 box but"
+                " `restricted_type` of length {}"
+                " was passed.".format(len(restricted_type))
+            )
+
+        for types, values in zip(restricted_type, restricted_value):
+            for typ, val in zip(types, values):
+                if not typ and not val:
+                    pass
+                elif typ and not val:
+                    raise ValueError(
+                        "`restricted_type` {} was passed"
+                        " but `restricted_value` is None.".format(typ, val)
+                    )
+                elif val and not typ:
+                    raise ValueError(
+                        "`restricted_value` {} was passed"
+                        " but `restricted_type` is None.".format(val, typ)
+                    )
+                else:
+                    _check_restriction_type(typ, val)
+
+        self._restricted_type = restricted_type
+        self._restricted_value = restricted_value
+
+    """@property
     def restricted_type(self):
         return self._restricted_type
 
     @restricted_type.setter
     def restricted_type(self, restricted_type):
         if restricted_type:
-            if self.ensemble == 'gcmc':
+            if self.ensemble == "gcmc":
                 if len(restricted_type) != 1:
-                    raise ValueError("{} ensemble only has 1 box"
-                    ' but restricted_insertion of length {}'
-                    ' was passed.'.format(
-                        self.ensemble,
-                        len(restricted_type)))
+                    raise ValueError(
+                        "{} ensemble only has 1 box"
+                        " but restricted_insertion of length {}"
+                        " was passed.".format(
+                            self.ensemble, len(restricted_type)
+                        )
+                    )
                 if not isinstance(restricted_type[0], (list, tuple)):
-                    raise TypeError("'restricted_type' specified for"
-                    " a box must be an iterable.")
+                    raise TypeError(
+                        "'restricted_type' specified for"
+                        " a box must be an iterable."
+                    )
                 if len(restricted_type[0]) != self._n_species:
-                    raise ValueError("{} species specified"
-                    ' but restricted_type for {}'
-                    ' species was passed.'.format(
-                        self._n_species,
-                        len(restricted_type[0])))
-            elif self.ensemble in ['gemc', 'gemc_npt']:
+                    raise ValueError(
+                        "{} species specified"
+                        " but restricted_type for {}"
+                        " species was passed.".format(
+                            self._n_species, len(restricted_type[0])
+                        )
+                    )
+            elif self.ensemble in ["gemc", "gemc_npt"]:
                 if len(restricted_type) != 2:
-                    raise ValueError("{} ensemble requires 2 boxes"
-                    ' but restricted_type of length {}'
-                    ' was passed.'.format(
-                        self.ensemble,
-                        len(restricted_type)))
+                    raise ValueError(
+                        "{} ensemble requires 2 boxes"
+                        " but restricted_type of length {}"
+                        " was passed.".format(
+                            self.ensemble, len(restricted_type)
+                        )
+                    )
                 if len(restricted_type[0]) != self._n_species:
-                    raise ValueError("{} species specified"
-                    ' but restricted_typed for only {}'
-                    ' species was passed.'.format(
-                        self._n_species,
-                        len(restricted_type[0])))
+                    raise ValueError(
+                        "{} species specified"
+                        " but restricted_typed for only {}"
+                        " species was passed.".format(
+                            self._n_species, len(restricted_type[0])
+                        )
+                    )
             else:
-                raise ValueError("Restricted insertions are only valid"
-                    ' for GCMC, GEMC, and GEMC-NPT ensembles.'
-                    ' The {} ensemble was passed.'.format(
-                        self.ensemble))
+                raise ValueError(
+                    "Restricted insertions are only valid"
+                    " for GCMC, GEMC, and GEMC-NPT ensembles."
+                    " The {} ensemble was passed.".format(self.ensemble)
+                )
 
             self._restricted_type = restricted_type
         else:
@@ -235,39 +317,51 @@ class Moves(object):
     def restricted_value(self, restricted_value):
         if restricted_value:
             if len(self.restricted_type) != len(restricted_value):
-                raise ValueError("'restricted_type' is a list of length"
-                        " {} but 'restricted_value' is a list of length"
-                        " {}.".format(
-                            len(self.restricted_type),
-                            len(restricted_value))
-                        )
+                raise ValueError(
+                    "'restricted_type' is a list of length"
+                    " {} but 'restricted_value' is a list of length"
+                    " {}.".format(
+                        len(self.restricted_type), len(restricted_value)
+                    )
+                )
             if not isinstance(restricted_value[0], (list, tuple)):
-                raise TypeError("'restricted_value' specified for"
-                " a box must be an iterable.")
+                raise TypeError(
+                    "'restricted_value' specified for"
+                    " a box must be an iterable."
+                )
             if len(restricted_value[0]) != self._n_species:
-                raise ValueError("{} species specified"
-                ' but restricted_value for only {}'
-                ' species was passed.'.format(
-                    self._n_species,
-                    len(restricted_value[0])))
+                raise ValueError(
+                    "{} species specified"
+                    " but restricted_value for only {}"
+                    " species was passed.".format(
+                        self._n_species, len(restricted_value[0])
+                    )
+                )
             else:
                 for box in range(self._n_boxes):
-                    for typ, value in zip(self.restricted_type[box], restricted_value[box]):
+                    for typ, value in zip(
+                        self.restricted_type[box], restricted_value[box]
+                    ):
                         if typ and value:
                             _check_restriction_type(typ, value)
                         elif typ == None and value == None:
                             pass
                         else:
-                            raise ValueError("'None' must be passed to both"
-                            " 'restricted_value' and 'restricted_type'.")
+                            raise ValueError(
+                                "'None' must be passed to both"
+                                " 'restricted_value' and 'restricted_type'."
+                            )
 
                 self._restricted_value = restricted_value
         else:
             if self.restricted_type:
-                raise ValueError("'None' must be passed to both"
-                " 'restricted_value' and 'restricted_type'.")
+                raise ValueError(
+                    "'None' must be passed to both"
+                    " 'restricted_value' and 'restricted_type'."
+                )
             else:
                 self._restricted_value = restricted_value
+    """
 
     @property
     def ensemble(self):
@@ -772,58 +866,66 @@ Dihedral:  {prob_dihedral}
             contents += "Box {box}: {max_vol}\n".format(
                 box=box + 1, max_vol=max_vol
             )
-        
-        if self.restricted_type != None:
+
+        if self._restricted_type != None:
             contents += "\nRestricted Insertions (Ang):\n"
             for box in range(self._n_boxes):
-                for species, (typ, value) in enumerate(zip(self.restricted_type[box], self.restricted_value[box])):
-                    if typ == 'sphere':
+                for species, (typ, value) in enumerate(
+                    zip(
+                        self._restricted_type[box], self._restricted_value[box]
+                    )
+                ):
+                    if typ == "sphere":
                         contents += "Box {box}, Species {species}: sphere, R = {r_value}\n".format(
-                            box=box + 1, species=species + 1, r_value=value)
-                    elif typ == 'cylinder':
+                            box=box + 1, species=species + 1, r_value=value
+                        )
+                    elif typ == "cylinder":
                         contents += "Box {box}, Species {species}: cylinder, R = {r_value}\n".format(
-                            box=box + 1, species=species + 1, r_value=value)
-                    elif typ == 'slitpore':
+                            box=box + 1, species=species + 1, r_value=value
+                        )
+                    elif typ == "slitpore":
                         contents += "Box {box}, Species {species}: slitpore, z_max = {z_max}\n".format(
-                            box=box + 1, species=species + 1, z_max=value)
-                    elif typ == 'interface':
+                            box=box + 1, species=species + 1, z_max=value
+                        )
+                    elif typ == "interface":
                         contents += "Box {box}, Species {species}: interface, z_min = {z_min}, z_max = {z_max}\n".format(
-                            box=box + 1, species=species + 1, z_min=value[0],
-                            z_max=value[1])
+                            box=box + 1,
+                            species=species + 1,
+                            z_min=value[0],
+                            z_max=value[1],
+                        )
                     else:
                         contents += "Box {box}, Species {species}: None\n".format(
-                            box=box + 1,
-                            species=species + 1
+                            box=box + 1, species=species + 1
                         )
 
         print(contents)
 
+
 def _check_restriction_type(restriction_type, restriction_value):
-    valid_restrict_types = ["sphere",
-                            "cylinder",
-                            "slitpore",
-                            "interface"
-                            ]
+    valid_restrict_types = ["sphere", "cylinder", "slitpore", "interface"]
     # Check restriction insertion type
     if restriction_type not in valid_restrict_types:
         raise ValueError(
             'Invalid restriction type "{}".  Supported '
             "restriction types include {}".format(
-                restriction_type,
-                valid_restrict_types))
+                restriction_type, valid_restrict_types
+            )
+        )
     # Check if correct number of arguments passed
-    if restriction_type == 'interface':
+    if restriction_type == "interface":
         if len(restriction_value) != 2:
             raise ValueError(
-                'Invalid number of arguments passed.'
-                '{} arguments for restriction type {}'
-                'were passed.  2 are required'.format(
-                    len(restriction_value),
-                    restriction_type))
+                "Invalid number of arguments passed."
+                "{} arguments for restriction type {}"
+                "were passed.  2 are required".format(
+                    len(restriction_value), restriction_type
+                )
+            )
     else:
         if not isinstance(restriction_value, (float, int)):
             raise TypeError(
-                'Restriction type is {}.  Only'
+                "Restriction type is {}.  Only"
                 'a single argument of type "int"'
-                'or "float" should be passed'.format(
-                    restriction_type))
+                'or "float" should be passed'.format(restriction_type)
+            )

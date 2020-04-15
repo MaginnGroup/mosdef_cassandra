@@ -126,11 +126,10 @@ class TestMoves(BaseTest):
     )
     def test_restricted_gcmc(self, methane_oplsaa, typ, value):
         moves = mc.Moves("gcmc", [methane_oplsaa])
-        moves.restricted_type = [[typ]]
-        moves.restricted_value = [[value]]
+        moves.add_restricted_insertions([methane_oplsaa], [[typ]], [[value]])
 
-        assert moves.restricted_type == [[typ]]
-        assert moves.restricted_value == [[value]]
+        assert moves._restricted_type == [[typ]]
+        assert moves._restricted_value == [[value]]
 
     def test_ensemble_gemc(self, methane_oplsaa):
         moves = mc.Moves("gemc", [methane_oplsaa])
@@ -177,11 +176,12 @@ class TestMoves(BaseTest):
     )
     def test_restricted_gemc(self, methane_oplsaa, typ, value):
         moves = mc.Moves("gemc", [methane_oplsaa])
-        moves.restricted_type = [[None], [typ]]
-        moves.restricted_value = [[None], [value]]
+        moves.add_restricted_insertions(
+            [methane_oplsaa], [[None], [typ]], [[None], [value]]
+        )
 
-        assert moves.restricted_type == [[None], [typ]]
-        assert moves.restricted_value == [[None], [value]]
+        assert moves._restricted_type == [[None], [typ]]
+        assert moves._restricted_value == [[None], [value]]
 
     def test_ensemble_gemcnpt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
@@ -220,11 +220,12 @@ class TestMoves(BaseTest):
 
     def test_restricted_gemc_npt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
-        moves.restricted_type = [[None], ["slitpore"]]
-        moves.restricted_value = [[None], [3]]
+        moves.add_restricted_insertions(
+            [methane_oplsaa], [[None], ["slitpore"]], [[None], [3]]
+        )
 
-        assert moves.restricted_type == [[None], ["slitpore"]]
-        assert moves.restricted_value == [[None], [3]]
+        assert moves._restricted_type == [[None], ["slitpore"]]
+        assert moves._restricted_value == [[None], [3]]
 
     def test_single_site_nvt(self, methane_trappe):
 

@@ -511,3 +511,29 @@ class TestMoves(BaseTest):
 
         moves = mc.Moves("gemc", [methane_oplsaa])
         moves.print()
+
+    def test_invalid_ensemble_and_restriction(self, methane_oplsaa):
+        moves = mc.Moves("nvt", [methane_oplsaa])
+        with pytest.raises(ValueError, match=r"only valid"):
+            moves.add_restricted_insertions(
+                [methane_oplsaa], [["slitpore"]], [[1]]
+            )
+
+    @pytest.mark.parametrize(
+        "typ,value",
+        [("slitpore", [[1], [2]]), ("cylinder", [[None]]), (None, [[1]])],
+    )
+    def test_invalid_restricted_type_and_value(
+        self, methane_oplsaa, typ, value
+    ):
+        moves = mc.Moves("gcmc", [methane_oplsaa])
+        # with pytest.raises(ValueError, match=r"Length of"):
+        with pytest.raises(ValueError):
+            moves.add_restricted_insertions([methane_oplsaa], [[typ]], value)
+
+    def test_invalid_restricted_type_and_species(self, methane_oplsaa):
+        moves = mc.Moves("gcmc", [methane_oplsaa])
+        with pytest.raises(ValueError, match=r"Length of 'species'"):
+            moves.add_restricted_insertions(
+                [methane_oplsaa], [["slitpore", None]], [[1, None]]
+            )

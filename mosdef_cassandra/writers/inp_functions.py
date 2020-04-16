@@ -1487,12 +1487,21 @@ def get_move_probability_info(**kwargs):
 """.format(
             prob_swap=swap[0]
         )
-
-        for insertable in swap[1]:
-            if insertable:
-                inp_data += """cbmc """
-            else:
-                inp_data += """none """
+        if "restricted_insertion" in kwargs:
+            restriction = kwargs["restricted_insertion"]
+            for insertable, restricted in zip(swap[1], restriction[0][0]):
+                if insertable and restricted:
+                    inp_data += """restricted """
+                elif insertable and not restricted:
+                    inp_data += """cbmc """
+                else:
+                    inp_data += """none """
+        else:
+            for insertable in swap[1]:
+                if insertable:
+                    inp_data += """cbmc """
+                else:
+                    inp_data += """none """
 
         if swap[2] is not None:
             inp_data += """

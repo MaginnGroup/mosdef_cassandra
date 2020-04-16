@@ -905,12 +905,12 @@ def get_box_info(boxes, restricted_type, restricted_value):
                 if typ == "interface":
                     inp_data += """restricted_insertion {} {} {}
                     """.format(
-                        typ, value[0] * NM_TO_A, value[1] * NM_TO_A
+                        typ, value[0], value[1]
                     )
                 elif typ:
                     inp_data += """restricted_insertion {} {}
                     """.format(
-                        typ, value * NM_TO_A
+                        typ, value
                     )
 
     else:
@@ -1861,7 +1861,9 @@ def _check_restricted_insertions(box, restriction_type, restriction_value):
 
     Note: Only checking cubic boxes currently
     """
-    box_max = np.array([box[0][0], box[1][1], box[2][2]])
+    box_max = np.array(
+        [box[0][0] * NM_TO_A, box[1][1] * NM_TO_A, box[2][2] * NM_TO_A]
+    )
     if restriction_type in ["cylinder", "sphere"]:
         if np.any(restriction_value * 2 > box_max):
             raise ValueError(

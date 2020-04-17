@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 import parmed
+import warnings
 
 
 class Moves(object):
@@ -59,12 +60,8 @@ class Moves(object):
             self._n_boxes = 2
 
         # Set '_restricted_typed' and '_restricted_value'
-        if self.ensemble in ["gcmc", "gemc", "gemc_npt"]:
-            self._restricted_type = [[None] * self._n_species] * self._n_boxes
-            self._restricted_value = [[None] * self._n_species] * self._n_boxes
-        else:
-            self._restricted_type = None
-            self._restricted_value = None
+        self._restricted_type = None
+        self._restricted_value = None
 
         # Define default probabilities
         # Most are ensemble-dependent
@@ -189,12 +186,17 @@ class Moves(object):
         Parameters
         ----------
         species_topologies : list
-            list of ``parmed.Structures``, with one species per element
+            list of ``parmed.Structures`` containing one list per box of species
         restricted_type : list
-            list of restricted insertion types, with one species per element.
+            list of restricted insertion types containing one list per box of species
         restricted_value : list
-            list of restricted insertion values, with one species per element.
+            list of restricted insertion values containing one list per box of species
         """
+        if self._restricted_type and self._restricted_value:
+            warnings.warn(
+                "Restricted insertion has been previously"
+                " added and will be replaced."
+            )
         if self.ensemble not in ["gcmc", "gemc", "gemc_npt"]:
             raise ValueError(
                 "Restricted insertions are only valid for"
@@ -206,18 +208,32 @@ class Moves(object):
                 " 'restricted_value' must match."
             )
         for box in restricted_type:
+            if isinstance(box, (str, int, float)):
+                raise TypeError(
+                    "Restricted type must be passed as a list"
+                    " of lists corresponding to each box."
+                )
             if len(box) != len(species_topologies):
                 raise ValueError(
                     "Length of 'species' and "
-                    " length of species list in 'restricted_type'"
-                    " must match."
+                    " length of box list in 'restricted_type'"
+                    " must match.  `species` has a length of {}"
+                    " and the box list in 'restricted_type' has a "
+                    " length of {}".format(len(species_topologies), len(box))
                 )
         for box in restricted_value:
+            if isinstance(box, (str, int, float)):
+                raise TypeError(
+                    "Restricted value must be passed as a list"
+                    " of lists corresponding to each box."
+                )
             if len(box) != len(species_topologies):
                 raise ValueError(
                     "Length of 'species' and "
                     " length of species list in 'restricted_value'"
-                    " must match."
+                    " must match.  `species` has a length of {}"
+                    " and the box list in 'restricted_value' has a "
+                    " length of {}".format(len(species_topologies), len(box))
                 )
         if self.ensemble == "gcmc" and len(restricted_type) != 1:
             raise ValueError(

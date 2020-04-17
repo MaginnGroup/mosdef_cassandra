@@ -1557,3 +1557,128 @@ class TestInpFunctions(BaseTest):
                 cbmc_kappa_dih=5,
                 cbmc_rcut=[],
             )
+
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 1.0),
+            ("cylinder", 1.0),
+            ("sphere", 1.0),
+            ("interface", [1.0, 2.0]),
+        ],
+    )
+    def test_write_restricted_gcmc(self, gcmc_system, typ, value):
+        (system, moves) = gcmc_system
+        moves.add_restricted_insertions(
+            system.species_topologies, [[None, typ]], [[None, value]]
+        )
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            chemical_potentials=["none", 10.0],
+        )
+
+        if typ == "interface":
+            assert (
+                "\nrestricted_insertion {} {:0.1f} {:0.1f}\n".format(
+                    typ, value[0], value[1]
+                )
+                in inp_data
+            )
+        else:
+            assert (
+                "\nrestricted_insertion {} {:0.1f}\n".format(typ, value)
+                in inp_data
+            )
+
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 30),
+            ("cylinder", 30),
+            ("sphere", 30),
+            ("interface", [30, 50]),
+        ],
+    )
+    def test_fail_restricted_gcmc(self, gcmc_system, typ, value):
+        (system, moves) = gcmc_system
+        moves.add_restricted_insertions(
+            system.species_topologies, [[None, typ]], [[None, value]]
+        )
+        with pytest.raises(ValueError, match=r"Restricted insertion"):
+            inp_data = generate_input(
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
+                chemical_potentials=["none", 10.0],
+            )
+
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 10.0),
+            ("cylinder", 10.0),
+            ("sphere", 10.0),
+            ("interface", [10.0, 20.0]),
+        ],
+    )
+    def test_write_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
+        (system, moves) = twocomptwobox_system
+        moves.add_restricted_insertions(
+            system.species_topologies,
+            [[None, None], [None, typ]],
+            [[None, None], [None, value]],
+        )
+
+        inp_data = generate_input(
+            system=system,
+            moves=moves,
+            run_type="equilibration",
+            run_length=500,
+            temperature=300.0,
+            pressure=1,
+        )
+
+        if typ == "interface":
+            assert (
+                "\nrestricted_insertion {} {:0.1f} {:0.1f}\n".format(
+                    typ, value[0], value[1]
+                )
+                in inp_data
+            )
+        else:
+            assert (
+                "\nrestricted_insertion {} {:0.1f}\n".format(typ, value)
+                in inp_data
+            )
+
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 60),
+            ("cylinder", 60),
+            ("sphere", 60),
+            ("interface", [10, 70]),
+        ],
+    )
+    def test_fail_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
+        (system, moves) = twocomptwobox_system
+        moves.add_restricted_insertions(
+            system.species_topologies,
+            [[None, None], [None, typ]],
+            [[None, None], [None, value]],
+        )
+        with pytest.raises(ValueError, match=r"Restricted insertion"):
+            inp_data = generate_input(
+                system=system,
+                moves=moves,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0,
+                pressure=1,
+            )

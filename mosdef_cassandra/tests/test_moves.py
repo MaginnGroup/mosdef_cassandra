@@ -1,6 +1,7 @@
 import pytest
 
 import mosdef_cassandra as mc
+import warnings
 from mosdef_cassandra.tests.base_test import BaseTest
 
 
@@ -115,6 +116,22 @@ class TestMoves(BaseTest):
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
 
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 1),
+            ("cylinder", 1),
+            ("sphere", 1),
+            ("interface", [1, 2]),
+        ],
+    )
+    def test_restricted_gcmc(self, methane_oplsaa, typ, value):
+        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves.add_restricted_insertions([methane_oplsaa], [[typ]], [[value]])
+
+        assert moves._restricted_type == [[typ]]
+        assert moves._restricted_value == [[value]]
+
     def test_ensemble_gemc(self, methane_oplsaa):
         moves = mc.Moves("gemc", [methane_oplsaa])
         assert moves.ensemble == "gemc"
@@ -148,6 +165,24 @@ class TestMoves(BaseTest):
         # Should be insertable and regrow-able
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
+
+    @pytest.mark.parametrize(
+        "typ,value",
+        [
+            ("slitpore", 1),
+            ("cylinder", 1),
+            ("sphere", 1),
+            ("interface", [1, 2]),
+        ],
+    )
+    def test_restricted_gemc(self, methane_oplsaa, typ, value):
+        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves.add_restricted_insertions(
+            [methane_oplsaa], [[None], [typ]], [[None], [value]]
+        )
+
+        assert moves._restricted_type == [[None], [typ]]
+        assert moves._restricted_value == [[None], [value]]
 
     def test_ensemble_gemcnpt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
@@ -183,6 +218,15 @@ class TestMoves(BaseTest):
         # Should be insertable and regrow-able
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
+
+    def test_restricted_gemc_npt(self, methane_oplsaa):
+        moves = mc.Moves("gemc_npt", [methane_oplsaa])
+        moves.add_restricted_insertions(
+            [methane_oplsaa], [[None], ["slitpore"]], [[None], [3]]
+        )
+
+        assert moves._restricted_type == [[None], ["slitpore"]]
+        assert moves._restricted_value == [[None], [3]]
 
     def test_single_site_nvt(self, methane_trappe):
 
@@ -468,3 +512,45 @@ class TestMoves(BaseTest):
 
         moves = mc.Moves("gemc", [methane_oplsaa])
         moves.print()
+
+    def test_invalid_ensemble_and_restriction(self, methane_oplsaa):
+        moves = mc.Moves("nvt", [methane_oplsaa])
+        with pytest.raises(ValueError, match=r"only valid"):
+            moves.add_restricted_insertions(
+                [methane_oplsaa], [["slitpore"]], [[1]]
+            )
+
+    @pytest.mark.parametrize(
+        "typ,value",
+        [("slitpore", [[1], [2]]), ("cylinder", [[None]]), (None, [[1]]),],
+    )
+    def test_value_error_restricted_type_and_value(
+        self, methane_oplsaa, typ, value
+    ):
+        moves = mc.Moves("gcmc", [methane_oplsaa])
+        with pytest.raises(ValueError):
+            moves.add_restricted_insertions([methane_oplsaa], [[typ]], value)
+
+    def test_type_error_restricted_type_and_value(self, methane_oplsaa):
+        moves = mc.Moves("gcmc", [methane_oplsaa])
+        with pytest.raises(TypeError):
+            moves.add_restricted_insertions(
+                [methane_oplsaa], ["cylinder"], [3]
+            )
+
+    def test_invalid_restricted_type_and_species(self, methane_oplsaa):
+        moves = mc.Moves("gcmc", [methane_oplsaa])
+        with pytest.raises(ValueError, match=r"Length of 'species'"):
+            moves.add_restricted_insertions(
+                [methane_oplsaa], [["slitpore", None]], [[1, None]]
+            )
+
+    def test_add_multiple_restricted_insertions(self, methane_oplsaa):
+        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves.add_restricted_insertions(
+            [methane_oplsaa], [["slitpore"]], [[3]]
+        )
+        with pytest.warns(None) as record:
+            moves.add_restricted_insertions(
+                [methane_oplsaa], [["cylinder"]], [[3]]
+            )

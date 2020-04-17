@@ -241,7 +241,9 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             box_dims = np.hstack((box.lengths, box.angles))
         box_matrix = convert_box.convert_to_boxmatrix(box_dims)
         boxes.append(box_matrix)
-    inp_data += get_box_info(boxes)
+    inp_data += get_box_info(
+        boxes, moves._restricted_type, moves._restricted_value
+    )
 
     temperatures = [temperature] * nbr_boxes
     inp_data += get_temperature_info(temperatures)
@@ -315,6 +317,11 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             moves.sp_insertable,
             moves.sp_prob_swap,
             moves.prob_swap_from_box,
+        ]
+    if moves._restricted_type and moves._restricted_value:
+        move_prob_dict["restricted_insertion"] = [
+            moves._restricted_type,
+            moves._restricted_value,
         ]
 
     inp_data += get_move_probability_info(**move_prob_dict)
@@ -818,7 +825,7 @@ def get_molecule_files(max_molecules_dict):
     return inp_data
 
 
-def get_box_info(boxes):
+def get_box_info(boxes, restricted_type, restricted_value):
     """Get the box info section of the input file
 
     Parameters
@@ -826,6 +833,12 @@ def get_box_info(boxes):
     boxes : list
        list of box matrices with one box matrix
        per simulation box
+    restricted_type : list
+       list of restricted insertion types per species
+       per simulation box
+    restricted_value : list
+       list of restricted insertion values corresponding
+       to `restricted_type`
     """
     nbr_boxes = len(boxes)
     for box in boxes:
@@ -846,45 +859,101 @@ def get_box_info(boxes):
         else:
             box_types.append("cell_matrix")
 
-    for box, box_type in zip(boxes, box_types):
-        inp_data += """
-{box_type}""".format(
-            box_type=box_type
-        )
-        if box_type == "cubic":
+    if restricted_type and restricted_value:
+        for box, box_type, restrict_types, restrict_vals in zip(
+            boxes, box_types, restricted_type, restricted_value
+        ):
             inp_data += """
+{box_type}""".format(
+                box_type=box_type
+            )
+            if box_type == "cubic":
+                inp_data += """
 {dim}
 """.format(
-                dim=box[0][0] * NM_TO_A
-            )
+                    dim=box[0][0] * NM_TO_A
+                )
 
-        elif box_type == "orthogonal":
-            inp_data += """
+            elif box_type == "orthogonal":
+                inp_data += """
 {dim1} {dim2} {dim3}
 """.format(
-                dim1=box[0][0] * NM_TO_A,
-                dim2=box[1][1] * NM_TO_A,
-                dim3=box[2][2] * NM_TO_A,
-            )
+                    dim1=box[0][0] * NM_TO_A,
+                    dim2=box[1][1] * NM_TO_A,
+                    dim3=box[2][2] * NM_TO_A,
+                )
 
-        else:
-            inp_data += """
+            else:
+                inp_data += """
 {ax} {bx} {cx}
 {ay} {by} {cy}
 {az} {bz} {cz}
 """.format(
-                ax=box[0][0] * NM_TO_A,
-                ay=box[0][1] * NM_TO_A,
-                az=box[0][2] * NM_TO_A,
-                bx=box[1][0] * NM_TO_A,
-                by=box[1][1] * NM_TO_A,
-                bz=box[1][2] * NM_TO_A,
-                cx=box[2][0] * NM_TO_A,
-                cy=box[2][1] * NM_TO_A,
-                cz=box[2][2] * NM_TO_A,
-            )
+                    ax=box[0][0] * NM_TO_A,
+                    ay=box[0][1] * NM_TO_A,
+                    az=box[0][2] * NM_TO_A,
+                    bx=box[1][0] * NM_TO_A,
+                    by=box[1][1] * NM_TO_A,
+                    bz=box[1][2] * NM_TO_A,
+                    cx=box[2][0] * NM_TO_A,
+                    cy=box[2][1] * NM_TO_A,
+                    cz=box[2][2] * NM_TO_A,
+                )
 
-    inp_data += """!------------------------------------------------------------------------------
+            for typ, value in zip(restrict_types, restrict_vals):
+                _check_restricted_insertions(box, typ, value)
+                if typ == "interface":
+                    inp_data += """restricted_insertion {} {} {}
+                    """.format(
+                        typ, value[0], value[1]
+                    )
+                elif typ:
+                    inp_data += """restricted_insertion {} {}
+                    """.format(
+                        typ, value
+                    )
+
+    else:
+        for box, box_type in zip(boxes, box_types):
+            inp_data += """
+{box_type}""".format(
+                box_type=box_type
+            )
+            if box_type == "cubic":
+                inp_data += """
+{dim}
+""".format(
+                    dim=box[0][0] * NM_TO_A
+                )
+
+            elif box_type == "orthogonal":
+                inp_data += """
+{dim1} {dim2} {dim3}
+""".format(
+                    dim1=box[0][0] * NM_TO_A,
+                    dim2=box[1][1] * NM_TO_A,
+                    dim3=box[2][2] * NM_TO_A,
+                )
+
+            else:
+                inp_data += """
+{ax} {bx} {cx}
+{ay} {by} {cy}
+{az} {bz} {cz}
+""".format(
+                    ax=box[0][0] * NM_TO_A,
+                    ay=box[0][1] * NM_TO_A,
+                    az=box[0][2] * NM_TO_A,
+                    bx=box[1][0] * NM_TO_A,
+                    by=box[1][1] * NM_TO_A,
+                    bz=box[1][2] * NM_TO_A,
+                    cx=box[2][0] * NM_TO_A,
+                    cy=box[2][1] * NM_TO_A,
+                    cz=box[2][2] * NM_TO_A,
+                )
+
+    inp_data += """
+!------------------------------------------------------------------------------
 """
 
     return inp_data
@@ -1042,6 +1111,15 @@ def get_move_probability_info(**kwargs):
                    list with one value for each box specifying the
                    probability of using the box as a donor box.
 
+        'restricted_insertion' : [restricted_type, restricted_value]
+                                 where restricted_type is the type of 
+                                 restricted insertion and restricted_value
+                                 is the value that corresponds to the
+                                 restricted_type.  Both variables are lists
+                                 that correspond to each species per box.
+                                 If None, then restricted type is not specified
+                                 for that particular species in the given box.
+
     """
 
     # First a sanity check on kwargs
@@ -1054,6 +1132,7 @@ def get_move_probability_info(**kwargs):
         "volume",
         "insert",
         "swap",
+        "restricted_insertion",
     ]
 
     for arg in kwargs:
@@ -1321,11 +1400,22 @@ def get_move_probability_info(**kwargs):
             prob_insert=insert[0]
         )
 
-        for insertable in insert[1]:
-            if insertable:
-                inp_data += """cbmc """
-            else:
-                inp_data += """none """
+        # Check if there are restricted_insertions
+        if "restricted_insertion" in kwargs:
+            restriction = kwargs["restricted_insertion"]
+            for insertable, restricted in zip(insert[1], restriction[0][0]):
+                if insertable and restricted:
+                    inp_data += """restricted """
+                elif insertable and not restricted:
+                    inp_data += """cbmc """
+                else:
+                    inp_data += """none """
+        else:
+            for insertable in insert[1]:
+                if insertable:
+                    inp_data += """cbmc """
+                else:
+                    inp_data += """none """
 
         inp_data += """
 !------------------------------------------------------------------------------
@@ -1397,12 +1487,21 @@ def get_move_probability_info(**kwargs):
 """.format(
             prob_swap=swap[0]
         )
-
-        for insertable in swap[1]:
-            if insertable:
-                inp_data += """cbmc """
-            else:
-                inp_data += """none """
+        if "restricted_insertion" in kwargs:
+            restriction = kwargs["restricted_insertion"]
+            for insertable, restricted in zip(swap[1], restriction[0][0]):
+                if insertable and restricted:
+                    inp_data += """restricted """
+                elif insertable and not restricted:
+                    inp_data += """cbmc """
+                else:
+                    inp_data += """none """
+        else:
+            for insertable in swap[1]:
+                if insertable:
+                    inp_data += """cbmc """
+                else:
+                    inp_data += """none """
 
         if swap[2] is not None:
             inp_data += """
@@ -1764,3 +1863,39 @@ def _get_possible_kwargs(desc=False):
         return valid_kwargs
     else:
         return list(valid_kwargs.keys())
+
+
+def _check_restricted_insertions(box, restriction_type, restriction_value):
+    """Check that restricted insertion values are valid given the box size
+
+    Note: Only checking cubic boxes currently
+    """
+    box_max = np.array(
+        [box[0][0] * NM_TO_A, box[1][1] * NM_TO_A, box[2][2] * NM_TO_A]
+    )
+    if restriction_type in ["cylinder", "sphere"]:
+        if np.any(restriction_value * 2 > box_max):
+            raise ValueError(
+                "Restricted insertion 'r_max' value is"
+                " greater than the box coordinates."
+            )
+    elif restriction_type == "slitpore":
+        if restriction_value * 2 > box_max[2]:
+            raise ValueError(
+                "Restricted insertion 'z_max' value is"
+                " greater than the z-coordinate of the box."
+            )
+    elif restriction_type == "interface":
+        interface_z = restriction_value[1] - restriction_value[0]
+        if restriction_value[1] > box_max[2]:
+            raise ValueError(
+                "Restricted insertion 'z_max' passed"
+                " for 'interface' is"
+                " greater than the z-coordinate of the box."
+            )
+        elif interface_z > box_max[2]:
+            raise ValueError(
+                "Restricted insertion value passed"
+                " for 'interface' is"
+                " greater than the z-coordinate of the box."
+            )

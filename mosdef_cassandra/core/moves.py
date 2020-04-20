@@ -1,7 +1,10 @@
 from copy import deepcopy
+from unyt import dimensions
+from utils.units import validate_unit
 
 import parmed
 import warnings
+import unyt as u
 
 
 class Moves(object):
@@ -116,11 +119,11 @@ class Moves(object):
 
         # Default max deltas for volume moves
         if self.ensemble == "npt" or self.ensemble == "gemc":
-            self.max_volume = [500.0]
+            self.max_volume = 500.0 * u.angstrom
         elif self.ensemble == "gemc_npt":
-            self.max_volume = [500.0, 5000.0]
+            self.max_volume = [500.0 * u.angstrom, 5000.0 * u.angstrom]
         else:
-            self.max_volume = [0.0]
+            self.max_volume = 0.0 * u.angstrom
 
         # Remaining options are per-species
         self.max_dihedral = [0.0] * self._n_species
@@ -266,7 +269,7 @@ class Moves(object):
                     _check_restriction_type(typ, val)
 
         self._restricted_type = restricted_type
-        self._restricted_value = restricted_value
+        self._restricted_value = validate_units(restricted_value, dimensions.length)
 
     @property
     def ensemble(self):
@@ -592,12 +595,13 @@ class Moves(object):
                     "max_volume must be a list of " "length (1) for gemc"
                 )
         for max_vol in max_volume:
-            if type(max_vol) not in (float, int):
-                raise TypeError(
-                    "Maximum volume change for a box " "must be of type float"
-                )
-            else:
-                max_vol = float(max_vol)
+            #if type(max_vol) not in (float, int):
+            #    raise TypeError(
+            #        "Maximum volume change for a box " "must be of type float"
+            #    )
+            #else:
+            #    max_vol = float(max_vol)
+            validate_unit(max_vol, dimensions.volume)
             if max_vol < 0.0:
                 raise ValueError(
                     "Maximum volume change for a box "

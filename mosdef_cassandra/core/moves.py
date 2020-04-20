@@ -269,7 +269,7 @@ class Moves(object):
                     _check_restriction_type(typ, val)
 
         self._restricted_type = restricted_type
-        self._restricted_value = validate_units(restricted_value, dimensions.length)
+        self._restricted_value = validate_unit(restricted_value, dimensions.length)
 
     @property
     def ensemble(self):

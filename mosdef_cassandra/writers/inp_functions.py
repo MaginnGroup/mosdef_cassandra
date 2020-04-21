@@ -1,6 +1,7 @@
 import mbuild
 import datetime
 import numpy as np
+import unyt as u
 
 import mosdef_cassandra.utils.convert_box as convert_box
 
@@ -47,6 +48,8 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
                 "Allowable options include {}".format(arg, valid_args)
             )
 
+    # Convert units on kwargs
+
     # Construct an input file section by section
 
     inp_data = """
@@ -84,7 +87,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         cutoff_style = "cut_tail"
 
     if "vdw_cutoff" in kwargs:
-        vdw_cutoff = kwargs["vdw_cutoff"]
+        vdw_cutoff = kwargs["vdw_cutoff"].to_value()
     else:
         vdw_cutoff = 12.0
 
@@ -96,10 +99,10 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     vdw_cutoffs = [vdw_cutoff] * nbr_boxes
     # Support for per-box cutoffs
     if "vdw_cutoff_box1" in kwargs:
-        vdw_cutoffs[0] = kwargs["vdw_cutoff_box1"]
+        vdw_cutoffs[0] = kwargs["vdw_cutoff_box1"].to_value()
     if "vdw_cutoff_box2" in kwargs:
         if nbr_boxes == 2:
-            vdw_cutoffs[1] = kwargs["vdw_cutoff_box2"]
+            vdw_cutoffs[1] = kwargs["vdw_cutoff_box2"].to_value()
         else:
             raise ValueError(
                 "Only one box in System but "
@@ -118,7 +121,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     if "charge_cutoff" in kwargs:
         charge_cutoff = kwargs["charge_cutoff"]
     else:
-        charge_cutoff = 12.0
+        charge_cutoff = 12.0 * u.angstrom
 
     if "ewald_accuracy" in kwargs:
         ewald_accuracy = kwargs["ewald_accuracy"]
@@ -135,10 +138,10 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Support for per-box cutoffs
     if "charge_cutoff_box1" in kwargs:
-        charge_cutoffs[0] = kwargs["charge_cutoff_box1"]
+        charge_cutoffs[0] = kwargs["charge_cutoff_box1"].to_value()
     if "charge_cutoff_box2" in kwargs:
         if nbr_boxes == 2:
-            charge_cutoffs[1] = kwargs["charge_cutoff_box2"]
+            charge_cutoffs[1] = kwargs["charge_cutoff_box2"].to_value()
         else:
             raise ValueError(
                 "Only one box in System but "
@@ -185,7 +188,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Minimum cutoff
     if "rcut_min" in kwargs:
-        rcut_min = kwargs["rcut_min"]
+        rcut_min = kwargs["rcut_min"].to_value()
     else:
         rcut_min = 1.0
     inp_data += get_minimum_cutoff(rcut_min)
@@ -245,12 +248,17 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         boxes, moves._restricted_type, moves._restricted_value
     )
 
-    temperatures = [temperature] * nbr_boxes
+    # convert temperature to Kelvin
+    temperature = temperature.to("kelvin")
+    temperatures = [temperature.to_value()] * nbr_boxes
     inp_data += get_temperature_info(temperatures)
+
+    # convert units in kwargs
+    _convert_units(kwargs)
 
     if moves.ensemble == "npt" or moves.ensemble == "gemc_npt":
         if "pressure" in kwargs:
-            pressure = kwargs["pressure"]
+            pressure = kwargs["pressure"].to_value()
         else:
             raise ValueError(
                 "Pressure must be specified for ensemble "
@@ -258,15 +266,15 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             )
         pressures = [pressure] * nbr_boxes
         if "pressure_box1" in kwargs:
-            pressures[0] = kwargs["pressure_box1"]
+            pressures[0] = kwargs["pressure_box1"].to_value()
         if "pressure_box2" in kwargs:
-            pressures[1] = kwargs["pressure_box2"]
+            pressures[1] = kwargs["pressure_box2"].to_value()
 
         inp_data += get_pressure_info(pressures)
 
     if moves.ensemble == "gcmc":
         if "chemical_potentials" in kwargs:
-            chemical_potentials = kwargs["chemical_potentials"]
+            chemical_potentials = kwargs["chemical_potentials"].to_value()
         else:
             raise ValueError(
                 "Chemical potential information must be "
@@ -480,7 +488,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     else:
         cbmc_kappa_dih = 10
     if "cbmc_rcut" in kwargs:
-        cbmc_rcuts = [kwargs["cbmc_rcut"]] * nbr_boxes
+        cbmc_rcuts = [kwargs["cbmc_rcut"].to_value()] * nbr_boxes
     else:
         cbmc_rcuts = [6.0] * nbr_boxes
 
@@ -1899,3 +1907,34 @@ def _check_restricted_insertions(box, restriction_type, restriction_value):
                 " for 'interface' is"
                 " greater than the z-coordinate of the box."
             )
+
+
+def _convert_units(kwargs):
+    """Convert kwargs that are unyt units
+    """
+    if kwargs["vdw_cutoff"]:
+        kwargs["vdw_cutoff"] = kwargs["vdw_cutoff"].to("angstrom")
+    if kwargs["vdw_cutoff_box1"]:
+        kwargs["vdw_cutoff_box1"] = kwargs["vdw_cutoff_box2"].to("angstrom")
+    if kwargs["vdw_cutoff_box2"]:
+        kwargs["vdw_cutoff_box2"] = kwargs["vdw_cutoff_box2"].to("angstrom")
+    if kwargs["charge_cutoff"]:
+        kwargs["charge_cutoff"] = kwargs["charge_cutoff"].to("angstrom")
+    if kwargs["rcut_min"]:
+        kwargs["rcut_min"] = kwargs["rcut_min"].to("angstrom")
+    if kwargs["pressure"]:
+        kwargs["pressure"] = kwargs["pressure"].to("bar")
+    if kwargs["pressure_box1"]:
+        kwargs["pressure_box1"] = kwargs["pressure_box1"].to("bar")
+    if kwargs["pressure_box2"]:
+        kwargs["pressure_box2"] = kwargs["pressure_box2"].to("bar")
+    if kwargs["chemical_potentials"]:
+        new_mu = list()
+        for mu in kwargs["chemical_potentials"]:
+            mu = mu.to("kJ/mol")
+            new_mu.append(mu)
+        kwargs["chemical_potentials"] = new_mu
+    if kwargs["cbmc_rcut"]:
+        kwargs["cbmc_rcut"] = kwargs["cbmc_rcut"].to("angstrom")
+
+    return kwargs

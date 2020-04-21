@@ -1,6 +1,6 @@
 from copy import deepcopy
 from unyt import dimensions
-from utils.units import validate_unit
+from mosdef_cassandra.utils.units import validate_unit
 
 import parmed
 import warnings

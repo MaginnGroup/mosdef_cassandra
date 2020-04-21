@@ -5,6 +5,7 @@ import unyt as u
 
 import mosdef_cassandra.utils.convert_box as convert_box
 
+# Still need to get rid of this conversion in checking restricted insertions
 NM_TO_A = 10.0
 
 
@@ -239,10 +240,12 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     boxes = []
     for box in system.boxes:
         if isinstance(box, mbuild.Compound):
-            box_dims = np.hstack((box.periodicity, box.boundingbox.angles))
+            box_dims = np.hstack((lengths, angles))
         else:
             box_dims = np.hstack((box.lengths, box.angles))
+
         box_matrix = convert_box.convert_to_boxmatrix(box_dims)
+        box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]
         boxes.append(box_matrix)
     inp_data += get_box_info(
         boxes, moves._restricted_type, moves._restricted_value
@@ -855,7 +858,13 @@ def get_box_info(boxes, restricted_type, restricted_value):
     """
     nbr_boxes = len(boxes)
     for box in boxes:
-        assert box.shape == (3, 3)
+        # unyt array doesn't seem to support 3D arrays right now
+        # so the shape has to be checked in a more roundabout way
+        assert len(box) == 3
+        for dims in box:
+            assert dims.shape == (3,)
+            dims.convert_to_units("angstrom")
+
     inp_data = """
 # Box_Info
 {nbr_boxes}""".format(
@@ -872,6 +881,7 @@ def get_box_info(boxes, restricted_type, restricted_value):
         else:
             box_types.append("cell_matrix")
 
+    # Convert boxes
     if restricted_type and restricted_value:
         for box, box_type, restrict_types, restrict_vals in zip(
             boxes, box_types, restricted_type, restricted_value
@@ -884,16 +894,16 @@ def get_box_info(boxes, restricted_type, restricted_value):
                 inp_data += """
 {dim}
 """.format(
-                    dim=box[0][0] * NM_TO_A
+                    dim=box[0][0].to_value()
                 )
 
             elif box_type == "orthogonal":
                 inp_data += """
 {dim1} {dim2} {dim3}
 """.format(
-                    dim1=box[0][0] * NM_TO_A,
-                    dim2=box[1][1] * NM_TO_A,
-                    dim3=box[2][2] * NM_TO_A,
+                    dim1=box[0][0].to_value(),
+                    dim2=box[1][1].to_value(),
+                    dim3=box[2][2].to_value(),
                 )
 
             else:
@@ -902,15 +912,15 @@ def get_box_info(boxes, restricted_type, restricted_value):
 {ay} {by} {cy}
 {az} {bz} {cz}
 """.format(
-                    ax=box[0][0] * NM_TO_A,
-                    ay=box[0][1] * NM_TO_A,
-                    az=box[0][2] * NM_TO_A,
-                    bx=box[1][0] * NM_TO_A,
-                    by=box[1][1] * NM_TO_A,
-                    bz=box[1][2] * NM_TO_A,
-                    cx=box[2][0] * NM_TO_A,
-                    cy=box[2][1] * NM_TO_A,
-                    cz=box[2][2] * NM_TO_A,
+                    ax=box[0][0].to_value(),
+                    ay=box[0][1].to_value(),
+                    az=box[0][2].to_value(),
+                    bx=box[1][0].to_value(),
+                    by=box[1][1].to_value(),
+                    bz=box[1][2].to_value(),
+                    cx=box[2][0].to_value(),
+                    cy=box[2][1].to_value(),
+                    cz=box[2][2].to_value(),
                 )
 
             for typ, value in zip(restrict_types, restrict_vals):
@@ -936,16 +946,16 @@ def get_box_info(boxes, restricted_type, restricted_value):
                 inp_data += """
 {dim}
 """.format(
-                    dim=box[0][0] * NM_TO_A
+                    dim=box[0][0].to_value()
                 )
 
             elif box_type == "orthogonal":
                 inp_data += """
 {dim1} {dim2} {dim3}
 """.format(
-                    dim1=box[0][0] * NM_TO_A,
-                    dim2=box[1][1] * NM_TO_A,
-                    dim3=box[2][2] * NM_TO_A,
+                    dim1=box[0][0].to_value(),
+                    dim2=box[1][1].to_value(),
+                    dim3=box[2][2].to_value(),
                 )
 
             else:
@@ -954,15 +964,15 @@ def get_box_info(boxes, restricted_type, restricted_value):
 {ay} {by} {cy}
 {az} {bz} {cz}
 """.format(
-                    ax=box[0][0] * NM_TO_A,
-                    ay=box[0][1] * NM_TO_A,
-                    az=box[0][2] * NM_TO_A,
-                    bx=box[1][0] * NM_TO_A,
-                    by=box[1][1] * NM_TO_A,
-                    bz=box[1][2] * NM_TO_A,
-                    cx=box[2][0] * NM_TO_A,
-                    cy=box[2][1] * NM_TO_A,
-                    cz=box[2][2] * NM_TO_A,
+                    ax=box[0][0].to_value(),
+                    ay=box[0][1].to_value(),
+                    az=box[0][2].to_value(),
+                    bx=box[1][0].to_value(),
+                    by=box[1][1].to_value(),
+                    bz=box[1][2].to_value(),
+                    cx=box[2][0].to_value(),
+                    cy=box[2][1].to_value(),
+                    cz=box[2][2].to_value(),
                 )
 
     inp_data += """

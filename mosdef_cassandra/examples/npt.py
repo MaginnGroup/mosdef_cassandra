@@ -37,8 +37,8 @@ def run_npt():
         moves=moves,
         run_type="equilibration",
         run_length=10000,
-        temperature=300.0*u.K,
-        pressure=1.0*u.bar,
+        temperature=300.0 * u.K,
+        pressure=1.0 * u.bar,
     )
 
     # 'pressure' is a valid keyword argument. To see

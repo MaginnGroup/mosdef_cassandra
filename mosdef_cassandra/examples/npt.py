@@ -1,6 +1,7 @@
 import mbuild
 import foyer
 import mosdef_cassandra as mc
+import unyt as u
 
 
 def run_npt():
@@ -36,8 +37,8 @@ def run_npt():
         moves=moves,
         run_type="equilibration",
         run_length=10000,
-        temperature=300.0,
-        pressure=1.0,
+        temperature=300.0*u.K,
+        pressure=1.0*u.bar,
     )
 
     # 'pressure' is a valid keyword argument. To see

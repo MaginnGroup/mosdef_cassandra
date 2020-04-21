@@ -258,28 +258,29 @@ def _check_system(system, moves):
             "It appears your System object has been corrupted"
         )
 
+
 def _check_kwarg_units(kwargs):
     """Check the units of kwargs
     """
-    if kwargs['vdw_cutoff']:
-        validate_unit(kwargs['vdw_cutoff'], dimensions.length)
-    if kwargs['vdw_cutoff_box1']:
-        validate_unit(kwargs['vdw_cutoff_box1'], dimensions.length)
-    if kwargs['vdw_cutoff_box2']:
-        validate_unit(kwargs['vdw_cutoff_box2'], dimensions.length)
-    if kwargs['charge_cutoff']:
-        validate_unit(kwargs['charge_cutoff'], dimensions.length)
-    if kwargs['rcut_min']:
-        validate_unit(kwargs['rcut_min'], dimensions.length)
-    if kwargs['pressure']:
-        validate_unit(kwargs['pressure'], dimensions.pressure)
-    if kwargs['pressure_box1']:
-        validate_unit(kwargs['pressure_box1'], dimensions.pressure)
-    if kwargs['pressure_box2']:
-        validate_unit(kwargs['pressure_box2'], dimensions.pressure)
-    if kwargs['chemical_potentials']:
-        for mu in kwargs['chemical_potentials']:
+    if "vdw_cutoff" in kwargs:
+        validate_unit(kwargs["vdw_cutoff"], dimensions.length)
+    if "vdw_cutoff_box1" in kwargs:
+        validate_unit(kwargs["vdw_cutoff_box1"], dimensions.length)
+    if "vdw_cutoff_box2" in kwargs:
+        validate_unit(kwargs["vdw_cutoff_box2"], dimensions.length)
+    if "charge_cutoff" in kwargs:
+        validate_unit(kwargs["charge_cutoff"], dimensions.length)
+    if "rcut_min" in kwargs:
+        validate_unit(kwargs["rcut_min"], dimensions.length)
+    if "pressure" in kwargs:
+        validate_unit(kwargs["pressure"], dimensions.pressure)
+    if "pressure_box1" in kwargs:
+        validate_unit(kwargs["pressure_box1"], dimensions.pressure)
+    if "pressure_box1" in kwargs:
+        validate_unit(kwargs["pressure_box2"], dimensions.pressure)
+    if "chemical_potentials" in kwargs:
+        for mu in kwargs["chemical_potentials"]:
             # Will have to check this
-            validate_unit(mu, (dimensions.energy/dimensions.mass))
-    if kwargs['cbmc_rcut']:
-        validate_unit(kwargs['cbmc_rcut'], dimensions.length)
+            validate_unit(mu, (dimensions.energy / dimensions.mass))
+    if "cbmc_rcut" in kwargs:
+        validate_unit(kwargs["cbmc_rcut"], dimensions.length)

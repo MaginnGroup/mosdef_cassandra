@@ -119,9 +119,12 @@ class Moves(object):
 
         # Default max deltas for volume moves
         if self.ensemble == "npt" or self.ensemble == "gemc":
-            self.max_volume = 500.0 * u.angstrom
+            self.max_volume = [500.0 * (u.angstrom ** 3)]
         elif self.ensemble == "gemc_npt":
-            self.max_volume = [500.0 * u.angstrom, 5000.0 * u.angstrom]
+            self.max_volume = [
+                500.0 * (u.angstrom ** 3),
+                5000.0 * (u.angstrom ** 3),
+            ]
         else:
             self.max_volume = 0.0 * u.angstrom
 
@@ -597,12 +600,6 @@ class Moves(object):
                     "max_volume must be a list of " "length (1) for gemc"
                 )
         for max_vol in max_volume:
-            # if type(max_vol) not in (float, int):
-            #    raise TypeError(
-            #        "Maximum volume change for a box " "must be of type float"
-            #    )
-            # else:
-            #    max_vol = float(max_vol)
             validate_unit(max_vol, dimensions.volume)
             if max_vol < 0.0:
                 raise ValueError(

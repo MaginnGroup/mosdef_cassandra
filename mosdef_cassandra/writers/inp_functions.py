@@ -121,7 +121,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     if "charge_cutoff" in kwargs:
         charge_cutoff = kwargs["charge_cutoff"]
     else:
-        charge_cutoff = 12.0 * u.angstrom
+        charge_cutoff = 12.0
 
     if "ewald_accuracy" in kwargs:
         ewald_accuracy = kwargs["ewald_accuracy"]
@@ -254,7 +254,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     inp_data += get_temperature_info(temperatures)
 
     # convert units in kwargs
-    _convert_units(kwargs)
+    _convert_kwarg_units(kwargs)
 
     if moves.ensemble == "npt" or moves.ensemble == "gemc_npt":
         if "pressure" in kwargs:
@@ -300,6 +300,8 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         inp_data += get_chemical_potential_info(chemical_potentials)
 
     # Move probability info
+    # Check moves units
+    moves = _convert_moves_units(moves)
     move_prob_dict = {}
     if moves.prob_translate > 0.0:
         move_prob_dict["translate"] = [
@@ -316,7 +318,10 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     if moves.prob_regrow > 0.0:
         move_prob_dict["regrow"] = [moves.prob_regrow, moves.sp_prob_regrow]
     if moves.prob_volume > 0.0:
-        move_prob_dict["volume"] = [moves.prob_volume, moves.max_volume]
+        move_prob_dict["volume"] = [
+            moves.prob_volume,
+            [i.to_value() for i in moves.max_volume],
+        ]
     if moves.prob_insert > 0.0:
         move_prob_dict["insert"] = [moves.prob_insert, moves.sp_insertable]
     if moves.prob_swap > 0.0:
@@ -1909,32 +1914,44 @@ def _check_restricted_insertions(box, restriction_type, restriction_value):
             )
 
 
-def _convert_units(kwargs):
+def _convert_kwarg_units(kwargs):
     """Convert kwargs that are unyt units
     """
-    if kwargs["vdw_cutoff"]:
+    if "vdw_cutoff" in kwargs:
         kwargs["vdw_cutoff"] = kwargs["vdw_cutoff"].to("angstrom")
-    if kwargs["vdw_cutoff_box1"]:
+    if "vdw_cutoff_box1" in kwargs:
         kwargs["vdw_cutoff_box1"] = kwargs["vdw_cutoff_box2"].to("angstrom")
-    if kwargs["vdw_cutoff_box2"]:
+    if "vdw_cutoff_box2" in kwargs:
         kwargs["vdw_cutoff_box2"] = kwargs["vdw_cutoff_box2"].to("angstrom")
-    if kwargs["charge_cutoff"]:
+    if "charge_cutoff" in kwargs:
         kwargs["charge_cutoff"] = kwargs["charge_cutoff"].to("angstrom")
-    if kwargs["rcut_min"]:
+    if "rcut_min" in kwargs:
         kwargs["rcut_min"] = kwargs["rcut_min"].to("angstrom")
-    if kwargs["pressure"]:
+    if "pressure" in kwargs:
         kwargs["pressure"] = kwargs["pressure"].to("bar")
-    if kwargs["pressure_box1"]:
+    if "pressure_box1" in kwargs:
         kwargs["pressure_box1"] = kwargs["pressure_box1"].to("bar")
-    if kwargs["pressure_box2"]:
+    if "pressure_box2" in kwargs:
         kwargs["pressure_box2"] = kwargs["pressure_box2"].to("bar")
-    if kwargs["chemical_potentials"]:
+    if "chemical_potentials" in kwargs:
         new_mu = list()
         for mu in kwargs["chemical_potentials"]:
             mu = mu.to("kJ/mol")
             new_mu.append(mu)
         kwargs["chemical_potentials"] = new_mu
-    if kwargs["cbmc_rcut"]:
+    if "cbmc_rcut" in kwargs:
         kwargs["cbmc_rcut"] = kwargs["cbmc_rcut"].to("angstrom")
 
     return kwargs
+
+
+def _convert_moves_units(moves):
+    new_max_volume = list()
+    for max_vol in moves.max_volume:
+        max_vol = max_vol.to("angstrom**3")
+        new_max_volume.append(max_vol)
+    moves.max_volume = new_max_volume
+
+    # Add conversion for restricted_value
+
+    return moves

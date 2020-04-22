@@ -1,6 +1,7 @@
 import mbuild
 import foyer
 import mosdef_cassandra as mc
+import unyt as u
 from mosdef_cassandra.examples.structures import carbon_lattice
 
 
@@ -30,10 +31,10 @@ def run_gcmc_adsorption():
     moves = mc.Moves("gcmc", species_list)
 
     custom_args = {
-        "chemical_potentials": ["none", -30.0],
-        "rcut_min": 0.5,
-        "vdw_cutoff": 14.0,
-        "charge_cutoff": 14.0,
+        "chemical_potentials": ["none", -30.0 * (u.kJ / u.mol)],
+        "rcut_min": 0.5 * u.angstrom,
+        "vdw_cutoff": 14.0 * u.angstrom,
+        "charge_cutoff": 14.0 * u.angstrom,
         "coord_freq": 100,
         "prop_freq": 10,
     }
@@ -43,7 +44,7 @@ def run_gcmc_adsorption():
         moves=moves,
         run_type="equilibration",
         run_length=10000,
-        temperature=300.0,
+        temperature=300.0 * u.K,
         **custom_args,
     )
 

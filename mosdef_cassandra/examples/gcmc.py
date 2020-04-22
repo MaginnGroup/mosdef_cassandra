@@ -1,6 +1,7 @@
 import mbuild
 import foyer
 import mosdef_cassandra as mc
+import unyt as u
 
 
 def run_gcmc():
@@ -31,8 +32,8 @@ def run_gcmc():
         moves=moves,
         run_type="equilibration",
         run_length=1000,
-        temperature=300.0,
-        chemical_potentials=[-35.0],
+        temperature=300.0 * u.K,
+        chemical_potentials=[-35.0 * (u.kJ / u.mol)],
         prop_freq=100,
     )
 

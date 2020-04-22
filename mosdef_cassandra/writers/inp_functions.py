@@ -1970,11 +1970,12 @@ def _convert_moves_units(moves):
 
     # Convert restricted insertion
     new_restricted_value = list()
-    for box in moves._restricted_value:
-        for typ in box:
-            if typ:
-                typ = typ.to("angstrom")
-            new_restricted_value.append(typ)
+    if moves._restricted_value:
+        for box in moves._restricted_value:
+            for typ in box:
+                if typ:
+                    typ = typ.to("angstrom")
+                new_restricted_value.append(typ)
     moves._restricted_value = new_restricted_value
 
     return moves

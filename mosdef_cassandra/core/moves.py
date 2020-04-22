@@ -111,8 +111,10 @@ class Moves(object):
             raise ValueError("Uh oh, how did we end up here?")
 
         # Max translation and rotations specified per-species-per-box
-        self.max_translate = [[2.00] * self._n_species] * self._n_boxes
-        self.max_rotate = [[30.0] * self._n_species] * self._n_boxes
+        self.max_translate = [
+            [2.00 * u.angstrom] * self._n_species
+        ] * self._n_boxes
+        self.max_rotate = [[30.0 * u.degree] * self._n_species] * self._n_boxes
 
         # Prob swap and max vol are per-box
         self.prob_swap_from_box = [1.0 / self._n_boxes] * self._n_boxes
@@ -138,7 +140,7 @@ class Moves(object):
         for ispec, species in enumerate(species_topologies):
             if len(species.atoms) == 1:
                 for ibox in range(self._n_boxes):
-                    self.max_rotate[ibox][ispec] = 0.0
+                    self.max_rotate[ibox][ispec] = 0.0 * u.degree
                 self.sp_prob_regrow[ispec] = 0.0
             elif len(species.bonds) == 0:
                 print(
@@ -146,8 +148,8 @@ class Moves(object):
                     "since it has no bonds".format(species)
                 )
                 for ibox in range(self._n_boxes):
-                    self.max_translate[ibox][ispec] = 0.0
-                    self.max_rotate[ibox][ispec] = 0.0
+                    self.max_translate[ibox][ispec] = 0.0 * u.angstrom
+                    self.max_rotate[ibox][ispec] = 0.0 * u.degree
                 self.sp_prob_regrow[ispec] = 0.0
                 self.sp_insertable[ispec] = False
                 self.sp_prob_swap[ispec] = 0.0
@@ -176,11 +178,15 @@ class Moves(object):
         # If all species are not rotatable change prob rotation
         # move to zero. Redistribute prob to translate
         if self.ensemble == "gemc" or self.ensemble == "gemc_npt":
-            if sum(self.max_rotate[0]) + sum(self.max_rotate[1]) == 0.0:
+            if (
+                sum(self.max_rotate[0]).to_value()
+                + sum(self.max_rotate[1]).to_value()
+                == 0.0
+            ):
                 self.prob_translate += self.prob_rotate
                 self.prob_rotate = 0.0
         else:
-            if sum(self.max_rotate[0]) == 0.0:
+            if sum(self.max_rotate[0]).to_value() == 0.0:
                 self.prob_translate += self.prob_rotate
                 self.prob_rotate = 0.0
 
@@ -469,13 +475,14 @@ class Moves(object):
                     "shape (number of boxes, number of species)"
                 )
             for max_val in max_translate_box:
-                if type(max_val) not in (float, int):
-                    raise TypeError(
-                        "Max translation values must be " "of type float"
-                    )
-                else:
-                    max_val = float(max_val)
-                if max_val < 0.0:
+                # if type(max_val) not in (float, int):
+                #    raise TypeError(
+                #        "Max translation values must be " "of type float"
+                #    )
+                # else:
+                #    max_val = float(max_val)
+                validate_unit(max_val, dimensions.length)
+                if max_val.to_value() < 0.0:
                     raise ValueError(
                         "Max translation values cannot " "be less than zero"
                     )
@@ -507,13 +514,14 @@ class Moves(object):
                     "shape (number of boxes, number of species)"
                 )
             for max_val in max_rotate_box:
-                if type(max_val) not in (float, int):
-                    raise TypeError(
-                        "Max rotation values must be " "of type float"
-                    )
-                else:
-                    max_val = float(max_val)
-                if max_val < 0.0:
+                # if type(max_val) not in (float, int):
+                #    raise TypeError(
+                #        "Max rotation values must be " "of type float"
+                #    )
+                # else:
+                #    max_val = float(max_val)
+                validate_unit(max_val, dimensions.angle)
+                if max_val.to_value() < 0.0:
                     raise ValueError(
                         "Max rotation values cannot " "be less than zero"
                     )

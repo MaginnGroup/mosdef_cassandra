@@ -63,7 +63,7 @@ def run_gemc():
     )
 
     # Set max translate and volume for production
-    moves.max_translate = [[0.5], [14.0]]
+    moves.max_translate = [[0.5 * u.angstrom], [14.0 * u.angstrom]]
     moves.max_volume = [700.0 * (u.angstrom ** 3)]
 
     # Update run_name and restart_name

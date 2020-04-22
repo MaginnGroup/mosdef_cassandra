@@ -309,10 +309,13 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     if moves.prob_translate > 0.0:
         move_prob_dict["translate"] = [
             moves.prob_translate,
-            *moves.max_translate,
+            *[[val.to_value() for val in box] for box in moves.max_translate],
         ]
     if moves.prob_rotate > 0.0:
-        move_prob_dict["rotate"] = [moves.prob_rotate, *moves.max_rotate]
+        move_prob_dict["rotate"] = [
+            moves.prob_rotate,
+            *[[val.to_value() for val in box] for box in moves.max_rotate],
+        ]
     if moves.prob_angle > 0.0:
         move_prob_dict["angle"] = moves.prob_angle
 
@@ -1977,5 +1980,19 @@ def _convert_moves_units(moves):
                     typ = typ.to("angstrom")
                 new_restricted_value.append(typ)
     moves._restricted_value = new_restricted_value
+
+    # Convert max translate
+    new_max_translate = list()
+    for maxs in moves.max_translate:
+        maxs = [i.to("angstrom") for i in maxs]
+        new_max_translate.append(maxs)
+    moves.max_translate = new_max_translate
+
+    # Convert max rotate
+    new_max_rotate = list()
+    for maxs in moves.max_rotate:
+        maxs = [i.to("degree") for i in maxs]
+        new_max_rotate.append(maxs)
+    moves.max_rotate = new_max_rotate
 
     return moves

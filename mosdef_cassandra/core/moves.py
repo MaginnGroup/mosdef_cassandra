@@ -126,7 +126,7 @@ class Moves(object):
                 5000.0 * (u.angstrom ** 3),
             ]
         else:
-            self.max_volume = 0.0 * u.angstrom
+            self.max_volume = [0.0 * (u.angstrom ** 3)]
 
         # Remaining options are per-species
         self.max_dihedral = [0.0] * self._n_species
@@ -270,11 +270,11 @@ class Moves(object):
                     )
                 else:
                     _check_restriction_type(typ, val)
+                    # Check units of restricted value
+                    validate_unit(val, dimensions.length)
 
         self._restricted_type = restricted_type
-        self._restricted_value = validate_unit(
-            restricted_value, dimensions.length
-        )
+        self._restricted_value = restricted_value
 
     @property
     def ensemble(self):
@@ -831,9 +831,9 @@ def _check_restriction_type(restriction_type, restriction_value):
                 )
             )
     else:
-        if not isinstance(restriction_value, (float, int)):
+        if not isinstance(restriction_value, u.unyt_array):
             raise TypeError(
                 "Restriction type is {}. A"
-                ' single argument of type "int"'
-                'or "float" should be passed'.format(restriction_type)
+                " single argument of type `unyt_array"
+                " should be passed".format(restriction_type)
             )

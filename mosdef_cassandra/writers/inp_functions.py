@@ -6,7 +6,7 @@ import unyt as u
 import mosdef_cassandra.utils.convert_box as convert_box
 
 # Still need to get rid of this conversion in checking restricted insertions
-NM_TO_A = 10.0
+# NM_TO_A = 10.0
 
 
 def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
@@ -240,7 +240,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     boxes = []
     for box in system.boxes:
         if isinstance(box, mbuild.Compound):
-            box_dims = np.hstack((lengths, angles))
+            box_dims = np.hstack((box.periodicity, box.boundingbox.angles))
         else:
             box_dims = np.hstack((box.lengths, box.angles))
 
@@ -277,7 +277,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     if moves.ensemble == "gcmc":
         if "chemical_potentials" in kwargs:
-            chemical_potentials = kwargs["chemical_potentials"].to_value()
+            chemical_potentials = kwargs["chemical_potentials"]
         else:
             raise ValueError(
                 "Chemical potential information must be "
@@ -1055,9 +1055,10 @@ def get_chemical_potential_info(chem_pots):
 
     for chem_pot in chem_pots:
         if chem_pot != "none":
-            if not isinstance(chem_pot, (float, int)):
+            if not isinstance(chem_pot, u.unyt_array):
                 raise TypeError(
-                    'Chemical potentials must "none" or ' "be of type float"
+                    'Chemical potentials must "none" or '
+                    "be of type `unyt_array`"
                 )
 
     inp_data = """
@@ -1065,7 +1066,10 @@ def get_chemical_potential_info(chem_pots):
 """
 
     for chem_pot in chem_pots:
-        inp_data += """{chem_pot} """.format(chem_pot=chem_pot)
+        if chem_pot == "none":
+            inp_data += """{chem_pot} """.format(chem_pot=chem_pot)
+        else:
+            inp_data += """{chem_pot} """.format(chem_pot=chem_pot.to_value())
 
     inp_data += """
 !------------------------------------------------------------------------------
@@ -1893,24 +1897,24 @@ def _check_restricted_insertions(box, restriction_type, restriction_value):
 
     Note: Only checking cubic boxes currently
     """
-    box_max = np.array(
-        [box[0][0] * NM_TO_A, box[1][1] * NM_TO_A, box[2][2] * NM_TO_A]
-    )
+    box_max = np.array([box[0][0], box[1][1], box[2][2]])
     if restriction_type in ["cylinder", "sphere"]:
-        if np.any(restriction_value * 2 > box_max):
+        if np.any(restriction_value.to_value() * 2 > box_max):
             raise ValueError(
                 "Restricted insertion 'r_max' value is"
                 " greater than the box coordinates."
             )
     elif restriction_type == "slitpore":
-        if restriction_value * 2 > box_max[2]:
+        if restriction_value.to_value() * 2 > box_max[2]:
             raise ValueError(
                 "Restricted insertion 'z_max' value is"
                 " greater than the z-coordinate of the box."
             )
     elif restriction_type == "interface":
-        interface_z = restriction_value[1] - restriction_value[0]
-        if restriction_value[1] > box_max[2]:
+        interface_z = (
+            restriction_value[1].to_value() - restriction_value[0].to_value()
+        )
+        if restriction_value[1].to_value() > box_max[2]:
             raise ValueError(
                 "Restricted insertion 'z_max' passed"
                 " for 'interface' is"
@@ -1946,7 +1950,8 @@ def _convert_kwarg_units(kwargs):
     if "chemical_potentials" in kwargs:
         new_mu = list()
         for mu in kwargs["chemical_potentials"]:
-            mu = mu.to("kJ/mol")
+            if not isinstance(mu, str):
+                mu = mu.to("kJ/mol")
             new_mu.append(mu)
         kwargs["chemical_potentials"] = new_mu
     if "cbmc_rcut" in kwargs:
@@ -1956,12 +1961,20 @@ def _convert_kwarg_units(kwargs):
 
 
 def _convert_moves_units(moves):
+    # Convert max volume
     new_max_volume = list()
     for max_vol in moves.max_volume:
         max_vol = max_vol.to("angstrom**3")
         new_max_volume.append(max_vol)
     moves.max_volume = new_max_volume
 
-    # Add conversion for restricted_value
+    # Convert restricted insertion
+    new_restricted_value = list()
+    for box in moves._restricted_value:
+        for typ in box:
+            if typ:
+                typ = typ.to("angstrom")
+            new_restricted_value.append(typ)
+    moves._restricted_value = new_restricted_value
 
     return moves

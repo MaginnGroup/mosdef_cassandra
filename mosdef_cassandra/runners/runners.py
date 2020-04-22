@@ -280,7 +280,7 @@ def _check_kwarg_units(kwargs):
         validate_unit(kwargs["pressure_box2"], dimensions.pressure)
     if "chemical_potentials" in kwargs:
         for mu in kwargs["chemical_potentials"]:
-            # Will have to check this
-            validate_unit(mu, (dimensions.energy / dimensions.mass))
+            if not isinstance(mu, str):
+                validate_unit(mu, dimensions.energy)
     if "cbmc_rcut" in kwargs:
         validate_unit(kwargs["cbmc_rcut"], dimensions.length)

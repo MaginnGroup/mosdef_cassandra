@@ -277,7 +277,10 @@ class Moves(object):
                 else:
                     _check_restriction_type(typ, val)
                     # Check units of restricted value
-                    validate_unit(val, dimensions.length)
+                    if typ == "interface":
+                        [validate_unit(i, dimensions.length) for i in val]
+                    else:
+                        validate_unit(val, dimensions.length)
 
         self._restricted_type = restricted_type
         self._restricted_value = restricted_value

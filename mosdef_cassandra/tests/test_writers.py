@@ -2,6 +2,7 @@ import pytest
 from copy import deepcopy
 
 import mosdef_cassandra as mc
+import unyt as u
 from mosdef_cassandra.tests.base_test import BaseTest
 from mosdef_cassandra.writers.inp_functions import generate_input
 
@@ -62,7 +63,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 random_arg=1,
             )
 
@@ -73,7 +74,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             run_name="test name",
         )
 
@@ -84,7 +85,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             run_name="test_name",
         )
 
@@ -95,7 +96,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Run_Name\nnvt.out" in inp_data
@@ -106,7 +107,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 run_name=1,
             )
 
@@ -117,7 +118,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Sim_Type\nnvt" in inp_data
@@ -132,7 +133,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
         assert "# Nbr_Species\n1" in inp_data
         (system, moves) = twocomp_system
@@ -141,7 +142,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
         assert "# Nbr_Species\n2" in inp_data
 
@@ -153,7 +154,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
         assert "# VDW_Style\nlj cut_tail 12.0" in inp_data
 
@@ -162,7 +163,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             vdw_style="none",
         )
         assert "# VDW_Style\nnone\n" in inp_data
@@ -173,9 +174,9 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 vdw_style="cutoff",
-                vdw_cutoff=12.0,
+                vdw_cutoff=12.0 * u.angstrom,
             )
 
         inp_data = generate_input(
@@ -183,9 +184,9 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             cutoff_style="cut",
-            vdw_cutoff=15.0,
+            vdw_cutoff=15.0 * u.angstrom,
         )
         assert "# VDW_Style\nlj cut 15.0" in inp_data
 
@@ -194,9 +195,9 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             cutoff_style="cut_shift",
-            vdw_cutoff=15.0,
+            vdw_cutoff=15.0 * u.angstrom,
         )
         assert "# VDW_Style\nlj cut_shift 15.0" in inp_data
 
@@ -206,8 +207,8 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
-                vdw_cutoff_box2=10.0,
+                temperature=300.0 * u.K,
+                vdw_cutoff_box2=10.0 * u.angstrom,
             )
 
         inp_data = generate_input(
@@ -215,9 +216,9 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             cutoff_style="cut_switch",
-            vdw_cutoff=[12.0, 15.0],
+            vdw_cutoff=[12.0 * u.angstrom, 15.0 * u.angstrom],
         )
         assert "# VDW_Style\nlj cut_switch 12.0 15.0" in inp_data
 
@@ -227,9 +228,9 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 cutoff_style="cut_switch",
-                vdw_cutoff=12.0,
+                vdw_cutoff=12.0 * u.angstrom,
             )
 
         (system, moves) = twobox_system
@@ -238,7 +239,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
         assert "# VDW_Style\nlj cut_tail 12.0\nlj cut_tail 12.0" in inp_data
 
@@ -247,10 +248,10 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             cutoff_style="cut_switch",
-            vdw_cutoff_box1=[12.0, 15.0],
-            vdw_cutoff_box2=[11.0, 13.0],
+            vdw_cutoff_box1=[12.0 * u.angstrom, 15.0 * u.angstrom],
+            vdw_cutoff_box2=[11.0 * u.angstrom, 13.0 * u.angstrom],
         )
         assert (
             "# VDW_Style\nlj cut_switch 12.0 15.0\nlj cut_switch 11.0 13.0"
@@ -263,9 +264,9 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 cutoff_style="cutoff",
-                vdw_cutoff=12.0,
+                vdw_cutoff=12.0 * u.angstrom,
             )
 
     def test_charge_style(self, twocomp_system, twobox_system):
@@ -276,7 +277,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
         assert "# Charge_Style\ncoul ewald 12.0 1e-05\n" in inp_data
 
@@ -285,7 +286,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             charge_style="cut",
         )
         assert "# Charge_Style\ncoul cut 12.0\n" in inp_data
@@ -295,7 +296,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             charge_style="dsf",
         )
         assert "# Charge_Style\ncoul dsf 12.0\n" in inp_data
@@ -305,7 +306,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             charge_style="dsf",
             dsf_damping=0.2,
         )
@@ -316,7 +317,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             charge_style="none",
         )
         assert "# Charge_Style\nnone\n" in inp_data
@@ -326,8 +327,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            charge_cutoff=15.0,
+            temperature=300.0 * u.K,
+            charge_cutoff=15.0 * u.angstrom,
             ewald_accuracy=5e-6,
         )
         assert "# Charge_Style\ncoul ewald 15.0 5e-06\n" in inp_data
@@ -338,8 +339,8 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
-                charge_cutoff_box2=1.0,
+                temperature=300.0 * u.K,
+                charge_cutoff_box2=1.0 * u.angstrom,
             )
 
         (system, moves) = twobox_system
@@ -348,8 +349,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            charge_cutoff_box2=30.0,
+            temperature=300.0 * u.K,
+            charge_cutoff_box2=30.0 * u.angstrom,
             ewald_accuracy=5e-6,
         )
         assert (
@@ -364,7 +365,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
         assert "# Mixing_Rule\nlb\n" in inp_data
 
@@ -373,7 +374,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             mixing_rule="geometric",
         )
         assert "# Mixing_Rule\ngeometric\n" in inp_data
@@ -384,7 +385,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             mixing_rule="custom",
             custom_mixing_dict=mixing_dict,
         )
@@ -400,7 +401,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 mixing_rule="custom",
             )
 
@@ -410,7 +411,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 mixing_rule="other",
             )
 
@@ -421,7 +422,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Seed_Info\n" in inp_data
@@ -431,7 +432,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             seeds=[1, 2],
         )
 
@@ -443,7 +444,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 seeds=100,
             )
 
@@ -453,7 +454,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 seeds=[100, -1],
             )
 
@@ -464,7 +465,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Rcutoff_Low\n1.0\n" in inp_data
@@ -474,8 +475,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            rcut_min=10.0,
+            temperature=300.0 * u.K,
+            rcut_min=10.0 * u.angstrom,
         )
 
         assert "# Rcutoff_Low\n10.0\n" in inp_data
@@ -486,7 +487,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 rcut_min="hello",
             )
 
@@ -497,8 +498,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            rcut_min=10.0,
+            temperature=300.0 * u.K,
+            rcut_min=10.0 * u.angstrom,
         )
 
         assert "# Pair_Energy\ntrue\n" in inp_data
@@ -509,7 +510,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 pair_energy=1,
             )
 
@@ -520,7 +521,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert (
@@ -532,7 +533,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             max_molecules=[100, 1000],
         )
 
@@ -546,8 +547,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            chemical_potentials=["none", 10.0],
+            temperature=300.0 * u.K,
+            chemical_potentials=["none", 10.0 * (u.kJ / u.mol)],
         )
 
         assert (
@@ -561,7 +562,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 max_molecules=100,
             )
 
@@ -571,7 +572,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 max_molecules=[100],
             )
 
@@ -582,7 +583,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Box_Info\n1\ncubic\n50.0\n" in inp_data
@@ -593,7 +594,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Box_Info\n2\ncubic\n50.0\n\ncubic\n50.0\n" in inp_data
@@ -604,8 +605,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            chemical_potentials=["none", 10.0],
+            temperature=300.0 * u.K,
+            chemical_potentials=["none", 10.0 * (u.kJ / u.mol)],
         )
 
         assert "# Box_Info\n1\ncubic\n29.84\n" in inp_data
@@ -617,7 +618,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=200.0,
+            temperature=200.0 * u.K,
         )
 
         assert "# Temperature_Info\n200.0\n" in inp_data
@@ -628,7 +629,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=200.0,
+            temperature=200.0 * u.K,
         )
 
         assert "# Temperature_Info\n200.0\n200.0\n" in inp_data
@@ -639,7 +640,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=-300.0,
+                temperature=-300.0 * u.K,
             )
 
         with pytest.raises(TypeError, match=r"of type float"):
@@ -658,8 +659,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            pressure=2.0,
+            temperature=300.0 * u.K,
+            pressure=2.0 * u.bar,
         )
 
         assert "# Pressure_Info\n2.0\n2.0\n" in inp_data
@@ -669,9 +670,9 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            pressure=2.0,
-            pressure_box2=10.0,
+            temperature=300.0 * u.K,
+            pressure=2.0 * u.bar,
+            pressure_box2=10.0 * u.bar,
         )
 
         assert "# Pressure_Info\n2.0\n10.0\n" in inp_data
@@ -682,16 +683,16 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
             )
 
-        with pytest.raises(TypeError, match=r"of type float"):
+        with pytest.raises(TypeError, match=r"of type `unyt_array`"):
             inp_data = generate_input(
                 system=system,
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 pressure="string",
             )
 
@@ -702,8 +703,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            chemical_potentials=["none", 10.0],
+            temperature=300.0 * u.K,
+            chemical_potentials=["none", 10.0 * (u.kJ / u.mol)],
         )
 
         assert "# Chemical_Potential_Info\nnone 10.0 \n" in inp_data
@@ -716,16 +717,16 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
             )
 
-        with pytest.raises(TypeError, match=r"of type float"):
+        with pytest.raises(TypeError, match=r"of type `unyt_array`"):
             inp_data = generate_input(
                 system=system,
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 chemical_potentials=["none", "string"],
             )
 
@@ -966,7 +967,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Move_Probability_Info" in inp_data
@@ -985,15 +986,15 @@ class TestInpFunctions(BaseTest):
         moves.prob_angle = 0.1
         moves.prob_translate = 0.3
         moves.prob_rotate = 0.3
-        moves.max_translate[0][0] = 10.0
-        moves.max_rotate[0][0] = 10.0
+        moves.max_translate[0][0] = 10.0 * u.angstrom
+        moves.max_rotate[0][0] = 10.0 * u.degree
 
         inp_data = generate_input(
             system=system,
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Move_Probability_Info" in inp_data
@@ -1017,7 +1018,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Move_Probability_Info" in inp_data
@@ -1036,15 +1037,15 @@ class TestInpFunctions(BaseTest):
         moves.prob_angle = 0.1
         moves.prob_translate = 0.3
         moves.prob_rotate = 0.3
-        moves.max_translate[0][0] = 10.0
-        moves.max_rotate[0][0] = 10.0
+        moves.max_translate[0][0] = 10.0 * u.angstrom
+        moves.max_rotate[0][0] = 10.0 * u.degree
 
         inp_data = generate_input(
             system=system,
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Move_Probability_Info" in inp_data
@@ -1068,7 +1069,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Move_Probability_Info" in inp_data
@@ -1095,8 +1096,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            pressure=1.0,
+            temperature=300.0 * u.K,
+            pressure=1.0 * u.bar,
         )
         assert "# Move_Probability_Info" in inp_data
         assert "# Done_Probability_Info" in inp_data
@@ -1122,8 +1123,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            chemical_potentials=["none", 1.0],
+            temperature=300.0 * u.K,
+            chemical_potentials=["none", 1.0 * (u.kJ / u.mol)],
         )
 
         assert "# Move_Probability_Info" in inp_data
@@ -1154,7 +1155,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Start_Type\nmake_config 10\n" in inp_data
@@ -1165,7 +1166,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Start_Type\nmake_config 10 100\n" in inp_data
@@ -1176,7 +1177,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Start_Type\nmake_config 10\nmake_config 5\n" in inp_data
@@ -1187,8 +1188,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            pressure=1.0,
+            temperature=300.0 * u.K,
+            pressure=1.0 * u.bar,
         )
         assert (
             "# Start_Type\nmake_config 10 100\nmake_config 1 5\n" in inp_data
@@ -1200,8 +1201,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            chemical_potentials=["none", 1.0],
+            temperature=300.0 * u.K,
+            chemical_potentials=["none", 1.0 * (u.kJ / u.mol)],
         )
         assert "# Start_Type\nadd_to_config 1 0 box1.in.xyz 0 10\n" in inp_data
 
@@ -1213,8 +1214,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            chemical_potentials=["none", 1.0],
+            temperature=300.0 * u.K,
+            chemical_potentials=["none", 1.0 * (u.kJ / u.mol)],
         )
 
         assert "# Start_Type\nread_config 1 0 box1.in.xyz\n" in inp_data
@@ -1226,7 +1227,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
         assert "# Run_Type\nequilibration 1000 \n" in inp_data
 
@@ -1235,7 +1236,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="production",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
         assert "# Run_Type\nproduction 1000 \n" in inp_data
         with pytest.raises(ValueError, match=r"Invalid run type"):
@@ -1244,7 +1245,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="pro",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
             )
 
         (system, moves) = twobox_system
@@ -1253,7 +1254,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Run_Type\nequilibration 1000 100\n" in inp_data
@@ -1263,7 +1264,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             thermal_stat_freq=100,
             vol_stat_freq=50,
         )
@@ -1276,7 +1277,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 thermal_stat_freq=10.2,
                 vol_stat_freq=50,
             )
@@ -1287,7 +1288,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 thermal_stat_freq=10,
                 vol_stat_freq=1.2,
             )
@@ -1299,7 +1300,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert (
@@ -1312,7 +1313,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             steps_per_sweep=10,
             units="sweeps",
         )
@@ -1326,7 +1327,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             block_avg_freq=10,
         )
         assert (
@@ -1340,7 +1341,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 units="stweeps",
             )
         with pytest.raises(ValueError, match=r"must be an integer"):
@@ -1349,7 +1350,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 prop_freq=1.2,
             )
         with pytest.raises(ValueError, match=r"must be an integer"):
@@ -1358,7 +1359,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 coord_freq=1.2,
             )
         with pytest.raises(ValueError, match=r"must be an integer"):
@@ -1367,7 +1368,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=5.2,
-                temperature=300.0,
+                temperature=300.0 * u.K,
             )
         with pytest.raises(ValueError, match=r"must be an integer"):
             inp_data = generate_input(
@@ -1375,7 +1376,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 block_avg_freq=10.2,
             )
         with pytest.raises(ValueError, match=r"must be an integer"):
@@ -1384,7 +1385,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 steps_per_sweep=10.2,
             )
 
@@ -1395,7 +1396,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert (
@@ -1409,7 +1410,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert (
@@ -1422,7 +1423,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             properties=["energy_total", "enthalpy", "density"],
         )
 
@@ -1437,7 +1438,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 properties=["temperature"],
             )
 
@@ -1448,7 +1449,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert "# Fragment_Files\n" in inp_data
@@ -1460,7 +1461,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             verbose_log=True,
         )
 
@@ -1472,7 +1473,7 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 verbose_log="true",
             )
 
@@ -1483,7 +1484,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert (
@@ -1497,7 +1498,7 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
         )
 
         assert (
@@ -1511,10 +1512,10 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
+            temperature=300.0 * u.K,
             cbmc_kappa_ins=2,
             cbmc_kappa_dih=5,
-            cbmc_rcut=4.5,
+            cbmc_rcut=4.5 * u.angstrom,
         )
 
         assert (
@@ -1528,10 +1529,10 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 cbmc_kappa_ins=2.5,
                 cbmc_kappa_dih=5,
-                cbmc_rcut=4.5,
+                cbmc_rcut=4.5 * u.angstrom,
             )
 
         with pytest.raises(TypeError, match=r"must be an integer"):
@@ -1540,19 +1541,19 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 cbmc_kappa_ins=2,
                 cbmc_kappa_dih=5.5,
-                cbmc_rcut=4.5,
+                cbmc_rcut=4.5 * u.angstrom,
             )
 
-        with pytest.raises(TypeError, match=r"must be a float"):
+        with pytest.raises(TypeError, match=r"must be a unyt_array"):
             inp_data = generate_input(
                 system=system,
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
+                temperature=300.0 * u.K,
                 cbmc_kappa_ins=2,
                 cbmc_kappa_dih=5,
                 cbmc_rcut=[],
@@ -1561,10 +1562,10 @@ class TestInpFunctions(BaseTest):
     @pytest.mark.parametrize(
         "typ,value",
         [
-            ("slitpore", 1.0),
-            ("cylinder", 1.0),
-            ("sphere", 1.0),
-            ("interface", [1.0, 2.0]),
+            ("slitpore", 1.0 * u.angstrom),
+            ("cylinder", 1.0 * u.angstrom),
+            ("sphere", 1.0 * u.angstrom),
+            ("interface", [1.0 * u.angstrom, 2.0 * u.angstrom]),
         ],
     )
     def test_write_restricted_gcmc(self, gcmc_system, typ, value):
@@ -1577,8 +1578,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            chemical_potentials=["none", 10.0],
+            temperature=300.0 * u.K,
+            chemical_potentials=["none", 10.0 * (u.kJ / u.mol)],
         )
 
         if typ == "interface":
@@ -1597,10 +1598,10 @@ class TestInpFunctions(BaseTest):
     @pytest.mark.parametrize(
         "typ,value",
         [
-            ("slitpore", 30),
-            ("cylinder", 30),
-            ("sphere", 30),
-            ("interface", [30, 50]),
+            ("slitpore", 30 * u.angstrom),
+            ("cylinder", 30 * u.angstrom),
+            ("sphere", 30 * u.angstrom),
+            ("interface", [30 * u.angstrom, 50 * u.angstrom]),
         ],
     )
     def test_fail_restricted_gcmc(self, gcmc_system, typ, value):
@@ -1614,17 +1615,17 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
-                chemical_potentials=["none", 10.0],
+                temperature=300.0 * u.K,
+                chemical_potentials=["none", 10.0 * (u.kJ / u.mol)],
             )
 
     @pytest.mark.parametrize(
         "typ,value",
         [
-            ("slitpore", 10.0),
-            ("cylinder", 10.0),
-            ("sphere", 10.0),
-            ("interface", [10.0, 20.0]),
+            ("slitpore", 10.0 * u.angstrom),
+            ("cylinder", 10.0 * u.angstrom),
+            ("sphere", 10.0 * u.angstrom),
+            ("interface", [10.0 * u.angstrom, 20.0 * u.angstrom]),
         ],
     )
     def test_write_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
@@ -1640,8 +1641,8 @@ class TestInpFunctions(BaseTest):
             moves=moves,
             run_type="equilibration",
             run_length=500,
-            temperature=300.0,
-            pressure=1,
+            temperature=300.0 * u.K,
+            pressure=1 * u.bar,
         )
 
         if typ == "interface":
@@ -1660,10 +1661,10 @@ class TestInpFunctions(BaseTest):
     @pytest.mark.parametrize(
         "typ,value",
         [
-            ("slitpore", 60),
-            ("cylinder", 60),
-            ("sphere", 60),
-            ("interface", [10, 70]),
+            ("slitpore", 60 * u.angstrom),
+            ("cylinder", 60 * u.angstrom),
+            ("sphere", 60 * u.angstrom),
+            ("interface", [10 * u.angstrom, 70 * u.angstrom]),
         ],
     )
     def test_fail_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
@@ -1679,6 +1680,6 @@ class TestInpFunctions(BaseTest):
                 moves=moves,
                 run_type="equilibration",
                 run_length=500,
-                temperature=300.0,
-                pressure=1,
+                temperature=300.0 * u.K,
+                pressure=1 * u.bar,
             )

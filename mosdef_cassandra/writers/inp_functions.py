@@ -88,7 +88,10 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         cutoff_style = "cut_tail"
 
     if "vdw_cutoff" in kwargs:
-        vdw_cutoff = kwargs["vdw_cutoff"].to_value()
+        if isinstance(kwargs["vdw_cutoff"], u.unyt_array):
+            vdw_cutoff = kwargs["vdw_cutoff"].to_value()
+        else:
+            vdw_cutoff = [i.to_value() for i in kwargs["vdw_cutoff"]]
     else:
         vdw_cutoff = 12.0
 
@@ -100,10 +103,18 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     vdw_cutoffs = [vdw_cutoff] * nbr_boxes
     # Support for per-box cutoffs
     if "vdw_cutoff_box1" in kwargs:
-        vdw_cutoffs[0] = kwargs["vdw_cutoff_box1"].to_value()
+        if isinstance(kwargs["vdw_cutoff_box1"], u.unyt_array):
+            vdw_cutoffs[0] = kwargs["vdw_cutoff_box1"].to_value()
+        else:
+            vdw_cutoffs[0] = [i.to_value() for i in kwargs["vdw_cutoff_box1"]]
     if "vdw_cutoff_box2" in kwargs:
         if nbr_boxes == 2:
-            vdw_cutoffs[1] = kwargs["vdw_cutoff_box2"].to_value()
+            if isinstance(kwargs["vdw_cutoff_box2"], u.unyt_array):
+                vdw_cutoffs[1] = kwargs["vdw_cutoff_box2"].to_value()
+            else:
+                vdw_cutoffs[1] = [
+                    i.to_value() for i in kwargs["vdw_cutoff_box2"]
+                ]
         else:
             raise ValueError(
                 "Only one box in System but "
@@ -261,7 +272,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     if moves.ensemble == "npt" or moves.ensemble == "gemc_npt":
         if "pressure" in kwargs:
-            pressure = kwargs["pressure"].to_value()
+            pressure = kwargs["pressure"]
         else:
             raise ValueError(
                 "Pressure must be specified for ensemble "
@@ -269,9 +280,9 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             )
         pressures = [pressure] * nbr_boxes
         if "pressure_box1" in kwargs:
-            pressures[0] = kwargs["pressure_box1"].to_value()
+            pressures[0] = kwargs["pressure_box1"]
         if "pressure_box2" in kwargs:
-            pressures[1] = kwargs["pressure_box2"].to_value()
+            pressures[1] = kwargs["pressure_box2"]
 
         inp_data += get_pressure_info(pressures)
 
@@ -499,7 +510,12 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     else:
         cbmc_kappa_dih = 10
     if "cbmc_rcut" in kwargs:
-        cbmc_rcuts = [kwargs["cbmc_rcut"].to_value()] * nbr_boxes
+        if isinstance(kwargs["cbmc_rcut"], u.unyt_array):
+            cbmc_rcuts = [kwargs["cbmc_rcut"].to_value()] * nbr_boxes
+        else:
+            cbmc_rcuts = [
+                i.to_value() for i in kwargs["cbmc_rcut"]
+            ] * nbr_boxes
     else:
         cbmc_rcuts = [6.0] * nbr_boxes
 
@@ -1027,8 +1043,8 @@ def get_pressure_info(pressures):
     """
 
     for press in pressures:
-        if not isinstance(press, (float, int)):
-            raise TypeError("Pressure must be of type float")
+        if not isinstance(press, u.unyt_array):
+            raise TypeError("Pressure must be of type `unyt_array`")
 
     inp_data = """
 # Pressure_Info"""
@@ -1036,7 +1052,7 @@ def get_pressure_info(pressures):
     for press in pressures:
         inp_data += """
 {pressure}""".format(
-            pressure=press
+            pressure=press.to_value()
         )
 
     inp_data += """
@@ -1935,11 +1951,30 @@ def _convert_kwarg_units(kwargs):
     """Convert kwargs that are unyt units
     """
     if "vdw_cutoff" in kwargs:
-        kwargs["vdw_cutoff"] = kwargs["vdw_cutoff"].to("angstrom")
+        if isinstance(kwargs["vdw_cutoff"], u.unyt_array):
+            kwargs["vdw_cutoff"] = kwargs["vdw_cutoff"].to("angstrom")
+        else:
+            kwargs["vdw_cutoff"] = [
+                i.to("angstrom") for i in kwargs["vdw_cutoff"]
+            ]
     if "vdw_cutoff_box1" in kwargs:
-        kwargs["vdw_cutoff_box1"] = kwargs["vdw_cutoff_box2"].to("angstrom")
+        if isinstance(kwargs["vdw_cutoff_box1"], u.unyt_array):
+            kwargs["vdw_cutoff_box1"] = kwargs["vdw_cutoff_box1"].to(
+                "angstrom"
+            )
+        else:
+            kwargs["vdw_cutoff_box1"] = [
+                i.to("angstrom") for i in kwargs["vdw_cutoff_box1"]
+            ]
     if "vdw_cutoff_box2" in kwargs:
-        kwargs["vdw_cutoff_box2"] = kwargs["vdw_cutoff_box2"].to("angstrom")
+        if isinstance(kwargs["vdw_cutoff_box2"], u.unyt_array):
+            kwargs["vdw_cutoff_box2"] = kwargs["vdw_cutoff_box2"].to(
+                "angstrom"
+            )
+        else:
+            kwargs["vdw_cutoff_box2"] = [
+                i.to("angstrom") for i in kwargs["vdw_cutoff_box2"]
+            ]
     if "charge_cutoff" in kwargs:
         kwargs["charge_cutoff"] = kwargs["charge_cutoff"].to("angstrom")
     if "rcut_min" in kwargs:
@@ -1958,7 +1993,12 @@ def _convert_kwarg_units(kwargs):
             new_mu.append(mu)
         kwargs["chemical_potentials"] = new_mu
     if "cbmc_rcut" in kwargs:
-        kwargs["cbmc_rcut"] = kwargs["cbmc_rcut"].to("angstrom")
+        if isinstance(kwargs["cbmc_rcut"], u.unyt_array):
+            kwargs["cbmc_rcut"] = kwargs["cbmc_rcut"].to("angstrom")
+        else:
+            kwargs["cbmc_rcut"] = [
+                i.to("angstrom") for i in kwargs["cbmc_rcut"]
+            ]
 
     return kwargs
 
@@ -1975,10 +2015,13 @@ def _convert_moves_units(moves):
     new_restricted_value = list()
     if moves._restricted_value:
         for box in moves._restricted_value:
-            for typ in box:
-                if typ:
-                    typ = typ.to("angstrom")
-                new_restricted_value.append(typ)
+            for val in box:
+                if val:
+                    if isinstance(val, list):
+                        val = [i.to("angstrom") for i in val]
+                    else:
+                        val = val.to("angstrom")
+                new_restricted_value.append(val)
     moves._restricted_value = new_restricted_value
 
     # Convert max translate

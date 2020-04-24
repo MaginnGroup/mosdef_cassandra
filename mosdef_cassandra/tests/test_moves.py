@@ -1,6 +1,7 @@
 import pytest
 
 import mosdef_cassandra as mc
+import unyt as u
 import warnings
 from mosdef_cassandra.tests.base_test import BaseTest
 
@@ -41,7 +42,7 @@ class TestMoves(BaseTest):
         assert len(moves.max_volume) == 1
         assert len(moves.prob_swap_from_box) == 1
         assert moves.prob_swap_from_box[0] == 1.0
-        assert moves.max_volume[0] == 0.0
+        assert moves.max_volume[0] == 0.0 * (u.angstrom ** 3)
         # Per species-per-box
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
@@ -72,10 +73,10 @@ class TestMoves(BaseTest):
         assert len(moves.max_volume) == 1
         assert len(moves.prob_swap_from_box) == 1
         assert moves.prob_swap_from_box[0] == 1.0
-        assert moves.max_volume[0] == 500.0
+        assert moves.max_volume[0] == 500.0 * (u.angstrom ** 3)
         # Per species-per-box
-        assert len(moves.max_translate[0]) == 1
-        assert len(moves.max_rotate[0]) == 1
+        assert len(moves.max_translate[0]) == 1 * u.angstrom
+        assert len(moves.max_rotate[0]) == 1 * u.degree
         # Per species attributes
         assert len(moves.sp_insertable) == 1
         assert len(moves.sp_prob_swap) == 1
@@ -103,7 +104,7 @@ class TestMoves(BaseTest):
         assert len(moves.max_volume) == 1
         assert len(moves.prob_swap_from_box) == 1
         assert moves.prob_swap_from_box[0] == 1.0
-        assert moves.max_volume[0] == 0.0
+        assert moves.max_volume[0] == 0.0 * (u.angstrom ** 3)
         # Per species-per-box
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
@@ -119,10 +120,10 @@ class TestMoves(BaseTest):
     @pytest.mark.parametrize(
         "typ,value",
         [
-            ("slitpore", 1),
-            ("cylinder", 1),
-            ("sphere", 1),
-            ("interface", [1, 2]),
+            ("slitpore", 1 * u.angstrom),
+            ("cylinder", 1 * u.angstrom),
+            ("sphere", 1 * u.angstrom),
+            ("interface", [1 * u.angstrom, 2 * u.angstrom]),
         ],
     )
     def test_restricted_gcmc(self, methane_oplsaa, typ, value):
@@ -151,7 +152,7 @@ class TestMoves(BaseTest):
         assert moves.prob_swap_from_box[0] == 0.5
         assert moves.prob_swap_from_box[1] == 0.5
         assert len(moves.max_volume) == 1
-        assert moves.max_volume[0] == 500.0
+        assert moves.max_volume[0] == 500.0 * (u.angstrom ** 3)
         # Per species-per-box
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
@@ -169,10 +170,10 @@ class TestMoves(BaseTest):
     @pytest.mark.parametrize(
         "typ,value",
         [
-            ("slitpore", 1),
-            ("cylinder", 1),
-            ("sphere", 1),
-            ("interface", [1, 2]),
+            ("slitpore", 1 * u.angstrom),
+            ("cylinder", 1 * u.angstrom),
+            ("sphere", 1 * u.angstrom),
+            ("interface", [1 * u.angstrom, 2 * u.angstrom]),
         ],
     )
     def test_restricted_gemc(self, methane_oplsaa, typ, value):
@@ -203,8 +204,8 @@ class TestMoves(BaseTest):
         assert moves.prob_swap_from_box[0] == 0.5
         assert moves.prob_swap_from_box[1] == 0.5
         assert len(moves.max_volume) == 2
-        assert moves.max_volume[0] == 500.0
-        assert moves.max_volume[1] == 5000.0
+        assert moves.max_volume[0] == 500.0 * (u.angstrom ** 3)
+        assert moves.max_volume[1] == 5000.0 * (u.angsrom ** 3)
         # Per species-per-box
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
@@ -409,26 +410,32 @@ class TestMoves(BaseTest):
     def test_maxval_setters(self, methane_oplsaa):
         moves = mc.Moves("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_translate = 1.0
+            moves.max_translate = 1.0 * u.angstrom
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_translate = [[1.0, 1.0], [1.0]]
-        with pytest.raises(TypeError, match=r"of type float"):
+            moves.max_translate = [
+                [1.0 * u.angstrom, 1.0 * u.angstrom],
+                [1.0 * u.angstrom],
+            ]
+        with pytest.raises(TypeError, match=r"unyt_array"):
             moves.max_translate = [[1.0], [True]]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.max_translate = [[1.0], [-1.0]]
-        moves.max_translate = [[1.0], [1]]
-        assert moves.max_translate[1][0] == 1.0
+            moves.max_translate = [[1.0 * u.angstrom], [-1.0 * u.angstrom]]
+        moves.max_translate = [[1.0 * u.angstrom], [1 * u.angstrom]]
+        assert moves.max_translate[1][0] == 1.0 * u.angstrom
 
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_rotate = 1.0
+            moves.max_rotate = 1.0 * u.degree
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_rotate = [[1.0, 1.0], [1.0]]
-        with pytest.raises(TypeError, match=r"of type float"):
+            moves.max_rotate = [
+                [1.0 * u.degree, 1.0 * u.degree],
+                [1.0 * u.degree],
+            ]
+        with pytest.raises(TypeError, match=r"unyt_array"):
             moves.max_rotate = [[1.0], [True]]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.max_rotate = [[1.0], [-1.0]]
-        moves.max_rotate = [[1.0], [1]]
-        assert moves.max_rotate[1][0] == 1.0
+            moves.max_rotate = [[1.0 * u.degree], [-1.0 * u.degree]]
+        moves.max_rotate = [[1.0 * u.degree], [1 * u.degree]]
+        assert moves.max_rotate[1][0] == 1.0 * u.degree
 
         with pytest.raises(ValueError, match=r"must be a list"):
             moves.max_dihedral = 1.0
@@ -454,26 +461,40 @@ class TestMoves(BaseTest):
 
         moves = mc.Moves("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_volume = 1.0
+            moves.max_volume = 1.0 * (u.angstrom ** 3)
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_volume = [1.0, 1.0, 1.0]
-        with pytest.raises(TypeError, match=r"of type float"):
+            moves.max_volume = [
+                1.0 * (u.angstrom ** 3),
+                1.0 * (u.angstrom ** 3),
+                1.0 * (u.angstrom ** 3),
+            ]
+        with pytest.raises(TypeError, match=r"unyt_array"):
             moves.max_volume = [True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.max_volume = [-100]
-        moves.max_volume = [5000.0]
-        assert moves.max_volume[0] == 5000.0
+            moves.max_volume = [-100 * (u.angstrom ** 3)]
+        moves.max_volume = [5000.0 * (u.angstrom ** 3)]
+        assert moves.max_volume[0] == 5000.0 * (u.angstrom ** 3)
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_volume = 1.0
+            moves.max_volume = 1.0 * (u.angstrom ** 3)
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_volume = [1.0, 1.0, 1.0]
-        with pytest.raises(TypeError, match=r"of type float"):
+            moves.max_volume = [
+                1.0 * (u.angstrom ** 3),
+                1.0 * (u.angstrom ** 3),
+                1.0 * (u.angstrom ** 3),
+            ]
+        with pytest.raises(TypeError, match=r"unyt_array"):
             moves.max_volume = [True, 50000.0]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.max_volume = [-100, 100.0]
-        moves.max_volume = [5000.0, 50000.0]
-        assert moves.max_volume[1] == 50000.0
+            moves.max_volume = [
+                -100 * (u.angstrom ** 3),
+                100.0 * (u.angstrom ** 3),
+            ]
+        moves.max_volume = [
+            5000.0 * (u.angstrom ** 3),
+            50000.0 * (u.angstrom ** 3),
+        ]
+        assert moves.max_volume[1] == 50000.0 * (u.angstrom ** 3)
 
         moves = mc.Moves("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"must be a list"):

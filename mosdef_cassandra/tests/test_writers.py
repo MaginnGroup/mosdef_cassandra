@@ -481,7 +481,7 @@ class TestInpFunctions(BaseTest):
 
         assert "# Rcutoff_Low\n10.0\n" in inp_data
 
-        with pytest.raises(TypeError, match=r"be of type float"):
+        with pytest.raises(TypeError, match=r"unyt_array"):
             inp_data = generate_input(
                 system=system,
                 moves=moves,
@@ -643,7 +643,7 @@ class TestInpFunctions(BaseTest):
                 temperature=-300.0 * u.K,
             )
 
-        with pytest.raises(TypeError, match=r"of type float"):
+        with pytest.raises(TypeError, match=r"unyt_array"):
             inp_data = generate_input(
                 system=system,
                 moves=moves,
@@ -686,7 +686,7 @@ class TestInpFunctions(BaseTest):
                 temperature=300.0 * u.K,
             )
 
-        with pytest.raises(TypeError, match=r"of type `unyt_array`"):
+        with pytest.raises(TypeError, match=r"unyt_array"):
             inp_data = generate_input(
                 system=system,
                 moves=moves,
@@ -720,7 +720,7 @@ class TestInpFunctions(BaseTest):
                 temperature=300.0 * u.K,
             )
 
-        with pytest.raises(TypeError, match=r"of type `unyt_array`"):
+        with pytest.raises(TypeError, match=r"unyt_array"):
             inp_data = generate_input(
                 system=system,
                 moves=moves,

@@ -205,7 +205,7 @@ class TestMoves(BaseTest):
         assert moves.prob_swap_from_box[1] == 0.5
         assert len(moves.max_volume) == 2
         assert moves.max_volume[0] == 500.0 * (u.angstrom ** 3)
-        assert moves.max_volume[1] == 5000.0 * (u.angsrom ** 3)
+        assert moves.max_volume[1] == 5000.0 * (u.angstrom ** 3)
         # Per species-per-box
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
@@ -223,11 +223,13 @@ class TestMoves(BaseTest):
     def test_restricted_gemc_npt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
         moves.add_restricted_insertions(
-            [methane_oplsaa], [[None], ["slitpore"]], [[None], [3]]
+            [methane_oplsaa],
+            [[None], ["slitpore"]],
+            [[None], [3 * u.angstrom]],
         )
 
         assert moves._restricted_type == [[None], ["slitpore"]]
-        assert moves._restricted_value == [[None], [3]]
+        assert moves._restricted_value == [[None], [3 * u.angstrom]]
 
     def test_single_site_nvt(self, methane_trappe):
 
@@ -569,9 +571,9 @@ class TestMoves(BaseTest):
     def test_add_multiple_restricted_insertions(self, methane_oplsaa):
         moves = mc.Moves("gcmc", [methane_oplsaa])
         moves.add_restricted_insertions(
-            [methane_oplsaa], [["slitpore"]], [[3]]
+            [methane_oplsaa], [["slitpore"]], [[3 * u.angstrom]]
         )
         with pytest.warns(None) as record:
             moves.add_restricted_insertions(
-                [methane_oplsaa], [["cylinder"]], [[3]]
+                [methane_oplsaa], [["cylinder"]], [[3 * u.angstrom]]
             )

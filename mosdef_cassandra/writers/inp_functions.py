@@ -5,8 +5,8 @@ import unyt as u
 
 import mosdef_cassandra.utils.convert_box as convert_box
 
-# Still need to get rid of this conversion in checking restricted insertions
-# NM_TO_A = 10.0
+from unyt import dimensions
+from mosdef_cassandra.utils.units import validate_unit
 
 
 def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
@@ -48,6 +48,12 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
                 "Invalid input argument {}. "
                 "Allowable options include {}".format(arg, valid_args)
             )
+
+    # Check temperature
+    validate_unit(temperature, dimensions.temperature)
+
+    # Check kwargs
+    _check_kwarg_units(kwargs)
 
     # Convert units on kwargs
 
@@ -131,7 +137,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         charge_style = "ewald"
 
     if "charge_cutoff" in kwargs:
-        charge_cutoff = kwargs["charge_cutoff"]
+        charge_cutoff = kwargs["charge_cutoff"].to_value()
     else:
         charge_cutoff = 12.0
 
@@ -1945,6 +1951,48 @@ def _check_restricted_insertions(box, restriction_type, restriction_value):
                 " for 'interface' is"
                 " greater than the z-coordinate of the box."
             )
+
+
+def _check_kwarg_units(kwargs):
+    """Check the units of kwargs
+    """
+    if "vdw_cutoff" in kwargs:
+        if isinstance(kwargs["vdw_cutoff"], (list, tuple)):
+            [validate_unit(i, dimensions.length) for i in kwargs["vdw_cutoff"]]
+        else:
+            validate_unit(kwargs["vdw_cutoff"], dimensions.length)
+    if "vdw_cutoff_box1" in kwargs:
+        if isinstance(kwargs["vdw_cutoff_box1"], (list, tuple)):
+            [
+                validate_unit(i, dimensions.length)
+                for i in kwargs["vdw_cutoff_box1"]
+            ]
+        else:
+            validate_unit(kwargs["vdw_cutoff_box1"], dimensions.length)
+    if "vdw_cutoff_box2" in kwargs:
+        if isinstance(kwargs["vdw_cutoff_box2"], (list, tuple)):
+            [
+                validate_unit(i, dimensions.length)
+                for i in kwargs["vdw_cutoff_box2"]
+            ]
+        else:
+            validate_unit(kwargs["vdw_cutoff_box2"], dimensions.length)
+    if "charge_cutoff" in kwargs:
+        validate_unit(kwargs["charge_cutoff"], dimensions.length)
+    if "rcut_min" in kwargs:
+        validate_unit(kwargs["rcut_min"], dimensions.length)
+    if "pressure" in kwargs:
+        validate_unit(kwargs["pressure"], dimensions.pressure)
+    if "pressure_box1" in kwargs:
+        validate_unit(kwargs["pressure_box1"], dimensions.pressure)
+    if "pressure_box1" in kwargs:
+        validate_unit(kwargs["pressure_box2"], dimensions.pressure)
+    if "chemical_potentials" in kwargs:
+        for mu in kwargs["chemical_potentials"]:
+            if not isinstance(mu, str):
+                validate_unit(mu, dimensions.energy)
+    if "cbmc_rcut" in kwargs:
+        validate_unit(kwargs["cbmc_rcut"], dimensions.length)
 
 
 def _convert_kwarg_units(kwargs):

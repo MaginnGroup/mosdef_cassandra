@@ -3,8 +3,6 @@ import subprocess
 import mbuild
 import parmed
 
-from unyt import dimensions
-from mosdef_cassandra.utils.units import validate_unit
 from mosdef_cassandra.writers.writers import write_mcfs
 from mosdef_cassandra.writers.writers import write_configs
 from mosdef_cassandra.writers.writers import write_input
@@ -21,12 +19,6 @@ def run(system, moves, run_type, run_length, temperature, **kwargs):
     # Sanity checks
     # TODO: Write more of these
     _check_system(system, moves)
-
-    # Check temperature
-    validate_unit(temperature, dimensions.temperature)
-
-    # Check kwargs
-    _check_kwarg_units(kwargs)
 
     # Write MCF files
     write_mcfs(system)
@@ -257,30 +249,3 @@ def _check_system(system, moves):
             "System.species_topologies and system.mols_in_boxes. "
             "It appears your System object has been corrupted"
         )
-
-
-def _check_kwarg_units(kwargs):
-    """Check the units of kwargs
-    """
-    if "vdw_cutoff" in kwargs:
-        validate_unit(kwargs["vdw_cutoff"], dimensions.length)
-    if "vdw_cutoff_box1" in kwargs:
-        validate_unit(kwargs["vdw_cutoff_box1"], dimensions.length)
-    if "vdw_cutoff_box2" in kwargs:
-        validate_unit(kwargs["vdw_cutoff_box2"], dimensions.length)
-    if "charge_cutoff" in kwargs:
-        validate_unit(kwargs["charge_cutoff"], dimensions.length)
-    if "rcut_min" in kwargs:
-        validate_unit(kwargs["rcut_min"], dimensions.length)
-    if "pressure" in kwargs:
-        validate_unit(kwargs["pressure"], dimensions.pressure)
-    if "pressure_box1" in kwargs:
-        validate_unit(kwargs["pressure_box1"], dimensions.pressure)
-    if "pressure_box1" in kwargs:
-        validate_unit(kwargs["pressure_box2"], dimensions.pressure)
-    if "chemical_potentials" in kwargs:
-        for mu in kwargs["chemical_potentials"]:
-            if not isinstance(mu, str):
-                validate_unit(mu, dimensions.energy)
-    if "cbmc_rcut" in kwargs:
-        validate_unit(kwargs["cbmc_rcut"], dimensions.length)

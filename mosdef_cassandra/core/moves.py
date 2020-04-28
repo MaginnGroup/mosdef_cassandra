@@ -844,7 +844,7 @@ def _check_restriction_type(restriction_type, restriction_value):
     else:
         if not isinstance(restriction_value, u.unyt_array):
             raise TypeError(
-                "Restriction type is {}. A"
+                "Invalid type for `restriction_value` passed. A"
                 " single argument of type `unyt_array"
                 " should be passed".format(restriction_type)
             )

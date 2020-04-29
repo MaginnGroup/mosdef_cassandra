@@ -554,3 +554,10 @@ class TestMoves(BaseTest):
             moves.add_restricted_insertions(
                 [methane_oplsaa], [["cylinder"]], [[3]]
             )
+
+    def test_change_ensemble(self, methane_oplsaa):
+        moves = mc.Moves("gcmc", [methane_oplsaa])
+        with pytest.raises(
+            AttributeError, match=r"Ensemble cannot be changed"
+        ):
+            moves.ensemble = "nvt"

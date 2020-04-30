@@ -16,9 +16,9 @@ Cassandra with a single command:
     conda create --name mc mosdef_cassandra foyer -c conda-forge -c mosdef -c omnia
 
 The command creates a new conda environment (``mc``) and installs
-``mosdef_cassandra`` and ``foyer``. The ``-c`` options specify the conda channels
-that are searched, with priority decreasing from left to right. To use the
-environment, run ``conda activate mc``.
+``mosdef_cassandra`` and ``foyer``. The ``-c`` flag specifies the conda channels
+that are searched, with channel priority decreasing from left to right. To use
+the environment, run ``conda activate mc``.
 
 You can test your installation by opening up a Python interpreter and typing:
 
@@ -103,4 +103,3 @@ Add ``Cassandra-1.2.2/bin`` to your ``PATH``:
 
 Unless you add the preceding line to your ``.bashrc`` you will need to
 run it every time you open a new terminal window.
-

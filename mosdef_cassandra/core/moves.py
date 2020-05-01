@@ -202,7 +202,7 @@ class Moves(object):
         restricted_type : list
             list of restricted insertion types containing one list per box of species
         restricted_value : list
-            list of restricted insertion values containing one list per box of species
+            list of restricted insertion values (unyt arrays) containing one list per box of species
         """
         if self._restricted_type and self._restricted_value:
             warnings.warn(

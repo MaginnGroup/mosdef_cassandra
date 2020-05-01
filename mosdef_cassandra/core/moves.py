@@ -1,10 +1,7 @@
 from copy import deepcopy
-from unyt import dimensions
-from mosdef_cassandra.utils.units import validate_unit
 
 import parmed
 import warnings
-import unyt as u
 
 
 class Moves(object):
@@ -111,24 +108,19 @@ class Moves(object):
             raise ValueError("Uh oh, how did we end up here?")
 
         # Max translation and rotations specified per-species-per-box
-        self.max_translate = [
-            [2.00 * u.angstrom] * self._n_species
-        ] * self._n_boxes
-        self.max_rotate = [[30.0 * u.degree] * self._n_species] * self._n_boxes
+        self.max_translate = [[2.00] * self._n_species] * self._n_boxes
+        self.max_rotate = [[30.0] * self._n_species] * self._n_boxes
 
         # Prob swap and max vol are per-box
         self.prob_swap_from_box = [1.0 / self._n_boxes] * self._n_boxes
 
         # Default max deltas for volume moves
         if self.ensemble == "npt" or self.ensemble == "gemc":
-            self.max_volume = [500.0 * (u.angstrom ** 3)]
+            self.max_volume = [500.0]
         elif self.ensemble == "gemc_npt":
-            self.max_volume = [
-                500.0 * (u.angstrom ** 3),
-                5000.0 * (u.angstrom ** 3),
-            ]
+            self.max_volume = [500.0, 5000.0]
         else:
-            self.max_volume = [0.0 * (u.angstrom ** 3)]
+            self.max_volume = [0.0]
 
         # Remaining options are per-species
         self.max_dihedral = [0.0] * self._n_species
@@ -140,7 +132,7 @@ class Moves(object):
         for ispec, species in enumerate(species_topologies):
             if len(species.atoms) == 1:
                 for ibox in range(self._n_boxes):
-                    self.max_rotate[ibox][ispec] = 0.0 * u.degree
+                    self.max_rotate[ibox][ispec] = 0.0
                 self.sp_prob_regrow[ispec] = 0.0
             elif len(species.bonds) == 0:
                 print(
@@ -148,8 +140,8 @@ class Moves(object):
                     "since it has no bonds".format(species)
                 )
                 for ibox in range(self._n_boxes):
-                    self.max_translate[ibox][ispec] = 0.0 * u.angstrom
-                    self.max_rotate[ibox][ispec] = 0.0 * u.degree
+                    self.max_translate[ibox][ispec] = 0.0
+                    self.max_rotate[ibox][ispec] = 0.0
                 self.sp_prob_regrow[ispec] = 0.0
                 self.sp_insertable[ispec] = False
                 self.sp_prob_swap[ispec] = 0.0
@@ -178,15 +170,11 @@ class Moves(object):
         # If all species are not rotatable change prob rotation
         # move to zero. Redistribute prob to translate
         if self.ensemble == "gemc" or self.ensemble == "gemc_npt":
-            if (
-                sum(self.max_rotate[0]).to_value()
-                + sum(self.max_rotate[1]).to_value()
-                == 0.0
-            ):
+            if sum(self.max_rotate[0]) + sum(self.max_rotate[1]) == 0.0:
                 self.prob_translate += self.prob_rotate
                 self.prob_rotate = 0.0
         else:
-            if sum(self.max_rotate[0]).to_value() == 0.0:
+            if sum(self.max_rotate[0]) == 0.0:
                 self.prob_translate += self.prob_rotate
                 self.prob_rotate = 0.0
 
@@ -202,7 +190,7 @@ class Moves(object):
         restricted_type : list
             list of restricted insertion types containing one list per box of species
         restricted_value : list
-            list of restricted insertion values containing one list per box of species
+            list of restricted insertion values (unyt_array) containing one list per box of species
         """
         if self._restricted_type and self._restricted_value:
             warnings.warn(
@@ -276,11 +264,6 @@ class Moves(object):
                     )
                 else:
                     _check_restriction_type(typ, val)
-                    # Check units of restricted value
-                    if typ == "interface":
-                        [validate_unit(i, dimensions.length) for i in val]
-                    else:
-                        validate_unit(val, dimensions.length)
 
         self._restricted_type = restricted_type
         self._restricted_value = restricted_value
@@ -478,14 +461,13 @@ class Moves(object):
                     "shape (number of boxes, number of species)"
                 )
             for max_val in max_translate_box:
-                # if type(max_val) not in (float, int):
-                #    raise TypeError(
-                #        "Max translation values must be " "of type float"
-                #    )
-                # else:
-                #    max_val = float(max_val)
-                validate_unit(max_val, dimensions.length)
-                if max_val.to_value() < 0.0:
+                if type(max_val) not in (float, int):
+                    raise TypeError(
+                        "Max translation values must be " "of type float"
+                    )
+                else:
+                    max_val = float(max_val)
+                if max_val < 0.0:
                     raise ValueError(
                         "Max translation values cannot " "be less than zero"
                     )
@@ -517,14 +499,13 @@ class Moves(object):
                     "shape (number of boxes, number of species)"
                 )
             for max_val in max_rotate_box:
-                # if type(max_val) not in (float, int):
-                #    raise TypeError(
-                #        "Max rotation values must be " "of type float"
-                #    )
-                # else:
-                #    max_val = float(max_val)
-                validate_unit(max_val, dimensions.angle)
-                if max_val.to_value() < 0.0:
+                if type(max_val) not in (float, int):
+                    raise TypeError(
+                        "Max rotation values must be " "of type float"
+                    )
+                else:
+                    max_val = float(max_val)
+                if max_val < 0.0:
                     raise ValueError(
                         "Max rotation values cannot " "be less than zero"
                     )
@@ -611,7 +592,12 @@ class Moves(object):
                     "max_volume must be a list of " "length (1) for gemc"
                 )
         for max_vol in max_volume:
-            validate_unit(max_vol, dimensions.volume)
+            if type(max_vol) not in (float, int):
+                raise TypeError(
+                    "Maximum volume change for a box " "must be of type float"
+                )
+            else:
+                max_vol = float(max_vol)
             if max_vol < 0.0:
                 raise ValueError(
                     "Maximum volume change for a box "
@@ -842,9 +828,9 @@ def _check_restriction_type(restriction_type, restriction_value):
                 )
             )
     else:
-        if not isinstance(restriction_value, u.unyt_array):
+        if not isinstance(restriction_value, (float, int)):
             raise TypeError(
-                "Invalid type for `restriction_value` passed. A"
-                " single argument of type `unyt_array"
-                " should be passed".format(restriction_type)
+                "Restriction type is {}. A"
+                ' single argument of type "int"'
+                'or "float" should be passed'.format(restriction_type)
             )

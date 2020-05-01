@@ -27,14 +27,6 @@ Warning
 **MoSDeF Cassandra** is still in early development (0.x releases). The API may
 change unexpectedly.
 
-Specifying Units
-~~~~~~~~~~~~~~~~
-
-**MoSDeF Cassandra** uses the `unyt https://unyt.readthedocs.io/en/stable/`_ package to
-specify various units in a Cassandra simulation.  This design choice was made to reduce the errors in
-simulations that stem from incorrect assumptions of units. The base data structure of
-**unyt** is the **unyt_array** (a subclass of numpy ndarray) which carries both a value and a unit.  One of the main functionalities of **unyt** is the ability to convert units.  In **MoSDeF Cassandra**, a user can pass in a unyt_array of any valid unit type which will get then get converted into the standard unit specified by **Cassandra**.
-
 Resources
 ~~~~~~~~~
 
@@ -111,7 +103,7 @@ Monte Carlo calculation is contained in the script below.
       moves=moves,
       run_type="equilibration",
       run_length=1000,
-      temperature=300.0 * unyt.K
+      temperature=300.0
   )
 
 Credits

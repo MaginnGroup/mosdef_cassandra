@@ -1,8 +1,12 @@
 import mbuild
 import datetime
 import numpy as np
+import unyt as u
 
 import mosdef_cassandra.utils.convert_box as convert_box
+
+from unyt import dimensions
+from mosdef_cassandra.utils.units import validate_unit
 
 
 def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
@@ -25,7 +29,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     run_length : float
         simulation length in units of (default=steps), or your choice
         as specified by the 'units' option in **kwargs
-    temperature : unyt_array
+    temperature : float
         temperature of the system
     **kwargs : dict
         keyword arguments. Details below.
@@ -44,6 +48,14 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
                 "Invalid input argument {}. "
                 "Allowable options include {}".format(arg, valid_args)
             )
+
+    # Check temperature
+    validate_unit(temperature, dimensions.temperature)
+
+    # Check kwargs
+    _check_kwarg_units(kwargs)
+
+    # Convert units on kwargs
 
     # Construct an input file section by section
 
@@ -82,7 +94,10 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         cutoff_style = "cut_tail"
 
     if "vdw_cutoff" in kwargs:
-        vdw_cutoff = kwargs["vdw_cutoff"]
+        if isinstance(kwargs["vdw_cutoff"], u.unyt_array):
+            vdw_cutoff = kwargs["vdw_cutoff"].to_value()
+        else:
+            vdw_cutoff = [i.to_value() for i in kwargs["vdw_cutoff"]]
     else:
         vdw_cutoff = 12.0
 
@@ -94,10 +109,18 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     vdw_cutoffs = [vdw_cutoff] * nbr_boxes
     # Support for per-box cutoffs
     if "vdw_cutoff_box1" in kwargs:
-        vdw_cutoffs[0] = kwargs["vdw_cutoff_box1"]
+        if isinstance(kwargs["vdw_cutoff_box1"], u.unyt_array):
+            vdw_cutoffs[0] = kwargs["vdw_cutoff_box1"].to_value()
+        else:
+            vdw_cutoffs[0] = [i.to_value() for i in kwargs["vdw_cutoff_box1"]]
     if "vdw_cutoff_box2" in kwargs:
         if nbr_boxes == 2:
-            vdw_cutoffs[1] = kwargs["vdw_cutoff_box2"]
+            if isinstance(kwargs["vdw_cutoff_box2"], u.unyt_array):
+                vdw_cutoffs[1] = kwargs["vdw_cutoff_box2"].to_value()
+            else:
+                vdw_cutoffs[1] = [
+                    i.to_value() for i in kwargs["vdw_cutoff_box2"]
+                ]
         else:
             raise ValueError(
                 "Only one box in System but "
@@ -114,7 +137,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         charge_style = "ewald"
 
     if "charge_cutoff" in kwargs:
-        charge_cutoff = kwargs["charge_cutoff"]
+        charge_cutoff = kwargs["charge_cutoff"].to_value()
     else:
         charge_cutoff = 12.0
 
@@ -133,10 +156,10 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Support for per-box cutoffs
     if "charge_cutoff_box1" in kwargs:
-        charge_cutoffs[0] = kwargs["charge_cutoff_box1"]
+        charge_cutoffs[0] = kwargs["charge_cutoff_box1"].to_value()
     if "charge_cutoff_box2" in kwargs:
         if nbr_boxes == 2:
-            charge_cutoffs[1] = kwargs["charge_cutoff_box2"]
+            charge_cutoffs[1] = kwargs["charge_cutoff_box2"].to_value()
         else:
             raise ValueError(
                 "Only one box in System but "
@@ -183,7 +206,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Minimum cutoff
     if "rcut_min" in kwargs:
-        rcut_min = kwargs["rcut_min"]
+        rcut_min = kwargs["rcut_min"].to_value()
     else:
         rcut_min = 1.0
     inp_data += get_minimum_cutoff(rcut_min)
@@ -237,14 +260,21 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             box_dims = np.hstack((box.periodicity, box.boundingbox.angles))
         else:
             box_dims = np.hstack((box.lengths, box.angles))
+
         box_matrix = convert_box.convert_to_boxmatrix(box_dims)
+        box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]
         boxes.append(box_matrix)
     inp_data += get_box_info(
         boxes, moves._restricted_type, moves._restricted_value
     )
 
-    temperatures = [temperature] * nbr_boxes
+    # convert temperature to Kelvin
+    temperature = temperature.to("kelvin")
+    temperatures = [temperature.to_value()] * nbr_boxes
     inp_data += get_temperature_info(temperatures)
+
+    # convert units in kwargs
+    _convert_kwarg_units(kwargs)
 
     if moves.ensemble == "npt" or moves.ensemble == "gemc_npt":
         if "pressure" in kwargs:
@@ -290,14 +320,19 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         inp_data += get_chemical_potential_info(chemical_potentials)
 
     # Move probability info
+    # Check moves units
+    moves = _convert_moves_units(moves)
     move_prob_dict = {}
     if moves.prob_translate > 0.0:
         move_prob_dict["translate"] = [
             moves.prob_translate,
-            *moves.max_translate,
+            *[[val.to_value() for val in box] for box in moves.max_translate],
         ]
     if moves.prob_rotate > 0.0:
-        move_prob_dict["rotate"] = [moves.prob_rotate, *moves.max_rotate]
+        move_prob_dict["rotate"] = [
+            moves.prob_rotate,
+            *[[val.to_value() for val in box] for box in moves.max_rotate],
+        ]
     if moves.prob_angle > 0.0:
         move_prob_dict["angle"] = moves.prob_angle
 
@@ -306,7 +341,10 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     if moves.prob_regrow > 0.0:
         move_prob_dict["regrow"] = [moves.prob_regrow, moves.sp_prob_regrow]
     if moves.prob_volume > 0.0:
-        move_prob_dict["volume"] = [moves.prob_volume, moves.max_volume]
+        move_prob_dict["volume"] = [
+            moves.prob_volume,
+            [i.to_value() for i in moves.max_volume],
+        ]
     if moves.prob_insert > 0.0:
         move_prob_dict["insert"] = [moves.prob_insert, moves.sp_insertable]
     if moves.prob_swap > 0.0:
@@ -478,7 +516,12 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     else:
         cbmc_kappa_dih = 10
     if "cbmc_rcut" in kwargs:
-        cbmc_rcuts = [kwargs["cbmc_rcut"]] * nbr_boxes
+        if isinstance(kwargs["cbmc_rcut"], u.unyt_array):
+            cbmc_rcuts = [kwargs["cbmc_rcut"].to_value()] * nbr_boxes
+        else:
+            cbmc_rcuts = [
+                i.to_value() for i in kwargs["cbmc_rcut"]
+            ] * nbr_boxes
     else:
         cbmc_rcuts = [6.0] * nbr_boxes
 
@@ -840,7 +883,13 @@ def get_box_info(boxes, restricted_type, restricted_value):
     """
     nbr_boxes = len(boxes)
     for box in boxes:
-        assert box.shape == (3, 3)
+        # unyt array doesn't seem to support 3D arrays right now
+        # so the shape has to be checked in a more roundabout way
+        assert len(box) == 3
+        for dims in box:
+            assert dims.shape == (3,)
+            dims.convert_to_units("angstrom")
+
     inp_data = """
 # Box_Info
 {nbr_boxes}""".format(
@@ -857,6 +906,7 @@ def get_box_info(boxes, restricted_type, restricted_value):
         else:
             box_types.append("cell_matrix")
 
+    # Convert boxes
     if restricted_type and restricted_value:
         for box, box_type, restrict_types, restrict_vals in zip(
             boxes, box_types, restricted_type, restricted_value
@@ -869,16 +919,16 @@ def get_box_info(boxes, restricted_type, restricted_value):
                 inp_data += """
 {dim}
 """.format(
-                    dim=box[0][0] * NM_TO_A
+                    dim=box[0][0].to_value()
                 )
 
             elif box_type == "orthogonal":
                 inp_data += """
 {dim1} {dim2} {dim3}
 """.format(
-                    dim1=box[0][0] * NM_TO_A,
-                    dim2=box[1][1] * NM_TO_A,
-                    dim3=box[2][2] * NM_TO_A,
+                    dim1=box[0][0].to_value(),
+                    dim2=box[1][1].to_value(),
+                    dim3=box[2][2].to_value(),
                 )
 
             else:
@@ -887,15 +937,15 @@ def get_box_info(boxes, restricted_type, restricted_value):
 {ay} {by} {cy}
 {az} {bz} {cz}
 """.format(
-                    ax=box[0][0] * NM_TO_A,
-                    ay=box[0][1] * NM_TO_A,
-                    az=box[0][2] * NM_TO_A,
-                    bx=box[1][0] * NM_TO_A,
-                    by=box[1][1] * NM_TO_A,
-                    bz=box[1][2] * NM_TO_A,
-                    cx=box[2][0] * NM_TO_A,
-                    cy=box[2][1] * NM_TO_A,
-                    cz=box[2][2] * NM_TO_A,
+                    ax=box[0][0].to_value(),
+                    ay=box[0][1].to_value(),
+                    az=box[0][2].to_value(),
+                    bx=box[1][0].to_value(),
+                    by=box[1][1].to_value(),
+                    bz=box[1][2].to_value(),
+                    cx=box[2][0].to_value(),
+                    cy=box[2][1].to_value(),
+                    cz=box[2][2].to_value(),
                 )
 
             for typ, value in zip(restrict_types, restrict_vals):
@@ -921,16 +971,16 @@ def get_box_info(boxes, restricted_type, restricted_value):
                 inp_data += """
 {dim}
 """.format(
-                    dim=box[0][0] * NM_TO_A
+                    dim=box[0][0].to_value()
                 )
 
             elif box_type == "orthogonal":
                 inp_data += """
 {dim1} {dim2} {dim3}
 """.format(
-                    dim1=box[0][0] * NM_TO_A,
-                    dim2=box[1][1] * NM_TO_A,
-                    dim3=box[2][2] * NM_TO_A,
+                    dim1=box[0][0].to_value(),
+                    dim2=box[1][1].to_value(),
+                    dim3=box[2][2].to_value(),
                 )
 
             else:
@@ -939,15 +989,15 @@ def get_box_info(boxes, restricted_type, restricted_value):
 {ay} {by} {cy}
 {az} {bz} {cz}
 """.format(
-                    ax=box[0][0] * NM_TO_A,
-                    ay=box[0][1] * NM_TO_A,
-                    az=box[0][2] * NM_TO_A,
-                    bx=box[1][0] * NM_TO_A,
-                    by=box[1][1] * NM_TO_A,
-                    bz=box[1][2] * NM_TO_A,
-                    cx=box[2][0] * NM_TO_A,
-                    cy=box[2][1] * NM_TO_A,
-                    cz=box[2][2] * NM_TO_A,
+                    ax=box[0][0].to_value(),
+                    ay=box[0][1].to_value(),
+                    az=box[0][2].to_value(),
+                    bx=box[1][0].to_value(),
+                    by=box[1][1].to_value(),
+                    bz=box[1][2].to_value(),
+                    cx=box[2][0].to_value(),
+                    cy=box[2][1].to_value(),
+                    cz=box[2][2].to_value(),
                 )
 
     inp_data += """
@@ -999,8 +1049,8 @@ def get_pressure_info(pressures):
     """
 
     for press in pressures:
-        if not isinstance(press, (float, int)):
-            raise TypeError("Pressure must be of type float")
+        if not isinstance(press, u.unyt_array):
+            raise TypeError("Pressure must be of type `unyt_array`")
 
     inp_data = """
 # Pressure_Info"""
@@ -1008,7 +1058,7 @@ def get_pressure_info(pressures):
     for press in pressures:
         inp_data += """
 {pressure}""".format(
-            pressure=press
+            pressure=press.to_value()
         )
 
     inp_data += """
@@ -1030,9 +1080,10 @@ def get_chemical_potential_info(chem_pots):
 
     for chem_pot in chem_pots:
         if chem_pot != "none":
-            if not isinstance(chem_pot, (float, int)):
+            if not isinstance(chem_pot, u.unyt_array):
                 raise TypeError(
-                    'Chemical potentials must "none" or ' "be of type float"
+                    'Chemical potentials must "none" or '
+                    "be of type `unyt_array`"
                 )
 
     inp_data = """
@@ -1040,7 +1091,10 @@ def get_chemical_potential_info(chem_pots):
 """
 
     for chem_pot in chem_pots:
-        inp_data += """{chem_pot} """.format(chem_pot=chem_pot)
+        if chem_pot == "none":
+            inp_data += """{chem_pot} """.format(chem_pot=chem_pot)
+        else:
+            inp_data += """{chem_pot} """.format(chem_pot=chem_pot.to_value())
 
     inp_data += """
 !------------------------------------------------------------------------------
@@ -1819,11 +1873,11 @@ def _get_possible_kwargs(desc=False):
         "run_name": "str, name of output",
         "vdw_style": 'str, "lj" or "none"',
         "cutoff_style": 'str, "cut" or "cut_tail" or "cut_switch" or "cut_shift"',
-        "vdw_cutoff": 'unyt array, except for "cut_switch", where [inner_cutoff, outer_cutoff].',
+        "vdw_cutoff": 'float, except for "cut_switch", where [inner_cutoff, outer_cutoff].',
         "vdw_cutoff_box1": 'customize vdw cutoff for box 1. see "vdw_cutoff" for format',
         "vdw_cutoff_box2": 'customize vdw cutoff for box 2. see "vdw_cutoff" for format',
         "charge_style": 'str, "none" or "cut" or "ewald" or "dsf"',
-        "charge_cutoff": "unyt array",
+        "charge_cutoff": "float",
         "charge_cutoff_box1": 'customize charge cutoff for box 1. see "charge_cutoff" for format',
         "charge_cutoff_box2": 'customize charge cutoff for box 2. see "charge_cutoff" for format',
         "ewald_accuracy": "float, accuracy of ewald sum",
@@ -1831,13 +1885,13 @@ def _get_possible_kwargs(desc=False):
         "mixing_rule": 'str, "lb" or "geometric" or "custom"',
         "custom_mixing_dict": "dict, one key-value pair per atomtype-pair, key=str of species comb, value=str of params",
         "seeds": "list of ints, [seed1,seed2], where each seed is an integer",
-        "rcut_min": "unyt array, automatically reject move if atoms are closer than this distance",
+        "rcut_min": "float, automatically reject move if atoms are closer than this distance",
         "pair_energy": "boolean, store pair energies (faster but requires more memory)",
         "max_molecules": "list of ints, maximum number of molecules for each species",
-        "pressure": "unyt array, desired pressure (npt and gemc-npt)",
+        "pressure": "float, desired pressure (npt and gemc-npt)",
         "pressure_box1": 'customize pressure for box 1. see "pressure" for format',
         "pressure_box2": 'customize pressure for box 2. see "pressure" for format',
-        "chemical_potentials": "list of unyt arrays, specify the desired chemical potential for each species",
+        "chemical_potentials": "list of floats, specify the desired chemical potential for each species",
         "thermal_stat_freq": "int, frequency of printing/updating non-volume moves",
         "vol_stat_freq": "int, frequency of printing/updating volume moves",
         "units": 'str, units for run/thermo/coord run_length/freqs. "minutes" or "steps" or "sweeps"',
@@ -1853,7 +1907,7 @@ def _get_possible_kwargs(desc=False):
         "verbose_log": "boolean, write verbose log file",
         "cbmc_kappa_ins": "int, number of attempted insertion sites for CBMC",
         "cbmc_kappa_dih": "int, number of attempted dihedral rotations for CBMC",
-        "cbmc_rcut": "unyt array, cutoff for CBMC",
+        "cbmc_rcut": "float, cutoff for CBMC",
         "restart": "boolean, restart from checkpoint file",
         "restart_name": "name of checkpoint file to restart from",
     }
@@ -1868,24 +1922,24 @@ def _check_restricted_insertions(box, restriction_type, restriction_value):
 
     Note: Only checking cubic boxes currently
     """
-    box_max = np.array(
-        [box[0][0] * NM_TO_A, box[1][1] * NM_TO_A, box[2][2] * NM_TO_A]
-    )
+    box_max = np.array([box[0][0], box[1][1], box[2][2]])
     if restriction_type in ["cylinder", "sphere"]:
-        if np.any(restriction_value * 2 > box_max):
+        if np.any(restriction_value.to_value() * 2 > box_max):
             raise ValueError(
                 "Restricted insertion 'r_max' value is"
                 " greater than the box coordinates."
             )
     elif restriction_type == "slitpore":
-        if restriction_value * 2 > box_max[2]:
+        if restriction_value.to_value() * 2 > box_max[2]:
             raise ValueError(
                 "Restricted insertion 'z_max' value is"
                 " greater than the z-coordinate of the box."
             )
     elif restriction_type == "interface":
-        interface_z = restriction_value[1] - restriction_value[0]
-        if restriction_value[1] > box_max[2]:
+        interface_z = (
+            restriction_value[1].to_value() - restriction_value[0].to_value()
+        )
+        if restriction_value[1].to_value() > box_max[2]:
             raise ValueError(
                 "Restricted insertion 'z_max' passed"
                 " for 'interface' is"
@@ -1897,3 +1951,139 @@ def _check_restricted_insertions(box, restriction_type, restriction_value):
                 " for 'interface' is"
                 " greater than the z-coordinate of the box."
             )
+
+
+def _check_kwarg_units(kwargs):
+    """Check the units of kwargs
+    """
+    if "vdw_cutoff" in kwargs:
+        if isinstance(kwargs["vdw_cutoff"], (list, tuple)):
+            [validate_unit(i, dimensions.length) for i in kwargs["vdw_cutoff"]]
+        else:
+            validate_unit(kwargs["vdw_cutoff"], dimensions.length)
+    if "vdw_cutoff_box1" in kwargs:
+        if isinstance(kwargs["vdw_cutoff_box1"], (list, tuple)):
+            [
+                validate_unit(i, dimensions.length)
+                for i in kwargs["vdw_cutoff_box1"]
+            ]
+        else:
+            validate_unit(kwargs["vdw_cutoff_box1"], dimensions.length)
+    if "vdw_cutoff_box2" in kwargs:
+        if isinstance(kwargs["vdw_cutoff_box2"], (list, tuple)):
+            [
+                validate_unit(i, dimensions.length)
+                for i in kwargs["vdw_cutoff_box2"]
+            ]
+        else:
+            validate_unit(kwargs["vdw_cutoff_box2"], dimensions.length)
+    if "charge_cutoff" in kwargs:
+        validate_unit(kwargs["charge_cutoff"], dimensions.length)
+    if "rcut_min" in kwargs:
+        validate_unit(kwargs["rcut_min"], dimensions.length)
+    if "pressure" in kwargs:
+        validate_unit(kwargs["pressure"], dimensions.pressure)
+    if "pressure_box1" in kwargs:
+        validate_unit(kwargs["pressure_box1"], dimensions.pressure)
+    if "pressure_box1" in kwargs:
+        validate_unit(kwargs["pressure_box2"], dimensions.pressure)
+    if "chemical_potentials" in kwargs:
+        for mu in kwargs["chemical_potentials"]:
+            if not isinstance(mu, str):
+                validate_unit(mu, dimensions.energy)
+    if "cbmc_rcut" in kwargs:
+        validate_unit(kwargs["cbmc_rcut"], dimensions.length)
+
+
+def _convert_kwarg_units(kwargs):
+    """Convert kwargs that are unyt units
+    """
+    if "vdw_cutoff" in kwargs:
+        if isinstance(kwargs["vdw_cutoff"], u.unyt_array):
+            kwargs["vdw_cutoff"] = kwargs["vdw_cutoff"].to("angstrom")
+        else:
+            kwargs["vdw_cutoff"] = [
+                i.to("angstrom") for i in kwargs["vdw_cutoff"]
+            ]
+    if "vdw_cutoff_box1" in kwargs:
+        if isinstance(kwargs["vdw_cutoff_box1"], u.unyt_array):
+            kwargs["vdw_cutoff_box1"] = kwargs["vdw_cutoff_box1"].to(
+                "angstrom"
+            )
+        else:
+            kwargs["vdw_cutoff_box1"] = [
+                i.to("angstrom") for i in kwargs["vdw_cutoff_box1"]
+            ]
+    if "vdw_cutoff_box2" in kwargs:
+        if isinstance(kwargs["vdw_cutoff_box2"], u.unyt_array):
+            kwargs["vdw_cutoff_box2"] = kwargs["vdw_cutoff_box2"].to(
+                "angstrom"
+            )
+        else:
+            kwargs["vdw_cutoff_box2"] = [
+                i.to("angstrom") for i in kwargs["vdw_cutoff_box2"]
+            ]
+    if "charge_cutoff" in kwargs:
+        kwargs["charge_cutoff"] = kwargs["charge_cutoff"].to("angstrom")
+    if "rcut_min" in kwargs:
+        kwargs["rcut_min"] = kwargs["rcut_min"].to("angstrom")
+    if "pressure" in kwargs:
+        kwargs["pressure"] = kwargs["pressure"].to("bar")
+    if "pressure_box1" in kwargs:
+        kwargs["pressure_box1"] = kwargs["pressure_box1"].to("bar")
+    if "pressure_box2" in kwargs:
+        kwargs["pressure_box2"] = kwargs["pressure_box2"].to("bar")
+    if "chemical_potentials" in kwargs:
+        new_mu = list()
+        for mu in kwargs["chemical_potentials"]:
+            if not isinstance(mu, str):
+                mu = mu.to("kJ/mol")
+            new_mu.append(mu)
+        kwargs["chemical_potentials"] = new_mu
+    if "cbmc_rcut" in kwargs:
+        if isinstance(kwargs["cbmc_rcut"], u.unyt_array):
+            kwargs["cbmc_rcut"] = kwargs["cbmc_rcut"].to("angstrom")
+        else:
+            kwargs["cbmc_rcut"] = [
+                i.to("angstrom") for i in kwargs["cbmc_rcut"]
+            ]
+
+    return kwargs
+
+
+def _convert_moves_units(moves):
+    # Convert max volume
+    new_max_volume = list()
+    for max_vol in moves.max_volume:
+        max_vol = max_vol.to("angstrom**3")
+        new_max_volume.append(max_vol)
+    moves.max_volume = new_max_volume
+
+    # Convert restricted insertion
+    new_restricted_value = list()
+    if moves._restricted_value:
+        for box in moves._restricted_value:
+            for val in box:
+                if val:
+                    if isinstance(val, list):
+                        val = [i.to("angstrom") for i in val]
+                    else:
+                        val = val.to("angstrom")
+                new_restricted_value.append(val)
+    moves._restricted_value = new_restricted_value
+
+    # Convert max translate
+    new_max_translate = list()
+    for maxs in moves.max_translate:
+        maxs = [i.to("angstrom") for i in maxs]
+        new_max_translate.append(maxs)
+    moves.max_translate = new_max_translate
+
+    # Convert max rotate
+    new_max_rotate = list()
+    for maxs in moves.max_rotate:
+        maxs = [i.to("degree") for i in maxs]
+        new_max_rotate.append(maxs)
+    moves.max_rotate = new_max_rotate
+
+    return moves

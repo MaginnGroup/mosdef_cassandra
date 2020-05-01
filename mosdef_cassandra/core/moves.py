@@ -274,6 +274,10 @@ class Moves(object):
 
     @ensemble.setter
     def ensemble(self, ensemble):
+        if hasattr(self, "_ensemble"):
+            raise AttributeError(
+                "Ensemble cannot be changed. Please create a new Moves object instead."
+            )
         valid_ensembles = ["nvt", "npt", "gcmc", "gemc", "gemc_npt"]
         if ensemble not in valid_ensembles:
             raise ValueError(

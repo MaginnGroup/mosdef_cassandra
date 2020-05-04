@@ -74,7 +74,7 @@ GCMC:
 
 .. note::
     In GCMC the deletion probability is set equal to the insertion
-    probability, making the sum of the move probabilities to 1.0
+    probability, making the sum of the move probabilities 1.0
 
 GEMC:
 ~~~~~

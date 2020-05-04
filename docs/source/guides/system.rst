@@ -75,7 +75,7 @@ contains a structure from a PDB file and loaded with ``mbuild``.
     must *exactly* match the order of the atoms in the relevant species provided
     in the ``species_list``. If there are multiple different species, then all
     the molecules of species1 must be provided before any molecules of species2,
-    and so on. 
+    and so on.
 
 .. note::
 
@@ -91,19 +91,20 @@ species_list
 ~~~~~~~~~~~~
 
 The ``species_list`` is a Python ``list`` of the unique chemical species in the
-system. For example, if simulating a mixture of methane and ethane, there are
-two species; if simulating pure methane, there is one species, regardless of
-the number of methane molecules in the system. Therefore, the
-length of ``species_list`` would be two in the first example and one in the
-second example. Each element of ``species_list`` is a parameterized
-``parmed.Structure``. This structure contains all the forcefield details for a
-given species.
+system. For example, a simulation of pure methane contains one unique chemical
+species (methane), regardless of the number of methane molecules in the
+simulation. A simulation of a mixture of methane and ethane, contains two
+unique chemical species. Therefore, in the first example the
+``species_list`` would contain a single item and in the second example the
+``species_list`` would contain two items. Each item in the ``species_list`` is
+a ``parmed.Structure`` containing all the forcefield required force field
+parameters for the species.
 
-For example, if we are simulating a mixture of methane and ethane with the
+For example, to simulate a mixture of methane and ethane with the
 OPLS-AA force field, we could use the following sequence of steps to generate
-the species list. Note that with mbuild and foyer we are able to generate a
-molecule with force field parameters starting from a SMILES string with only
-a few lines of Python code.
+the species list. Note that mbuild and foyer allow us to generate a
+molecule with force field parameters from a SMILES string and a few lines
+of Python code.
 
 .. code-block:: python
 
@@ -122,7 +123,7 @@ a few lines of Python code.
 
 .. note::
 
-  The order of the items in species list determines the labeling of
+  The order of items in species list determines the labeling of
   the species. The first is considered species1, the second species2, and
   so forth.
 
@@ -133,30 +134,32 @@ The ``mols_in_boxes`` is a ``list`` containing the number of molecules of each
 species currently in each box specified in ``box_list``. If the simulation
 box(es) are empty, then ``mols_in_boxes`` does not need to be specified. If
 specified, it is provided as a nested list with ``shape=(n_boxes, n_species)``.
+This is perhaps easier to explain with a series of examples.
 
-For example, for a system with one box and one species where the
-initial structure contains 100 molecules:
+Consider a system with a single simulation box and a single
+species. If the initial structure provided in ``box_list`` contains
+100 molecules, then:
 
 .. code-block:: Python
 
   mols_in_boxes = [[100]]
 
-For a single box with two species, 25 molecules of the first species and 75
-molecules of the second species:
+For a system with a single simulation box and two species; the initial
+structure contains 25 molecules of the first and 75 molecules of the second:
 
 .. code-block:: Python
 
   mols_in_boxes = [[25, 75]]
 
-For two boxes with a single species, where the first box has 100 molecules and
-the second box is empty:
+For a system with two simulation boxes and a single species; the first box
+contains 100 molecules and the second box is empty:
 
 .. code-block:: Python
 
   mols_in_boxes = [[100], [0]]
 
-For two boxes with two species, where the first box has 300 molecules of
-the first species and 50 molecules of the second species, and the second box
+For a system with two boxes and two species; the first box has 300 molecules of
+the first species and 50 molecules of the second species, the second box
 has 30 molecules of the first species and 100 molecules of the second:
 
 .. code-block:: Python
@@ -168,22 +171,25 @@ provided in each box match the number of atoms specified by ``mols_in_boxes``.
 The number of atoms per molecule are determined from the species provided
 in the ``species_list``.
 
-``mols_in_boxes = [[100]]``. For a
-single box with two species, 25 molecules of the first species and 75 molecules
-of the second species ``mols_in_boxes = [[25, 75]]``
+mols_to_add
+~~~~~~~~~~~~~
+Cassandra has the ability to insert molecules in a simulation box prior to
+starting the MC simulation. Therefore, you can provide an empty simulation
+box and tell Cassandra to add some number of molecules before beginning the
+MC simulation. This capability is controlled through the ``mols_to_add`` option.
+The format of ``mols_to_add`` is analogous to ``mols_in_boxes``; If
+specified, it is provided as a nested list with ``shape=(n_boxes, n_species)``.
 
-``len(mols_in_boxes)`` must equal
-``n_boxes = len(box_list)``. In other words, ``n_boxes`` is the number of
-simulation boxes. For each box ``ibox``, there is a list
-with ``len(mols_in_boxes[ibox]) = n_species``, where ``n_species`` is the number
-of unique species in the system. If setting up a system with a single
-simulation box containing 10 methane molecules and 5 ethane molecules,
-``mols_in_boxes = [[10,5]]``.
 
-``mols_to_add`` is a ``list`` containing the number of molecules of each
-species to add each box before beginning the simulation. The format of
-``mols_to_add`` is analogous to the format of ``mols_in_boxes``.
-``len(mols_to_add) = n_boxes``, and for each box, there is a list
-with ``len(mols_to_add[ibox]) = n_species``. If setting up a system with a
-single simulation box to which we wish to add 10 methane molecules and 0 ethane
-molecules, ``mols_to_add = [[10,0]]``.
+For example, consider a system with a single simulation box and two species.
+If we wish to add 10 molecules of the first species and 0 molecules
+of the second species, we could use:
+
+.. code-block:: Python
+
+  mols_to_add = [[10,0]]
+
+.. warning::
+  If ``mols_to_add`` is too large for the given box/species, the MC simulation
+  may never begin. Cassandra will be stuck attempting (and failing) to insert
+  the requested number of molecules.

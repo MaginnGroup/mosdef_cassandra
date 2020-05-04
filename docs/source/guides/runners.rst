@@ -76,7 +76,7 @@ The restart function
 
 MoSDeF Cassandra also supports restarting from a checkpoint file.
 This is particularly helpful when switching from an equilibration
-to production simulation. 
+to production simulation.
 
 The procedure follows:
 
@@ -106,7 +106,7 @@ call to ``mc.restart``. The output from the equilibration is named ``"equil"``.
 Therefore, when we use ``mc.restart``, we specify that it should restart
 from the output files named ``"equil"``.
 
-.. note:: 
+.. note::
   In Cassandra, during an "equilibration",
   the move sizes are adjusted to achieve a 50% acceptance ratio. In
   a "production" run the move sizes are fixed.
@@ -115,7 +115,3 @@ from the output files named ``"equil"``.
   If using ``mc.restart()``, the move sizes are read from the
   checkpoint file and therefore the move sizes in the ``Moves``
   object are NOT used.
-
-
-
-

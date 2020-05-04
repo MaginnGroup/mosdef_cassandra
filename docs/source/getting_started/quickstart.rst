@@ -1,14 +1,15 @@
 Quickstart Guide
 ================
 
-The following assumes you have already installed MoSDeF Cassandra
-as detailed in our installation instructions. Details of the
-``System`` and ``Moves`` objects can be found under Guides.
+The following assumes you have MoSDeF Cassandra installed. If not, please
+refer to our :doc:`installation guide <install>`. More details of the core
+MoSDeF Cassandra functionality can be found under the Guides section of
+the documentation.
 
 Let's start by setting up an NVT Monte Carlo simulation of OPLS-AA
 methane. We will use the ``mbuild`` and ``foyer`` packages to create
-the methane molecule, and ``mosdef_cassandra`` to run the MC simulation.
-We begin with the required imports:
+the methane molecule, and ``mosdef_cassandra`` to run the Monte Carlo
+simulation. We begin with the required imports:
 
 .. code-block:: python
 
@@ -23,9 +24,9 @@ Next, we create an all-atom methane molecule from a `SMILES
 
     methane = mbuild.load("C", smiles=True)
 
-``methane`` is a single all-atom methane molecule. It is an
-``mbuild.Compound`` object. The ``mbuild.Compound`` object contains particles
-for each element (C, H, H, H) in the molecule and bond information that
+The ``methane`` object is a single all-atom methane molecule. It is an
+``mbuild.Compound``. ``methane`` contains particles
+for each element (C, H, H, H) in the molecule and bonds that
 describes the particle connectivity. However, there are no forcefield parameters
 associated with ``methane``.
 
@@ -88,7 +89,7 @@ the simulation in Cassandra. We will add 50 methane molecules for this example.
 
 .. note::
     ``mols_in_boxes`` and ``mols_to_add`` are always lists with one entry
-    for each box. Each entry is a list with open entry for each species
+    for each box. Each entry is a list with one entry for each species
     in the ``species_list``.
 
 We now combine the four components created above into a single
@@ -107,23 +108,25 @@ We now combine the four components created above into a single
     Each item in the ``species_list`` must be a ``parmed.Structure`` object with
     the associated forcefield parameters. For example, ``species_list =
     [methane]`` would not work because the ``mbuild.Compound`` object does not
-    contain any forcefield parameters.
+    contain forcefield parameters.
 
 Now we create a ``Moves`` object. This object contains all selections related to
 the ``# Move_Probabilities`` section of the Cassandra input file. In addition
 to the probability of performing different types of MC moves, the ``Moves``
 object also contains the maximum move sizes (e.g., maximum translation distance),
-whether each species is insertable, and so on. To create the moves object, we
-must specify the ensemble we wish to perform our MC simulation in and the 
-``species_list``.
+whether each species is insertable, and more. To create the moves object, we
+specify the ensemble in which we wish to perform the MC simulation and provide
+the ``species_list``.
 
 .. code-block:: python
 
     ensemble = 'nvt'
     moves = mc.Moves(ensemble, species_list)
 
-Some attributes of the moves object can be edited after it is created. This allows
-complete control over all the move-related selections in Cassandra.
+Some attributes of the moves object can be edited after it is created. This
+allows complete control over all the move-related selections in Cassandra. To
+view the current selections in the moves object, use the ``moves.print()``
+command.
 
 The only remaining step is to run the simulation. The ``mc.run`` function requires
 five arguments: the ``System`` object, the ``Moves`` object, a selection of
@@ -143,6 +146,3 @@ five arguments: the ``System`` object, the ``Moves`` object, a selection of
 A large number of additional keyword arguments can be provided inline or as part
 of a keyword dictionary. See ``mc.print_valid_kwargs()`` for a complete list of
 the available keyword arguments.
-
-
-

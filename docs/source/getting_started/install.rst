@@ -1,12 +1,14 @@
 Installation
 ============
 
-We recommend the conda installation for most users.
+We recommend the conda installation for most users. The conda installation
+will install MoSDeF Cassandra, Cassandra, and all other required dependencies.
+If you wish to contribute to MoSDeF Cassandra, you may install from source.
 
-Installing from conda
+Installing with conda
 ~~~~~~~~~~~~~~~~~~~~~
 
-Assuming you already have
+If you already have
 `conda <https://docs.conda.io/en/latest/miniconda.html>`_ installed,
 you can create a new conda environment and install MoSDeF
 Cassandra with a single command:

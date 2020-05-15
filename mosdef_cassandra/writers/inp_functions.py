@@ -225,7 +225,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
                 max_mols += system.mols_in_boxes[ibox][isp]
                 max_mols += system.mols_to_add[ibox][isp]
             # TODO: Document/improve this
-            if moves.ensemble == "gcmc" and moves.sp_insertable[isp]:
+            if moves.ensemble == "gcmc" and moves.insertable[isp]:
                 max_mols += 500
 
             max_molecules_dict["species%d.mcf" % (isp + 1)] = max_mols
@@ -284,7 +284,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             )
 
         for isp, chempot in enumerate(chemical_potentials):
-            if moves.sp_insertable[isp] == False and chempot != "none":
+            if moves.insertable[isp] == False and chempot != "none":
                 raise ValueError(
                     "The chemical potential of non-insertable "
                     'species should be "none"'
@@ -307,16 +307,19 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     if moves.prob_dihedral > 0.0:
         move_prob_dict["dihedral"] = [moves.prob_dihedral, moves.max_dihedrals]
     if moves.prob_regrow > 0.0:
-        move_prob_dict["regrow"] = [moves.prob_regrow, moves.sp_prob_regrow]
+        move_prob_dict["regrow"] = [
+            moves.prob_regrow,
+            moves.prob_regrow_species,
+        ]
     if moves.prob_volume > 0.0:
         move_prob_dict["volume"] = [moves.prob_volume, moves.max_volume]
     if moves.prob_insert > 0.0:
-        move_prob_dict["insert"] = [moves.prob_insert, moves.sp_insertable]
+        move_prob_dict["insert"] = [moves.prob_insert, moves.insertable]
     if moves.prob_swap > 0.0:
         move_prob_dict["swap"] = [
             moves.prob_swap,
-            moves.sp_insertable,
-            moves.sp_prob_swap,
+            moves.insertable,
+            moves.prob_swap_species,
             moves.prob_swap_from_box,
         ]
     if moves._restricted_type and moves._restricted_value:

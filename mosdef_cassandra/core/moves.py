@@ -127,9 +127,11 @@ class Moves(object):
         self.prob_regrow_species = [1.0] * self._n_species
         if self.ensemble in ["gcmc", "gemc", "gemc_npt"]:
             self.insertable = [True] * self._n_species
-            self.prob_swap_species = [1.0] * self._n_species
         else:
             self.insertable = [False] * self._n_species
+        if self.ensemble in ["gemc", "gemc_npt"]:
+            self.prob_swap_species = [1.0] * self._n_species
+        else:
             self.prob_swap_species = [0.0] * self._n_species
 
         # Here we handle species-wise exceptions

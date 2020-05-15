@@ -737,6 +737,8 @@ Dihedral:  {prob_dihedral}
         contents += "\n"
         contents += "Max translate (Ang):     "
         for (box, max_translate_box) in enumerate(self.max_translate):
+            if box > 0:
+                contents += "                         "
             for (idx, max_translate) in enumerate(max_translate_box):
                 contents += "{max_trans:4.2f}          ".format(
                     max_trans=max_translate
@@ -745,6 +747,8 @@ Dihedral:  {prob_dihedral}
             contents += "\n"
         contents += "Max rotate (deg):        "
         for (box, max_rotate_box) in enumerate(self.max_rotate):
+            if box > 0:
+                contents += "                         "
             for (idx, max_rotate) in enumerate(max_rotate_box):
                 contents += "{max_rot:4.2f}         ".format(
                     max_rot=max_rotate

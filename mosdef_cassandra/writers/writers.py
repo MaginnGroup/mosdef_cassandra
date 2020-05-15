@@ -60,7 +60,7 @@ def write_configs(system):
         # This only occurs if box is an mbuild.Compound
         if isinstance(box, mbuild.Compound):
             xyz_name = "box{}.in.xyz".format(box_count + 1)
-            box.save(xyz_name)
+            box.save(xyz_name, overwrite=True)
 
 
 def write_input(system, moves, run_type, run_length, temperature, **kwargs):

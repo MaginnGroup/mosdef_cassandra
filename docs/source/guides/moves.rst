@@ -15,10 +15,10 @@ The ``mc.Moves`` object contains the following:
 * ``max_translate`` - maximum translation distance (per-box per-species)
 * ``max_rotate`` - maximum rotation angle (per-box per-species)
 * ``max_volume`` - maximum volume move size
-* ``sp_insertable`` - boolean, is species insertable
-* ``sp_prob_regrow`` - per-species probability of attempting a regrowth move
-* ``sp_prob_swap`` - per-species probability of attempting a swap move
-* ``prob_swap_from_box`` - per-box probability of selecting as donor box
+* ``insertable`` - boolean, is species insertable
+* ``prob_regrow_species`` - probability of attempting a regrowth move with each species
+* ``prob_swap_species`` - probability of attempting a swap move with each species
+* ``prob_swap_from_box`` - probability of selecting each box as donor for a swap move
 
 ``ensemble`` is a string describing the desired ensemble for the simulation. The
 ensemble and ``species_list`` determine the default values assigned to all the
@@ -47,9 +47,9 @@ Example output for a single species (OPLS-AA methane):
   
   Probability of selecting each move type:
   
-  Translate: 0.35
-  Rotate:    0.35
-  Regrow:    0.3
+  Translate: 0.33
+  Rotate:    0.33
+  Regrow:    0.34
   Volume:    0.0
   Insert:    0.0
   Delete:    0.0
@@ -67,7 +67,7 @@ Example output for a single species (OPLS-AA methane):
   Insertable:              True          
   Max dihedral:            0.00          
   Prob swap:               0.00          
-  Prob regrow:             0.00          
+  Prob regrow:             1.00          
   
   
   Max volume (Ang^3):
@@ -87,17 +87,17 @@ not explicitly defined have a default probability of 0.0 for that ensemble.
 NVT:
 ~~~~
 
-* ``prob_translate = 0.35``
-* ``prob_rotate = 0.35``
-* ``prob_regrow = 0.30``
+* ``prob_translate = 0.33``
+* ``prob_rotate = 0.33``
+* ``prob_regrow = 0.34``
 
 NPT:
 ~~~~
 
-* ``prob_translate = 0.35``
-* ``prob_rotate = 0.34``
-* ``prob_regrow = 0.30``
-* ``prob_volume = 0.02``
+* ``prob_translate = 0.33``
+* ``prob_rotate = 0.33``
+* ``prob_regrow = 0.335``
+* ``prob_volume = 0.005``
 
 GCMC:
 ~~~~~
@@ -114,11 +114,21 @@ GCMC:
 GEMC:
 ~~~~~
 
-* ``prob_translate = 0.29``
-* ``prob_rotate = 0.29``
-* ``prob_regrow = 0.30``
+* ``prob_translate = 0.30``
+* ``prob_rotate = 0.30``
+* ``prob_regrow = 0.295``
 * ``prob_swap = 0.1``
-* ``prob_volume = 0.02``
+* ``prob_volume = 0.005``
+
+GEMC-NPT:
+~~~~~
+
+* ``prob_translate = 0.30``
+* ``prob_rotate = 0.30``
+* ``prob_regrow = 0.295``
+* ``prob_swap = 0.1``
+* ``prob_volume = 0.005``
+
 
 Default move sizes:
 +++++++++++++++++++

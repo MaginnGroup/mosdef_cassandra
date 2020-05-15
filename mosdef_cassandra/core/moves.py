@@ -124,9 +124,13 @@ class Moves(object):
 
         # Remaining options are per-species
         self.max_dihedral = [0.0] * self._n_species
-        self.sp_insertable = [True] * self._n_species
-        self.sp_prob_swap = [1.0] * self._n_species
         self.sp_prob_regrow = [1.0] * self._n_species
+        if self.ensemble in ["gcmc", "gemc", "gemc_npt"]:
+            self.sp_insertable = [True] * self._n_species
+            self.sp_prob_swap = [1.0] * self._n_species
+        else:
+            self.sp_insertable = [False] * self._n_species
+            self.sp_prob_swap = [0.0] * self._n_species
 
         # Here we handle species-wise exceptions
         for ispec, species in enumerate(species_topologies):

@@ -49,10 +49,9 @@ class TestMoves(BaseTest):
         assert len(moves.sp_insertable) == 1
         assert len(moves.sp_prob_swap) == 1
         assert len(moves.sp_prob_regrow) == 1
-
-        # Should be insertable and regrow-able
-        assert moves.sp_insertable[0] == True
+        # Should be regrow-able but not insertable
         assert moves.sp_prob_regrow[0] == 1.0
+        assert moves.sp_insertable[0] == False
 
     def test_ensemble_npt(self, methane_oplsaa):
         moves = mc.Moves("npt", [methane_oplsaa])
@@ -80,10 +79,9 @@ class TestMoves(BaseTest):
         assert len(moves.sp_insertable) == 1
         assert len(moves.sp_prob_swap) == 1
         assert len(moves.sp_prob_regrow) == 1
-
-        # Should be insertable and regrow-able
-        assert moves.sp_insertable[0] == True
+        # Should be regrow-able but not insertable
         assert moves.sp_prob_regrow[0] == 1.0
+        assert moves.sp_insertable[0] == False
 
     def test_ensemble_gcmc(self, methane_oplsaa):
         moves = mc.Moves("gcmc", [methane_oplsaa])
@@ -111,7 +109,6 @@ class TestMoves(BaseTest):
         assert len(moves.sp_insertable) == 1
         assert len(moves.sp_prob_swap) == 1
         assert len(moves.sp_prob_regrow) == 1
-
         # Should be insertable and regrow-able
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
@@ -161,7 +158,6 @@ class TestMoves(BaseTest):
         assert len(moves.sp_insertable) == 1
         assert len(moves.sp_prob_swap) == 1
         assert len(moves.sp_prob_regrow) == 1
-
         # Should be insertable and regrow-able
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
@@ -214,7 +210,6 @@ class TestMoves(BaseTest):
         assert len(moves.sp_insertable) == 1
         assert len(moves.sp_prob_swap) == 1
         assert len(moves.sp_prob_regrow) == 1
-
         # Should be insertable and regrow-able
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 1.0
@@ -255,9 +250,8 @@ class TestMoves(BaseTest):
         assert len(moves.sp_insertable) == 1
         assert len(moves.sp_prob_swap) == 1
         assert len(moves.sp_prob_regrow) == 1
-
-        # Should be insertable and NOT regrow-able
-        assert moves.sp_insertable[0] == True
+        # Should NOT be insertable or regrow-able
+        assert moves.sp_insertable[0] == False
         assert moves.sp_prob_regrow[0] == 0.0
 
     def test_single_site_gemc(self, methane_trappe):
@@ -290,7 +284,6 @@ class TestMoves(BaseTest):
         assert len(moves.sp_insertable) == 1
         assert len(moves.sp_prob_swap) == 1
         assert len(moves.sp_prob_regrow) == 1
-
         # Should be insertable and NOT regrow-able
         assert moves.sp_insertable[0] == True
         assert moves.sp_prob_regrow[0] == 0.0
@@ -322,7 +315,6 @@ class TestMoves(BaseTest):
         assert len(moves.sp_insertable) == 2
         assert len(moves.sp_prob_swap) == 2
         assert len(moves.sp_prob_regrow) == 2
-
         # Lattice should not be insertable or regrow-able
         assert moves.sp_insertable[0] == False
         assert moves.sp_prob_regrow[0] == 0.0

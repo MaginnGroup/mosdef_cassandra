@@ -3,22 +3,22 @@ The Moves object
 
 The ``mc.Moves`` object contains the following:
 
-* ``ensemble``
-* ``prob_translate``
-* ``prob_rotate``
-* ``prob_angle``
-* ``prob_dihedral``
-* ``prob_regrow``
-* ``prob_volume``
-* ``prob_insert``
-* ``prob_swap``
-* ``max_translate``
-* ``max_rotate``
-* ``max_volume``
-* ``sp_insertable``
-* ``sp_prob_regrow``
-* ``sp_prob_swap``
-* ``prob_swap_from_box``
+* ``ensemble`` - ensemble of the MC simulation ("nvt", "npt", "gcmc", "gemc", "gemc_npt")
+* ``prob_translate`` - probability of attempting a translation move
+* ``prob_rotate`` - probability of attempting a rotation move
+* ``prob_angle`` - probability of attempting an angle change move
+* ``prob_dihedral`` - probability of attempting a dihedral change move
+* ``prob_regrow`` - probability of attempting a regrowth move
+* ``prob_volume`` - probability of attempting a volume change move
+* ``prob_insert`` - probability of attempting a particle insertion move
+* ``prob_swap`` - probability of attempting a particle swap move
+* ``max_translate`` - maximum translation distance (per-box per-species)
+* ``max_rotate`` - maximum rotation angle (per-box per-species)
+* ``max_volume`` - maximum volume move size
+* ``sp_insertable`` - boolean, is species insertable
+* ``sp_prob_regrow`` - per-species probability of attempting a regrowth move
+* ``sp_prob_swap`` - per-species probability of attempting a swap move
+* ``prob_swap_from_box`` - per-box probability of selecting as donor box
 
 ``ensemble`` is a string describing the desired ensemble for the simulation. The
 ensemble and ``species_list`` determine the default values assigned to all the
@@ -38,6 +38,41 @@ We can then print the current contents with:
 .. code-block:: python
 
   moves.print()
+
+Example output for a single species (OPLS-AA methane):
+
+.. code-block::
+
+  Ensemble:  nvt
+  
+  Probability of selecting each move type:
+  
+  Translate: 0.35
+  Rotate:    0.35
+  Regrow:    0.3
+  Volume:    0.0
+  Insert:    0.0
+  Delete:    0.0
+  Swap:      0.0
+  Angle:     0.0
+  Dihedral:  0.0
+  
+  
+  Per species quantities:
+  
+                           species1     
+                           ========     
+  Max translate (Ang):     2.00          (box 1)
+  Max rotate (deg):        30.00         (box 1)
+  Insertable:              True          
+  Max dihedral:            0.00          
+  Prob swap:               0.00          
+  Prob regrow:             0.00          
+  
+  
+  Max volume (Ang^3):
+  Box 1: 0.0
+
 
 Default move probabilities:
 +++++++++++++++++++++++++++

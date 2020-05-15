@@ -3,7 +3,7 @@ import foyer
 import mosdef_cassandra as mc
 
 
-def run_nvt_mixture(kwargs={}):
+def run_nvt_mixture(custom_args={}):
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)
     propane = mbuild.load("CCC", smiles=True)
@@ -34,7 +34,7 @@ def run_nvt_mixture(kwargs={}):
         run_type="equilibration",
         run_length=10000,
         temperature=200.0,
-        **kwargs,
+        **custom_args,
     )
 
 

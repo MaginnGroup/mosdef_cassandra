@@ -4,7 +4,7 @@ import mosdef_cassandra as mc
 from mosdef_cassandra.examples.structures import carbon_lattice
 
 
-def run_gcmc_adsorption(kwargs={}):
+def run_gcmc_adsorption(custom_args={}):
 
     # Use mbuild to create molecules
     lattice = carbon_lattice()
@@ -29,7 +29,7 @@ def run_gcmc_adsorption(kwargs={}):
     system = mc.System(box_list, species_list, mols_in_boxes=mols_in_boxes)
     moves = mc.Moves("gcmc", species_list)
 
-    custom_args = {
+    default_args = {
         "chemical_potentials": ["none", -30.0],
         "rcut_min": 0.5,
         "vdw_cutoff": 14.0,
@@ -38,9 +38,8 @@ def run_gcmc_adsorption(kwargs={}):
         "prop_freq": 10,
     }
 
-    # Override custom_args dict with kwarg dict
-    for arg in kwargs:
-        custom_args[arg] = kwargs[arg]
+    # Combine default/custom args and override default
+    custom_args = {**default_args, **custom_args}
 
     mc.run(
         system=system,

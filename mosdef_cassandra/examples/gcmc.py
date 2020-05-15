@@ -3,7 +3,7 @@ import foyer
 import mosdef_cassandra as mc
 
 
-def run_gcmc(kwargs={}):
+def run_gcmc(custom_args={}):
 
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)
@@ -26,14 +26,13 @@ def run_gcmc(kwargs={}):
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
     moves = mc.Moves("gcmc", species_list)
 
-    custom_args = {
+    default_args = {
         "chemical_potentials": [-35.0],
         "prop_freq": 100,
     }
 
-    # Override custom_args dict with kwarg dict
-    for arg in kwargs:
-        custom_args[arg] = kwargs[arg]
+    # Combine default/custom args and override default
+    custom_args = {**default_args, **custom_args}
 
     mc.run(
         system=system,

@@ -3,7 +3,7 @@ import foyer
 import mosdef_cassandra as mc
 
 
-def run_gemc(kwargs={}):
+def run_gemc(custom_args={}):
 
     # Use mbuild to create molecules
     methane = mbuild.Compound(name="_CH4")
@@ -40,7 +40,7 @@ def run_gemc(kwargs={}):
         "mass_density",
     ]
 
-    custom_args = {
+    default_args = {
         "run_name": "equil",
         "charge_style": "none",
         "rcut_min": 2.0,
@@ -52,9 +52,8 @@ def run_gemc(kwargs={}):
         "properties": thermo_props,
     }
 
-    # Override custom_args dict with kwarg dict
-    for arg in kwargs:
-        custom_args[arg] = kwargs[arg]
+    # Combine default/custom args and override default
+    custom_args = {**default_args, **custom_args}
 
     mc.run(
         system=system,

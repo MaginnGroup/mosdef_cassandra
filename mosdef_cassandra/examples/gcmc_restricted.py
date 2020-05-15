@@ -3,7 +3,7 @@ import foyer
 import mosdef_cassandra as mc
 
 
-def run_gcmc_restricted():
+def run_gcmc_restricted(kwargs={}):
 
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)
@@ -37,6 +37,7 @@ def run_gcmc_restricted():
         temperature=300.0,
         chemical_potentials=[-35.0],
         prop_freq=10,
+        **kwargs,
     )
 
 

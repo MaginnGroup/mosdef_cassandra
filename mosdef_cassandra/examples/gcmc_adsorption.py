@@ -4,7 +4,7 @@ import mosdef_cassandra as mc
 from mosdef_cassandra.examples.structures import carbon_lattice
 
 
-def run_gcmc_adsorption():
+def run_gcmc_adsorption(kwargs={}):
 
     # Use mbuild to create molecules
     lattice = carbon_lattice()
@@ -37,6 +37,10 @@ def run_gcmc_adsorption():
         "coord_freq": 100,
         "prop_freq": 10,
     }
+
+    # Override custom_args dict with kwarg dict
+    for arg in kwargs:
+        custom_args[arg] = kwargs[arg]
 
     mc.run(
         system=system,

@@ -69,9 +69,9 @@ class Moves(object):
         self.prob_dihedral = 0.0
 
         if self.ensemble == "nvt":
-            self.prob_translate = 0.35
-            self.prob_rotate = 0.35
-            self.prob_regrow = 0.30
+            self.prob_translate = 0.33
+            self.prob_rotate = 0.33
+            self.prob_regrow = 0.34
             self.prob_volume = 0.0
             self.prob_insert = 0.0
             self.prob_swap = 0.0

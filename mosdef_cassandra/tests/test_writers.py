@@ -971,11 +971,11 @@ class TestInpFunctions(BaseTest):
 
         assert "# Move_Probability_Info" in inp_data
         assert "# Done_Probability_Info" in inp_data
-        assert "# Prob_Translation\n0.35\n2.0 \n" in inp_data
-        assert "# Prob_Rotation\n0.35\n30.0 \n" in inp_data
+        assert "# Prob_Translation\n0.33\n2.0 \n" in inp_data
+        assert "# Prob_Rotation\n0.33\n30.0 \n" in inp_data
         assert "# Prob_Angle" not in inp_data
         assert "# Prob_Dihedral" not in inp_data
-        assert "# Prob_Regrowth\n0.3\n1.0 \n" in inp_data
+        assert "# Prob_Regrowth\n0.34\n1.0 \n" in inp_data
         assert "# Prob_Volume" not in inp_data
         assert "# Prob_Insertion" not in inp_data
         assert "# Prob_Deletion" not in inp_data
@@ -985,6 +985,7 @@ class TestInpFunctions(BaseTest):
         moves.prob_angle = 0.1
         moves.prob_translate = 0.3
         moves.prob_rotate = 0.3
+        moves.prob_regrow = 0.3
         moves.max_translate[0][0] = 10.0
         moves.max_rotate[0][0] = 10.0
 
@@ -1022,11 +1023,11 @@ class TestInpFunctions(BaseTest):
 
         assert "# Move_Probability_Info" in inp_data
         assert "# Done_Probability_Info" in inp_data
-        assert "# Prob_Translation\n0.35\n2.0 2.0 \n" in inp_data
-        assert "# Prob_Rotation\n0.35\n30.0 30.0 \n" in inp_data
+        assert "# Prob_Translation\n0.33\n2.0 2.0 \n" in inp_data
+        assert "# Prob_Rotation\n0.33\n30.0 30.0 \n" in inp_data
         assert "# Prob_Angle" not in inp_data
         assert "# Prob_Dihedral" not in inp_data
-        assert "# Prob_Regrowth\n0.3\n0.5 0.5 \n" in inp_data
+        assert "# Prob_Regrowth\n0.34\n0.5 0.5 \n" in inp_data
         assert "# Prob_Volume" not in inp_data
         assert "# Prob_Insertion" not in inp_data
         assert "# Prob_Deletion" not in inp_data
@@ -1036,6 +1037,7 @@ class TestInpFunctions(BaseTest):
         moves.prob_angle = 0.1
         moves.prob_translate = 0.3
         moves.prob_rotate = 0.3
+        moves.prob_regrow = 0.26
         moves.max_translate[0][0] = 10.0
         moves.max_rotate[0][0] = 10.0
 
@@ -1053,7 +1055,7 @@ class TestInpFunctions(BaseTest):
         assert "# Prob_Rotation\n0.3\n10.0 30.0 \n" in inp_data
         assert "# Prob_Angle\n0.1\n" in inp_data
         assert "# Prob_Dihedral" not in inp_data
-        assert "# Prob_Regrowth\n0.3\n0.5 0.5 \n" in inp_data
+        assert "# Prob_Regrowth\n0.26\n0.5 0.5 \n" in inp_data
         assert "# Prob_Volume" not in inp_data
         assert "# Prob_Insertion" not in inp_data
         assert "# Prob_Deletion" not in inp_data

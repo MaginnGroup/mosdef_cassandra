@@ -26,9 +26,9 @@ class TestMoves(BaseTest):
     def test_ensemble_nvt(self, methane_oplsaa):
         moves = mc.Moves("nvt", [methane_oplsaa])
         assert moves.ensemble == "nvt"
-        assert moves.prob_translate == 0.35
-        assert moves.prob_rotate == 0.35
-        assert moves.prob_regrow == 0.30
+        assert moves.prob_translate == 0.33
+        assert moves.prob_rotate == 0.33
+        assert moves.prob_regrow == 0.34
         assert moves.prob_volume == 0.0
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0

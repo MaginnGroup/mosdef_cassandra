@@ -57,8 +57,9 @@ For a single-box simulation with an initially empty simulation box:
   box = mbuild.Box([3.,3.,3.])
   box_list = [box]
 
-For a two-box simulation where one box is initially empty and the other
-contains a structure from a PDB file and loaded with ``mbuild``.
+For a two-box simulation where one box is initially empty and initial
+structure for the other simulation box is loaded from a PDB file
+with ``mbuild``:
 
 .. code-block:: Python
 
@@ -67,15 +68,20 @@ contains a structure from a PDB file and loaded with ``mbuild``.
 
   box_list = [zeolite, vapor_box]
 
-  .. warning::
+In this case, the initial structure and box dimensions for the box
+containing the zeolite are taken from the PDB file. Note that
+the box dimensions can be manually edited by changing the
+``mbuild.Compound.periodicity`` attribute.
 
-    If an initial structure (i.e., an ``mbuild.Compound``) is provided, the
-    order of the atoms must follow a *very* specific order. Each complete
-    molecule must appear one at a time. The order of the atoms in each molecule
-    must *exactly* match the order of the atoms in the relevant species provided
-    in the ``species_list``. If there are multiple different species, then all
-    the molecules of species1 must be provided before any molecules of species2,
-    and so on.
+.. warning::
+
+  If an initial structure (i.e., an ``mbuild.Compound``) is provided, the
+  order of the atoms must follow a *very* specific order. Each complete
+  molecule must appear one at a time. The order of the atoms in each molecule
+  must *exactly* match the order of the atoms in the relevant species provided
+  in the ``species_list``. If there are multiple different species, then all
+  the molecules of species1 must be provided before any molecules of species2,
+  and so on.
 
 .. note::
 
@@ -93,12 +99,13 @@ species_list
 The ``species_list`` is a Python ``list`` of the unique chemical species in the
 system. For example, a simulation of pure methane contains one unique chemical
 species (methane), regardless of the number of methane molecules in the
-simulation. A simulation of a mixture of methane and ethane, contains two
+simulation. A simulation containing a mixture of methane and ethane has two
 unique chemical species. Therefore, in the first example the
-``species_list`` would contain a single item and in the second example the
-``species_list`` would contain two items. Each item in the ``species_list`` is
-a ``parmed.Structure`` containing all the forcefield required force field
-parameters for the species.
+``species_list`` should contain a single item and in the second example the
+``species_list`` should contain two items. Each item in the ``species_list`` is
+a ``parmed.Structure``. All the forcefield required force field
+parameters for each species must be in their respective
+``parmed.Structure``.
 
 For example, to simulate a mixture of methane and ethane with the
 OPLS-AA force field, we could use the following sequence of steps to generate

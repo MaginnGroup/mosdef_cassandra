@@ -56,10 +56,10 @@ class TestMoves(BaseTest):
     def test_ensemble_npt(self, methane_oplsaa):
         moves = mc.Moves("npt", [methane_oplsaa])
         assert moves.ensemble == "npt"
-        assert moves.prob_translate == 0.34
-        assert moves.prob_rotate == 0.34
-        assert moves.prob_regrow == 0.30
-        assert moves.prob_volume == 0.02
+        assert moves.prob_translate == 0.33
+        assert moves.prob_rotate == 0.33
+        assert moves.prob_regrow == 0.335
+        assert moves.prob_volume == 0.005
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.0
@@ -132,10 +132,10 @@ class TestMoves(BaseTest):
     def test_ensemble_gemc(self, methane_oplsaa):
         moves = mc.Moves("gemc", [methane_oplsaa])
         assert moves.ensemble == "gemc"
-        assert moves.prob_translate == 0.29
-        assert moves.prob_rotate == 0.29
-        assert moves.prob_regrow == 0.30
-        assert moves.prob_volume == 0.02
+        assert moves.prob_translate == 0.30
+        assert moves.prob_rotate == 0.30
+        assert moves.prob_regrow == 0.295
+        assert moves.prob_volume == 0.005
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.0
@@ -183,10 +183,10 @@ class TestMoves(BaseTest):
     def test_ensemble_gemcnpt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
         assert moves.ensemble == "gemc_npt"
-        assert moves.prob_translate == 0.29
-        assert moves.prob_rotate == 0.29
-        assert moves.prob_regrow == 0.30
-        assert moves.prob_volume == 0.02
+        assert moves.prob_translate == 0.30
+        assert moves.prob_rotate == 0.30
+        assert moves.prob_regrow == 0.295
+        assert moves.prob_volume == 0.005
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.0
@@ -260,8 +260,8 @@ class TestMoves(BaseTest):
         assert moves.ensemble == "gemc"
         assert moves.prob_rotate == 0.0
         assert moves.prob_regrow == 0.0
-        assert moves.prob_translate == pytest.approx(0.88)
-        assert moves.prob_volume == 0.02
+        assert moves.prob_translate == pytest.approx(0.895)
+        assert moves.prob_volume == 0.005
         assert moves.prob_angle == 0.0
         assert moves.prob_dihedral == 0.0
         assert moves.prob_insert == 0.0

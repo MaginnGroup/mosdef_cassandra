@@ -76,10 +76,10 @@ class Moves(object):
             self.prob_insert = 0.0
             self.prob_swap = 0.0
         elif self.ensemble == "npt":
-            self.prob_translate = 0.34
-            self.prob_rotate = 0.34
-            self.prob_regrow = 0.30
-            self.prob_volume = 0.02
+            self.prob_translate = 0.33
+            self.prob_rotate = 0.33
+            self.prob_regrow = 0.335
+            self.prob_volume = 0.005
             self.prob_insert = 0.0
             self.prob_swap = 0.0
         # GCMC sums to 0.9 b/c symmetric prob_delete
@@ -91,17 +91,17 @@ class Moves(object):
             self.prob_insert = 0.1
             self.prob_swap = 0.0
         elif self.ensemble == "gemc":
-            self.prob_translate = 0.29
-            self.prob_rotate = 0.29
-            self.prob_regrow = 0.30
-            self.prob_volume = 0.02
+            self.prob_translate = 0.30
+            self.prob_rotate = 0.30
+            self.prob_regrow = 0.295
+            self.prob_volume = 0.005
             self.prob_insert = 0.0
             self.prob_swap = 0.1
         elif self.ensemble == "gemc_npt":
-            self.prob_translate = 0.29
-            self.prob_rotate = 0.29
-            self.prob_regrow = 0.30
-            self.prob_volume = 0.02
+            self.prob_translate = 0.30
+            self.prob_rotate = 0.30
+            self.prob_regrow = 0.295
+            self.prob_volume = 0.005
             self.prob_insert = 0.0
             self.prob_swap = 0.1
         else:

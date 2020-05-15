@@ -3,7 +3,7 @@ import foyer
 import mosdef_cassandra as mc
 
 
-def run_npt():
+def run_npt(custom_args={}):
 
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)
@@ -29,6 +29,13 @@ def run_npt():
     # Get the move probabilities
     moves = mc.Moves("npt", species_list)
 
+    default_args = {
+        "pressure": 1.0,
+    }
+
+    # Combine default/custom args and override default
+    custom_args = {**default_args, **custom_args}
+
     # Run a simulation with at 300 K with 10000 MC moves
     # Note we must define a pressure for an NPT simulation
     mc.run(
@@ -37,11 +44,8 @@ def run_npt():
         run_type="equilibration",
         run_length=10000,
         temperature=300.0,
-        pressure=1.0,
+        **custom_args,
     )
-
-    # 'pressure' is a valid keyword argument. To see
-    # all valid keyword arguments, call mc.print_valid_kwargs()
 
 
 if __name__ == "__main__":

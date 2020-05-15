@@ -8,6 +8,7 @@ from mosdef_cassandra.writers.writers import write_configs
 from mosdef_cassandra.writers.writers import write_input
 from mosdef_cassandra.writers.writers import write_pdb
 from mosdef_cassandra.utils.detect import detect_cassandra_binaries
+from mosdef_cassandra.utils.exceptions import CassandraRuntimeError
 
 
 def run(system, moves, run_type, run_length, temperature, **kwargs):
@@ -46,9 +47,9 @@ def run(system, moves, run_type, run_length, temperature, **kwargs):
         datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
     )
 
-    # Run fragment generation (again, will be removed...)
+    # Run fragment generation
     print("Generating fragment libraries...")
-    successful_fraglib = _run_fraglib_setup(
+    _run_fraglib_setup(
         py,
         fraglib_setup,
         cassandra,
@@ -58,13 +59,8 @@ def run(system, moves, run_type, run_length, temperature, **kwargs):
     )
 
     # Run simulation
-    if successful_fraglib:
-        print("Running Cassandra...")
-        _run_cassandra(cassandra, inp_file, log_file)
-    else:
-        raise ValueError(
-            "Cassandra failed due to unsuccessful " "fragment generation"
-        )
+    print("Running Cassandra...")
+    _run_cassandra(cassandra, inp_file, log_file)
 
 
 def restart(system, moves, run_type, run_length, temperature, **kwargs):
@@ -144,13 +140,11 @@ def _run_fraglib_setup(
         )
         log.write(err)
 
-    if p.returncode != 0:
-        print(
+    if p.returncode != 0 or "error" in err.lower() or "error" in out.lower():
+        raise CassandraRuntimeError(
             "Cassandra fragment library generation failed, "
             "see {} for details".format(log_file)
         )
-        return False
-    return True
 
 
 def _run_cassandra(cassandra, inp_file, log_file):
@@ -184,8 +178,11 @@ def _run_cassandra(cassandra, inp_file, log_file):
         )
         log.write(err)
 
-    if p.returncode != 0 or "error" in err.lower():
-        print("Cassandra error, see {}".format(log_file))
+    if p.returncode != 0 or "error" in err.lower() or "error" in out.lower():
+        raise CassandraRuntimeError(
+            "Cassandra exited with an error, "
+            "see {} for details.".format(log_file)
+        )
 
 
 def _check_system(system, moves):

@@ -224,6 +224,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             for ibox in range(nbr_boxes):
                 max_mols += system.mols_in_boxes[ibox][isp]
                 max_mols += system.mols_to_add[ibox][isp]
+            # TODO: Document/improve this
             if moves.ensemble == "gcmc" and moves.sp_insertable[isp]:
                 max_mols += 500
 

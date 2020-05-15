@@ -1,13 +1,15 @@
 import shutil
 
+from mosdef_cassandra.utils.exceptions import CassandraError
+
 
 def detect_cassandra_binaries():
 
     cassandra_exec_names = [
+        "cassandra.exe",
         "cassandra_gfortran_openMP.exe",
         "cassandra_pgfortran_openMP.exe",
         "cassandra_intel_openMP.exe",
-        "cassandra.exe",
         "cassandra_gfortran.exe",
         "cassandra_pgfortran.exe",
     ]
@@ -22,7 +24,7 @@ def detect_cassandra_binaries():
     fraglib_setup = shutil.which("library_setup.py")
 
     if cassandra is None or fraglib_setup is None:
-        raise ValueError(
+        raise CassandraError(
             "Error detecting cassandra. Both 'cassandra_*.exe' and "
             "'library_setup.py' must be in your PATH"
         )
@@ -32,7 +34,7 @@ def detect_cassandra_binaries():
         if py is not None:
             break
     if py is None:
-        raise ValueError(
+        raise CassandraError(
             "Error detecting python. library_setup.py requires python."
         )
 

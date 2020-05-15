@@ -3,7 +3,7 @@ import foyer
 import mosdef_cassandra as mc
 
 
-def run_gcmc_restricted():
+def run_gcmc_restricted(custom_args={}):
 
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)
@@ -29,14 +29,21 @@ def run_gcmc_restricted():
     # Specify restricted insertions
     moves.add_restricted_insertions(species_list, [["sphere"]], [[20]])
 
+    default_args = {
+        "chemical_potentials": [-35.0],
+        "prop_freq": 10,
+    }
+
+    # Combine default/custom args and override default
+    custom_args = {**default_args, **custom_args}
+
     mc.run(
         system=system,
         moves=moves,
         run_type="equilibration",
         run_length=100,
         temperature=300.0,
-        chemical_potentials=[-35.0],
-        prop_freq=10,
+        **custom_args,
     )
 
 

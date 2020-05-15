@@ -1,28 +1,39 @@
 The Moves object
 ================
 
-The ``mc.Moves`` object contains the following:
+The ``mc.Moves`` object contains attributes that can be grouped into
+the following four categories.
 
-* ``ensemble`` - ensemble of the MC simulation ("nvt", "npt", "gcmc", "gemc", "gemc_npt")
+**Overall attributes**, specified as a single number for the entire system:
+
+* ``ensemble`` - ensemble of the MC simulation (``nvt``, ``npt``, ``gcmc``, ``gemc``, ``gemc_npt``)
 * ``prob_translate`` - probability of attempting a translation move
 * ``prob_rotate`` - probability of attempting a rotation move
 * ``prob_angle`` - probability of attempting an angle change move
 * ``prob_dihedral`` - probability of attempting a dihedral change move
 * ``prob_regrow`` - probability of attempting a regrowth move
 * ``prob_volume`` - probability of attempting a volume change move
-* ``prob_insert`` - probability of attempting a particle insertion move
-* ``prob_swap`` - probability of attempting a particle swap move
-* ``max_translate`` - maximum translation distance (per-box per-species)
-* ``max_rotate`` - maximum rotation angle (per-box per-species)
-* ``max_volume`` - maximum volume move size
+* ``prob_insert`` - probability of attempting a molecule insertion move
+* ``prob_swap`` - probability of attempting a molecule swap move
+* ``max_volume`` - maximum volume move size (except for ``gemc_npt``, where it is per-box)
+
+**Attributes specified per-species:**
+
 * ``insertable`` - boolean, is species insertable
 * ``prob_regrow_species`` - probability of attempting a regrowth move with each species
 * ``prob_swap_species`` - probability of attempting a swap move with each species
+
+**Attributes specified per-box:**
+
 * ``prob_swap_from_box`` - probability of selecting each box as donor for a swap move
 
-``ensemble`` is a string describing the desired ensemble for the simulation. The
-ensemble and ``species_list`` determine the default values assigned to all the
-other attributes of the ``mc.Moves`` object.
+**Attributes specified per-box-per-species:**
+
+* ``max_translate`` - maximum translation distance
+* ``max_rotate`` - maximum rotation angle
+
+The ``ensemble`` and ``species_list`` are used to determine the default
+values assigned to the other attributes of the ``mc.Moves`` object.
 
 Printing the contents of the Moves object
 +++++++++++++++++++++++++++++++++++++++++

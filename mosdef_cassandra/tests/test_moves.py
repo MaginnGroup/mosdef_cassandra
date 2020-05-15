@@ -46,12 +46,12 @@ class TestMoves(BaseTest):
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
         # Per species attributes
-        assert len(moves.sp_insertable) == 1
-        assert len(moves.sp_prob_swap) == 1
-        assert len(moves.sp_prob_regrow) == 1
+        assert len(moves.insertable) == 1
+        assert len(moves.prob_swap_species) == 1
+        assert len(moves.prob_regrow_species) == 1
         # Should be regrow-able but not insertable
-        assert moves.sp_prob_regrow[0] == 1.0
-        assert moves.sp_insertable[0] == False
+        assert moves.prob_regrow_species[0] == 1.0
+        assert moves.insertable[0] == False
 
     def test_ensemble_npt(self, methane_oplsaa):
         moves = mc.Moves("npt", [methane_oplsaa])
@@ -76,12 +76,12 @@ class TestMoves(BaseTest):
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
         # Per species attributes
-        assert len(moves.sp_insertable) == 1
-        assert len(moves.sp_prob_swap) == 1
-        assert len(moves.sp_prob_regrow) == 1
+        assert len(moves.insertable) == 1
+        assert len(moves.prob_swap_species) == 1
+        assert len(moves.prob_regrow_species) == 1
         # Should be regrow-able but not insertable
-        assert moves.sp_prob_regrow[0] == 1.0
-        assert moves.sp_insertable[0] == False
+        assert moves.prob_regrow_species[0] == 1.0
+        assert moves.insertable[0] == False
 
     def test_ensemble_gcmc(self, methane_oplsaa):
         moves = mc.Moves("gcmc", [methane_oplsaa])
@@ -106,12 +106,12 @@ class TestMoves(BaseTest):
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
         # Per species attributes
-        assert len(moves.sp_insertable) == 1
-        assert len(moves.sp_prob_swap) == 1
-        assert len(moves.sp_prob_regrow) == 1
+        assert len(moves.insertable) == 1
+        assert len(moves.prob_swap_species) == 1
+        assert len(moves.prob_regrow_species) == 1
         # Should be insertable and regrow-able
-        assert moves.sp_insertable[0] == True
-        assert moves.sp_prob_regrow[0] == 1.0
+        assert moves.insertable[0] == True
+        assert moves.prob_regrow_species[0] == 1.0
 
     @pytest.mark.parametrize(
         "typ,value",
@@ -155,12 +155,12 @@ class TestMoves(BaseTest):
         assert len(moves.max_translate[1]) == 1
         assert len(moves.max_rotate[1]) == 1
         # Per species attributes
-        assert len(moves.sp_insertable) == 1
-        assert len(moves.sp_prob_swap) == 1
-        assert len(moves.sp_prob_regrow) == 1
+        assert len(moves.insertable) == 1
+        assert len(moves.prob_swap_species) == 1
+        assert len(moves.prob_regrow_species) == 1
         # Should be insertable and regrow-able
-        assert moves.sp_insertable[0] == True
-        assert moves.sp_prob_regrow[0] == 1.0
+        assert moves.insertable[0] == True
+        assert moves.prob_regrow_species[0] == 1.0
 
     @pytest.mark.parametrize(
         "typ,value",
@@ -207,12 +207,12 @@ class TestMoves(BaseTest):
         assert len(moves.max_translate[1]) == 1
         assert len(moves.max_rotate[1]) == 1
         # Per species attributes
-        assert len(moves.sp_insertable) == 1
-        assert len(moves.sp_prob_swap) == 1
-        assert len(moves.sp_prob_regrow) == 1
+        assert len(moves.insertable) == 1
+        assert len(moves.prob_swap_species) == 1
+        assert len(moves.prob_regrow_species) == 1
         # Should be insertable and regrow-able
-        assert moves.sp_insertable[0] == True
-        assert moves.sp_prob_regrow[0] == 1.0
+        assert moves.insertable[0] == True
+        assert moves.prob_regrow_species[0] == 1.0
 
     def test_restricted_gemc_npt(self, methane_oplsaa):
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
@@ -247,12 +247,12 @@ class TestMoves(BaseTest):
         assert len(moves.max_translate[0]) == 1
         assert len(moves.max_rotate[0]) == 1
         # Per species attributes
-        assert len(moves.sp_insertable) == 1
-        assert len(moves.sp_prob_swap) == 1
-        assert len(moves.sp_prob_regrow) == 1
+        assert len(moves.insertable) == 1
+        assert len(moves.prob_swap_species) == 1
+        assert len(moves.prob_regrow_species) == 1
         # Should NOT be insertable or regrow-able
-        assert moves.sp_insertable[0] == False
-        assert moves.sp_prob_regrow[0] == 0.0
+        assert moves.insertable[0] == False
+        assert moves.prob_regrow_species[0] == 0.0
 
     def test_single_site_gemc(self, methane_trappe):
 
@@ -281,12 +281,12 @@ class TestMoves(BaseTest):
         assert len(moves.max_rotate[0]) == 1
         assert len(moves.max_rotate[1]) == 1
         # Per species attributes
-        assert len(moves.sp_insertable) == 1
-        assert len(moves.sp_prob_swap) == 1
-        assert len(moves.sp_prob_regrow) == 1
+        assert len(moves.insertable) == 1
+        assert len(moves.prob_swap_species) == 1
+        assert len(moves.prob_regrow_species) == 1
         # Should be insertable and NOT regrow-able
-        assert moves.sp_insertable[0] == True
-        assert moves.sp_prob_regrow[0] == 0.0
+        assert moves.insertable[0] == True
+        assert moves.prob_regrow_species[0] == 0.0
 
     def test_gcmc_lattice(self, fixed_lattice_trappe, methane_trappe):
 
@@ -312,15 +312,15 @@ class TestMoves(BaseTest):
         assert len(moves.max_translate[0]) == 2
         assert len(moves.max_rotate[0]) == 2
         # Per species attributes
-        assert len(moves.sp_insertable) == 2
-        assert len(moves.sp_prob_swap) == 2
-        assert len(moves.sp_prob_regrow) == 2
+        assert len(moves.insertable) == 2
+        assert len(moves.prob_swap_species) == 2
+        assert len(moves.prob_regrow_species) == 2
         # Lattice should not be insertable or regrow-able
-        assert moves.sp_insertable[0] == False
-        assert moves.sp_prob_regrow[0] == 0.0
+        assert moves.insertable[0] == False
+        assert moves.prob_regrow_species[0] == 0.0
         # Methane should be insertable and not regrow-able
-        assert moves.sp_insertable[1] == True
-        assert moves.sp_prob_regrow[1] == 0.0
+        assert moves.insertable[1] == True
+        assert moves.prob_regrow_species[1] == 0.0
 
     def test_prob_setters(self, methane_oplsaa):
         moves = mc.Moves("nvt", [methane_oplsaa])
@@ -469,35 +469,35 @@ class TestMoves(BaseTest):
 
         moves = mc.Moves("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.sp_insertable = 1.0
+            moves.insertable = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.sp_insertable = [1.0, 1.0, 1.0]
+            moves.insertable = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"as a boolean type"):
-            moves.sp_insertable = [2.0]
-        moves.sp_insertable = [True]
-        assert moves.sp_insertable[0] == True
+            moves.insertable = [2.0]
+        moves.insertable = [True]
+        assert moves.insertable[0] == True
 
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.sp_prob_swap = 1.0
+            moves.prob_swap_species = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.sp_prob_swap = [1.0, 1.0, 1.0]
+            moves.prob_swap_species = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.sp_prob_swap = [True]
+            moves.prob_swap_species = [True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.sp_prob_swap = [-1.0]
-        moves.sp_prob_swap = [1.0]
-        assert moves.sp_prob_swap[0] == 1.0
+            moves.prob_swap_species = [-1.0]
+        moves.prob_swap_species = [1.0]
+        assert moves.prob_swap_species[0] == 1.0
 
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.sp_prob_regrow = 1.0
+            moves.prob_regrow_species = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.sp_prob_regrow = [1.0, 1.0, 1.0]
+            moves.prob_regrow_species = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.sp_prob_regrow = [True]
+            moves.prob_regrow_species = [True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.sp_prob_regrow = [-1.0]
-        moves.sp_prob_regrow = [1.0]
-        assert moves.sp_prob_regrow[0] == 1.0
+            moves.prob_regrow_species = [-1.0]
+        moves.prob_regrow_species = [1.0]
+        assert moves.prob_regrow_species[0] == 1.0
 
     def test_print_moves(self, methane_oplsaa):
         """Simple test to make sure moves object is printed"""

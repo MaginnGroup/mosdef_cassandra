@@ -124,20 +124,20 @@ class Moves(object):
 
         # Remaining options are per-species
         self.max_dihedral = [0.0] * self._n_species
-        self.sp_prob_regrow = [1.0] * self._n_species
+        self.prob_regrow_species = [1.0] * self._n_species
         if self.ensemble in ["gcmc", "gemc", "gemc_npt"]:
-            self.sp_insertable = [True] * self._n_species
-            self.sp_prob_swap = [1.0] * self._n_species
+            self.insertable = [True] * self._n_species
+            self.prob_swap_species = [1.0] * self._n_species
         else:
-            self.sp_insertable = [False] * self._n_species
-            self.sp_prob_swap = [0.0] * self._n_species
+            self.insertable = [False] * self._n_species
+            self.prob_swap_species = [0.0] * self._n_species
 
         # Here we handle species-wise exceptions
         for ispec, species in enumerate(species_topologies):
             if len(species.atoms) == 1:
                 for ibox in range(self._n_boxes):
                     self.max_rotate[ibox][ispec] = 0.0
-                self.sp_prob_regrow[ispec] = 0.0
+                self.prob_regrow_species[ispec] = 0.0
             elif len(species.bonds) == 0:
                 print(
                     "Treating {} as a non-insertable rigid species "
@@ -146,27 +146,27 @@ class Moves(object):
                 for ibox in range(self._n_boxes):
                     self.max_translate[ibox][ispec] = 0.0
                     self.max_rotate[ibox][ispec] = 0.0
-                self.sp_prob_regrow[ispec] = 0.0
-                self.sp_insertable[ispec] = False
-                self.sp_prob_swap[ispec] = 0.0
+                self.prob_regrow_species[ispec] = 0.0
+                self.insertable[ispec] = False
+                self.prob_swap_species[ispec] = 0.0
 
         # Correct species_prob_regrow
-        if sum(self.sp_prob_regrow) > 0:
-            sp_regrowth_prob = 1.0 / sum(self.sp_prob_regrow)
-            for i, prob in enumerate(self.sp_prob_regrow):
+        if sum(self.prob_regrow_species) > 0:
+            sp_regrowth_prob = 1.0 / sum(self.prob_regrow_species)
+            for i, prob in enumerate(self.prob_regrow_species):
                 if prob > 0.0:
-                    self.sp_prob_regrow[i] = sp_regrowth_prob
+                    self.prob_regrow_species[i] = sp_regrowth_prob
 
-        if sum(self.sp_prob_swap) > 0:
+        if sum(self.prob_swap_species) > 0:
             # Correct species_prob_swap
-            sp_prob_swap = 1.0 / sum(self.sp_prob_swap)
-            for i, insertable in enumerate(self.sp_insertable):
-                if insertable:
-                    self.sp_prob_swap[i] = sp_prob_swap
+            prob_swap_species = 1.0 / sum(self.prob_swap_species)
+            for idx, insert in enumerate(self.insertable):
+                if insert:
+                    self.prob_swap_species[idx] = prob_swap_species
 
         # If all species have no prob regrowth, set prob_regrow to
         # zero and redistribute prob to translate/rotate
-        if sum(self.sp_prob_regrow) == 0.0:
+        if sum(self.prob_regrow_species) == 0.0:
             self.prob_translate += self.prob_regrow / 2.0
             self.prob_rotate += self.prob_regrow / 2.0
             self.prob_regrow = 0.0
@@ -615,45 +615,44 @@ class Moves(object):
         self._max_volume = max_volume
 
     @property
-    def sp_insertable(self):
-        return self._sp_insertable
+    def insertable(self):
+        return self._insertable
 
-    @sp_insertable.setter
-    def sp_insertable(self, sp_insertable):
+    @insertable.setter
+    def insertable(self, insertable):
 
         if (
-            not isinstance(sp_insertable, list)
-            or len(sp_insertable) != self._n_species
+            not isinstance(insertable, list)
+            or len(insertable) != self._n_species
         ):
             raise ValueError(
-                "sp_insertable must be a list with length "
-                "(number of species)"
+                "insertable must be a list with length " "(number of species)"
             )
-        for insertable in sp_insertable:
-            if not isinstance(insertable, bool):
+        for insert in insertable:
+            if not isinstance(insert, bool):
                 raise TypeError(
                     "The insertability of each species "
                     "must be provided as a boolean type."
                 )
 
-        self._sp_insertable = sp_insertable
+        self._insertable = insertable
 
     @property
-    def sp_prob_swap(self):
-        return self._sp_prob_swap
+    def prob_swap_species(self):
+        return self._prob_swap_species
 
-    @sp_prob_swap.setter
-    def sp_prob_swap(self, sp_prob_swap):
+    @prob_swap_species.setter
+    def prob_swap_species(self, prob_swap_species):
 
         if (
-            not isinstance(sp_prob_swap, list)
-            or len(sp_prob_swap) != self._n_species
+            not isinstance(prob_swap_species, list)
+            or len(prob_swap_species) != self._n_species
         ):
             raise ValueError(
-                "sp_prob_swap must be a list with length "
+                "prob_swap_species must be a list with length "
                 "(number of species)"
             )
-        for prob_swap in sp_prob_swap:
+        for prob_swap in prob_swap_species:
             if type(prob_swap) not in (float, int):
                 raise TypeError(
                     "Probability of swapping a species "
@@ -667,24 +666,24 @@ class Moves(object):
                     "cannot be less than zero"
                 )
 
-        self._sp_prob_swap = sp_prob_swap
+        self._prob_swap_species = prob_swap_species
 
     @property
-    def sp_prob_regrow(self):
-        return self._sp_prob_regrow
+    def prob_regrow_species(self):
+        return self._prob_regrow_species
 
-    @sp_prob_regrow.setter
-    def sp_prob_regrow(self, sp_prob_regrow):
+    @prob_regrow_species.setter
+    def prob_regrow_species(self, prob_regrow_species):
 
         if (
-            not isinstance(sp_prob_regrow, list)
-            or len(sp_prob_regrow) != self._n_species
+            not isinstance(prob_regrow_species, list)
+            or len(prob_regrow_species) != self._n_species
         ):
             raise ValueError(
-                "sp_prob_regrow must be a list with length "
+                "prob_regrow_species must be a list with length "
                 "(number of species)"
             )
-        for prob_regrow in sp_prob_regrow:
+        for prob_regrow in prob_regrow_species:
             if type(prob_regrow) not in (float, int):
                 raise TypeError(
                     "Probability of regrowing a species "
@@ -698,7 +697,7 @@ class Moves(object):
                     "cannot be less than zero"
                 )
 
-        self._sp_prob_regrow = sp_prob_regrow
+        self._prob_regrow_species = prob_regrow_species
 
     def print(self):
         """Print the current contents of Moves"""
@@ -760,7 +759,7 @@ Dihedral:  {prob_dihedral}
             contents += "(box {box})".format(box=box + 1)
             contents += "\n"
         contents += "Insertable:              "
-        for (idx, insert) in enumerate(self.sp_insertable):
+        for (idx, insert) in enumerate(self.insertable):
             contents += "{insert}          ".format(insert=insert)
         contents += "\n"
         contents += "Max dihedral:            "
@@ -768,13 +767,13 @@ Dihedral:  {prob_dihedral}
             contents += "{max_dih:4.2f}          ".format(max_dih=max_dih)
         contents += "\n"
         contents += "Prob swap:               "
-        for (idx, prob_swap) in enumerate(self.sp_prob_swap):
+        for (idx, prob_swap) in enumerate(self.prob_swap_species):
             contents += "{prob_swap:4.2f}          ".format(
                 prob_swap=prob_swap
             )
         contents += "\n"
         contents += "Prob regrow:             "
-        for (idx, prob_regrow) in enumerate(self.sp_prob_regrow):
+        for (idx, prob_regrow) in enumerate(self.prob_regrow_species):
             contents += "{regrow:4.2f}          ".format(regrow=prob_regrow)
         contents += "\n"
 

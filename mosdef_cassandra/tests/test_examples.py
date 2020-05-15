@@ -34,14 +34,13 @@ class TestExamples(BaseTest):
                 assert completed
 
     def test_run_failure(self):
-        kwargs = {"vdw_cutoff" : 17.0}
+        kwargs = {"vdw_cutoff": 17.0}
         with temporary_directory() as tmp_dir:
             with temporary_cd(tmp_dir):
                 with pytest.raises(
-                        CassandraRuntimeError, match=r"Cassandra exited with"
+                    CassandraRuntimeError, match=r"Cassandra exited with"
                 ):
                     ex.run_nvt(kwargs)
-
 
     def test_run_npt(self):
         with temporary_directory() as tmp_dir:

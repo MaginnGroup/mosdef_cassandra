@@ -30,7 +30,7 @@ def run_npt(kwargs={}):
     moves = mc.Moves("npt", species_list)
 
     custom_args = {
-        "pressure" : 1.0,
+        "pressure": 1.0,
     }
 
     # Override custom_args dict with kwarg dict

@@ -27,8 +27,8 @@ def run_gcmc(kwargs={}):
     moves = mc.Moves("gcmc", species_list)
 
     custom_args = {
-        "chemical_potentials" : [-35.0],
-        "prop_freq" : 100,
+        "chemical_potentials": [-35.0],
+        "prop_freq": 100,
     }
 
     # Override custom_args dict with kwarg dict

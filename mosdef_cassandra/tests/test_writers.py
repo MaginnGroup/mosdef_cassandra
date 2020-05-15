@@ -1073,12 +1073,12 @@ class TestInpFunctions(BaseTest):
 
         assert "# Move_Probability_Info" in inp_data
         assert "# Done_Probability_Info" in inp_data
-        assert "# Prob_Translation\n0.29\n2.0 \n2.0 \n" in inp_data
-        assert "# Prob_Rotation\n0.29\n30.0 \n30.0 \n" in inp_data
+        assert "# Prob_Translation\n0.3\n2.0 \n2.0 \n" in inp_data
+        assert "# Prob_Rotation\n0.3\n30.0 \n30.0 \n" in inp_data
         assert "# Prob_Angle" not in inp_data
         assert "# Prob_Dihedral" not in inp_data
-        assert "# Prob_Regrowth\n0.3\n1.0 \n" in inp_data
-        assert "# Prob_Volume\n0.02\n500.0\n" in inp_data
+        assert "# Prob_Regrowth\n0.295\n1.0 \n" in inp_data
+        assert "# Prob_Volume\n0.005\n500.0\n" in inp_data
         assert "# Prob_Insertion" not in inp_data
         assert "# Prob_Deletion" not in inp_data
         assert (
@@ -1100,12 +1100,12 @@ class TestInpFunctions(BaseTest):
         )
         assert "# Move_Probability_Info" in inp_data
         assert "# Done_Probability_Info" in inp_data
-        assert "# Prob_Translation\n0.29\n2.0 2.0 \n2.0 2.0 \n" in inp_data
-        assert "# Prob_Rotation\n0.29\n30.0 30.0 \n30.0 30.0 \n" in inp_data
+        assert "# Prob_Translation\n0.3\n2.0 2.0 \n2.0 2.0 \n" in inp_data
+        assert "# Prob_Rotation\n0.3\n30.0 30.0 \n30.0 30.0 \n" in inp_data
         assert "# Prob_Angle" not in inp_data
         assert "# Prob_Dihedral" not in inp_data
-        assert "# Prob_Regrowth\n0.3\n0.5 0.5 \n" in inp_data
-        assert "# Prob_Volume\n0.02\n500.0\n5000.0\n" in inp_data
+        assert "# Prob_Regrowth\n0.295\n0.5 0.5 \n" in inp_data
+        assert "# Prob_Volume\n0.005\n500.0\n5000.0\n" in inp_data
         assert "# Prob_Insertion" not in inp_data
         assert "# Prob_Deletion" not in inp_data
         assert (

@@ -1811,6 +1811,8 @@ rcut_cbmc""".format(
 
 
 def print_valid_kwargs():
+    """Print the valid keyword arguments with a brief description"""
+
     valid_args = _get_possible_kwargs(desc=True)
     for arg, desc in valid_args.items():
         print("{:25s}:    {}".format(arg, desc))

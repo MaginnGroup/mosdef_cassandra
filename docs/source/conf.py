@@ -23,7 +23,7 @@ copyright = "2020, University of Notre Dame"
 author = "Ryan S. DeFever"
 
 # The short X.Y version
-version = "0.1"
+version = "latest"
 # The full version, including alpha/beta/rc tags
 release = ""
 

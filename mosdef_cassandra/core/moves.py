@@ -591,35 +591,37 @@ class Moves(object):
 
     @max_volume.setter
     def max_volume(self, max_volume):
-        if not isinstance(max_volume, list):
-            raise ValueError(
-                "max_volume must be a list with " "length (number of boxes)"
+        if type(max_volume) not in (list, float, int):
+            raise TypeError(
+                "max_volume must be a float, or, optionally, "
+                "a list with length (number of boxes)"
             )
-        if self.ensemble != "gemc":
-            if len(max_volume) != self._n_boxes:
-                raise ValueError(
-                    "max_volume must be a list with "
-                    "length (number of boxes)"
-                )
+        if type(max_volume) == list:
+            if self.ensemble == "gemc_npt":
+                if len(max_volume) != self._n_boxes:
+                    raise TypeError(
+                        "max_volume must be a float or a list with length "
+                        "(number of boxes) for gemc_npt"
+                    )
+            else:
+                if len(max_volume) != 1:
+                    raise TypeError(
+                        "max_volume must be a float or a list with length "
+                        "1 for all ensembles except gemc_npt"
+                    )
         else:
-            if len(max_volume) != 1:
-                raise ValueError(
-                    "max_volume must be a list of " "length (1) for gemc"
-                )
+            if self.ensemble == "gemc_npt":
+                max_volume = [max_volume] * self._n_boxes
+            else:
+                max_volume = [max_volume]
+
         for max_vol in max_volume:
             if type(max_vol) not in (float, int):
-                raise TypeError(
-                    "Maximum volume change for a box " "must be of type float"
-                )
-            else:
-                max_vol = float(max_vol)
+                raise TypeError("max_volume values must be of type float")
             if max_vol < 0.0:
-                raise ValueError(
-                    "Maximum volume change for a box "
-                    "cannot be less than zero"
-                )
+                raise ValueError("max_volume cannot be less than zero.")
 
-        self._max_volume = max_volume
+        self._max_volume = [float(max_vol) for max_vol in max_volume]
 
     @property
     def insertable(self):
@@ -739,7 +741,7 @@ class Moves(object):
         if type(cbmc_rcut) not in (list, float, int):
             raise TypeError(
                 "cbmc_rcut must be a float, or, optionally, "
-                "systems, a list with length (number of boxes)"
+                "a list with length (number of boxes)"
             )
         if type(cbmc_rcut) == list:
             if len(cbmc_rcut) != self._n_boxes:
@@ -753,12 +755,10 @@ class Moves(object):
         for rcut in cbmc_rcut:
             if type(rcut) not in (float, int):
                 raise TypeError("cbmc_rcut values must be of type float")
-            else:
-                rcut = float(rcut)
             if rcut < 0.0:
                 raise ValueError("cbmc_rcut cannot be less than zero.")
 
-        self._cbmc_rcut = cbmc_rcut
+        self._cbmc_rcut = [float(rcut) for rcut in cbmc_rcut]
 
     def print(self):
         """Print the current contents of Moves"""

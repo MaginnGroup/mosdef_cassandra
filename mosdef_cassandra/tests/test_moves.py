@@ -445,9 +445,10 @@ class TestMoves(BaseTest):
         assert moves.prob_swap_from_box[0] == 0.5
 
         moves = mc.Moves("gemc", [methane_oplsaa])
-        with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_volume = 1.0
-        with pytest.raises(ValueError, match=r"must be a list"):
+        moves.max_volume = 1.0
+        assert len(moves.max_volume) == 1
+        assert moves.max_volume[0] == 1.0
+        with pytest.raises(TypeError, match=r"a list with length"):
             moves.max_volume = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
             moves.max_volume = [True]
@@ -456,9 +457,7 @@ class TestMoves(BaseTest):
         moves.max_volume = [5000.0]
         assert moves.max_volume[0] == 5000.0
         moves = mc.Moves("gemc_npt", [methane_oplsaa])
-        with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_volume = 1.0
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"a list with length"):
             moves.max_volume = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
             moves.max_volume = [True, 50000.0]

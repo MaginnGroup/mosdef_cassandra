@@ -10,7 +10,7 @@ class TestInpFunctions(BaseTest):
     @pytest.fixture
     def onecomp_system(self, methane_oplsaa, box):
         system = mc.System([box], [methane_oplsaa], mols_to_add=[[10]])
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moves = mc.MoveSet("nvt", [methane_oplsaa])
         return system, moves
 
     @pytest.fixture
@@ -18,7 +18,7 @@ class TestInpFunctions(BaseTest):
         system = mc.System(
             [box], [methane_oplsaa, butane_oplsaa], mols_to_add=[[10, 100]]
         )
-        moves = mc.Moves("nvt", [methane_oplsaa, butane_oplsaa])
+        moves = mc.MoveSet("nvt", [methane_oplsaa, butane_oplsaa])
         return system, moves
 
     @pytest.fixture
@@ -26,7 +26,7 @@ class TestInpFunctions(BaseTest):
         system = mc.System(
             [box, box], [methane_oplsaa], mols_to_add=[[10], [5]]
         )
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         return system, moves
 
     @pytest.fixture
@@ -36,7 +36,7 @@ class TestInpFunctions(BaseTest):
             [methane_oplsaa, butane_oplsaa],
             mols_to_add=[[10, 100], [1, 5]],
         )
-        moves = mc.Moves("gemc_npt", [methane_oplsaa, butane_oplsaa])
+        moves = mc.MoveSet("gemc_npt", [methane_oplsaa, butane_oplsaa])
         return system, moves
 
     @pytest.fixture
@@ -51,7 +51,7 @@ class TestInpFunctions(BaseTest):
             mols_in_boxes=[[1, 0]],
             mols_to_add=[[0, 10]],
         )
-        moves = mc.Moves("gcmc", species_list)
+        moves = mc.MoveSet("gcmc", species_list)
         return system, moves
 
     def test_invalid_kwargs(self, onecomp_system):

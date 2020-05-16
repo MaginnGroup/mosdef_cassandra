@@ -11,7 +11,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     """Construct an input file section by section (with defaults)
 
     Default options are provided based upon the mosdef_cassandra.System
-    and mosdef_cassandra.Moves objects and typically reasonable choices;
+    and mosdef_cassandra.MoveSet and are typically reasonable choices;
     these may or may not be good choices for your specific system. Any
     options can be overriden by specifying the relevant choices with
     keyword arguments in **kwargs.
@@ -20,7 +20,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     ----------
     system : mosdef_cassandra.System
         system to be simulated
-    moves : mosdef_cassandra.Moves
+    moves : mosdef_cassandra.MoveSet
         move probabilities
     run_type : str
         'equil' or 'prod'

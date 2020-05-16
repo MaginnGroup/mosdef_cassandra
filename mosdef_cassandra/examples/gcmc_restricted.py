@@ -24,7 +24,7 @@ def run_gcmc_restricted(custom_args={}):
     mols_to_add = [[10]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.Moves("gcmc", species_list)
+    moves = mc.MoveSet("gcmc", species_list)
 
     # Specify restricted insertions
     moves.add_restricted_insertions(species_list, [["sphere"]], [[20]])

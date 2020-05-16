@@ -5,26 +5,26 @@ import warnings
 from mosdef_cassandra.tests.base_test import BaseTest
 
 
-class TestMoves(BaseTest):
+class TestMoveSet(BaseTest):
     def test_invalid_ensemble(self, methane_oplsaa):
         with pytest.raises(ValueError, match=r"Invalid ensemble"):
-            moves = mc.Moves("nvtn", [methane_oplsaa])
+            moves = mc.MoveSet("nvtn", [methane_oplsaa])
 
     def test_invalid_species_list(self, methane_oplsaa):
         with pytest.raises(
             TypeError,
             match=r"species_topologies should " "be a list of species",
         ):
-            moves = mc.Moves("nvt", methane_oplsaa)
+            moves = mc.MoveSet("nvt", methane_oplsaa)
 
     def test_invalid_species_type(self):
         with pytest.raises(
             TypeError, match=r"each species should be " "a parmed.Structure"
         ):
-            moves = mc.Moves("nvt", [1])
+            moves = mc.MoveSet("nvt", [1])
 
     def test_ensemble_nvt(self, methane_oplsaa):
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moves = mc.MoveSet("nvt", [methane_oplsaa])
         assert moves.ensemble == "nvt"
         assert moves.prob_translate == 0.33
         assert moves.prob_rotate == 0.33
@@ -54,7 +54,7 @@ class TestMoves(BaseTest):
         assert moves.insertable[0] == False
 
     def test_ensemble_npt(self, methane_oplsaa):
-        moves = mc.Moves("npt", [methane_oplsaa])
+        moves = mc.MoveSet("npt", [methane_oplsaa])
         assert moves.ensemble == "npt"
         assert moves.prob_translate == 0.33
         assert moves.prob_rotate == 0.33
@@ -84,7 +84,7 @@ class TestMoves(BaseTest):
         assert moves.insertable[0] == False
 
     def test_ensemble_gcmc(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves = mc.MoveSet("gcmc", [methane_oplsaa])
         assert moves.ensemble == "gcmc"
         assert moves.prob_translate == 0.25
         assert moves.prob_rotate == 0.25
@@ -123,14 +123,14 @@ class TestMoves(BaseTest):
         ],
     )
     def test_restricted_gcmc(self, methane_oplsaa, typ, value):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves = mc.MoveSet("gcmc", [methane_oplsaa])
         moves.add_restricted_insertions([methane_oplsaa], [[typ]], [[value]])
 
         assert moves._restricted_type == [[typ]]
         assert moves._restricted_value == [[value]]
 
     def test_ensemble_gemc(self, methane_oplsaa):
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         assert moves.ensemble == "gemc"
         assert moves.prob_translate == 0.30
         assert moves.prob_rotate == 0.30
@@ -172,7 +172,7 @@ class TestMoves(BaseTest):
         ],
     )
     def test_restricted_gemc(self, methane_oplsaa, typ, value):
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         moves.add_restricted_insertions(
             [methane_oplsaa], [[None], [typ]], [[None], [value]]
         )
@@ -181,7 +181,7 @@ class TestMoves(BaseTest):
         assert moves._restricted_value == [[None], [value]]
 
     def test_ensemble_gemcnpt(self, methane_oplsaa):
-        moves = mc.Moves("gemc_npt", [methane_oplsaa])
+        moves = mc.MoveSet("gemc_npt", [methane_oplsaa])
         assert moves.ensemble == "gemc_npt"
         assert moves.prob_translate == 0.30
         assert moves.prob_rotate == 0.30
@@ -215,7 +215,7 @@ class TestMoves(BaseTest):
         assert moves.prob_regrow_species[0] == 1.0
 
     def test_restricted_gemc_npt(self, methane_oplsaa):
-        moves = mc.Moves("gemc_npt", [methane_oplsaa])
+        moves = mc.MoveSet("gemc_npt", [methane_oplsaa])
         moves.add_restricted_insertions(
             [methane_oplsaa], [[None], ["slitpore"]], [[None], [3]]
         )
@@ -225,7 +225,7 @@ class TestMoves(BaseTest):
 
     def test_single_site_nvt(self, methane_trappe):
 
-        moves = mc.Moves("nvt", [methane_trappe])
+        moves = mc.MoveSet("nvt", [methane_trappe])
         assert moves.ensemble == "nvt"
         assert moves.prob_rotate == 0.0
         assert moves.prob_regrow == 0.0
@@ -256,7 +256,7 @@ class TestMoves(BaseTest):
 
     def test_single_site_gemc(self, methane_trappe):
 
-        moves = mc.Moves("gemc", [methane_trappe])
+        moves = mc.MoveSet("gemc", [methane_trappe])
         assert moves.ensemble == "gemc"
         assert moves.prob_rotate == 0.0
         assert moves.prob_regrow == 0.0
@@ -290,7 +290,7 @@ class TestMoves(BaseTest):
 
     def test_gcmc_lattice(self, fixed_lattice_trappe, methane_trappe):
 
-        moves = mc.Moves("gcmc", [fixed_lattice_trappe, methane_trappe])
+        moves = mc.MoveSet("gcmc", [fixed_lattice_trappe, methane_trappe])
         assert moves.ensemble == "gcmc"
         assert moves.prob_translate == pytest.approx(0.8)
         assert moves.prob_rotate == 0.0
@@ -323,7 +323,7 @@ class TestMoves(BaseTest):
         assert moves.prob_regrow_species[1] == 0.0
 
     def test_prob_setters(self, methane_oplsaa):
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moves = mc.MoveSet("nvt", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"prob_translate must"):
             moves.prob_translate = []
         with pytest.raises(TypeError, match=r"prob_translate must"):
@@ -368,11 +368,11 @@ class TestMoves(BaseTest):
         with pytest.raises(ValueError, match=r"Ensemble is nvt."):
             moves.prob_volume = 0.02
 
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"Ensemble is gemc."):
             moves.prob_volume = 0.0
 
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moves = mc.MoveSet("nvt", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"prob_insert must"):
             moves.prob_insert = []
         with pytest.raises(TypeError, match=r"prob_insert must"):
@@ -381,11 +381,11 @@ class TestMoves(BaseTest):
             moves.prob_insert = -0.2
         with pytest.raises(ValueError, match=r"Ensemble is nvt."):
             moves.prob_insert = 0.2
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"Ensemble is gcmc."):
             moves.prob_insert = 0.0
 
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moves = mc.MoveSet("nvt", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"prob_swap must"):
             moves.prob_swap = []
         with pytest.raises(TypeError, match=r"prob_swap must"):
@@ -394,12 +394,12 @@ class TestMoves(BaseTest):
             moves.prob_swap = -0.2
         with pytest.raises(ValueError, match=r"Ensemble is nvt."):
             moves.prob_swap = 0.2
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"Ensemble is gemc."):
             moves.prob_swap = 0.0
 
     def test_maxval_setters(self, methane_oplsaa):
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"must be a list"):
             moves.max_translate = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
@@ -444,7 +444,7 @@ class TestMoves(BaseTest):
         moves.prob_swap_from_box = [0.5, 0.5]
         assert moves.prob_swap_from_box[0] == 0.5
 
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         moves.max_volume = 1.0
         assert len(moves.max_volume) == 1
         assert moves.max_volume[0] == 1.0
@@ -456,7 +456,7 @@ class TestMoves(BaseTest):
             moves.max_volume = [-100]
         moves.max_volume = [5000.0]
         assert moves.max_volume[0] == 5000.0
-        moves = mc.Moves("gemc_npt", [methane_oplsaa])
+        moves = mc.MoveSet("gemc_npt", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"a list with length"):
             moves.max_volume = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
@@ -466,7 +466,7 @@ class TestMoves(BaseTest):
         moves.max_volume = [5000.0, 50000.0]
         assert moves.max_volume[1] == 50000.0
 
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"must be a list"):
             moves.insertable = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
@@ -499,7 +499,7 @@ class TestMoves(BaseTest):
         assert moves.prob_regrow_species[0] == 1.0
 
     def test_cbmc_setters(self, methane_oplsaa):
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"must be of type int"):
             moves.cbmc_n_insert = 12.2
         with pytest.raises(ValueError, match=r"must be greater than zero"):
@@ -524,7 +524,7 @@ class TestMoves(BaseTest):
         assert len(moves.cbmc_rcut) == 2
         assert moves.cbmc_rcut[0] == 5.0
         assert moves.cbmc_rcut[1] == 5.0
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moves = mc.MoveSet("nvt", [methane_oplsaa])
         moves.cbmc_rcut = 7.0
         assert len(moves.cbmc_rcut) == 1
         assert moves.cbmc_rcut[0] == 7.0
@@ -532,11 +532,11 @@ class TestMoves(BaseTest):
     def test_print_moves(self, methane_oplsaa):
         """Simple test to make sure moves object is printed"""
 
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moves = mc.MoveSet("gemc", [methane_oplsaa])
         moves.print()
 
     def test_invalid_ensemble_and_restriction(self, methane_oplsaa):
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moves = mc.MoveSet("nvt", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"only valid"):
             moves.add_restricted_insertions(
                 [methane_oplsaa], [["slitpore"]], [[1]]
@@ -549,26 +549,26 @@ class TestMoves(BaseTest):
     def test_value_error_restricted_type_and_value(
         self, methane_oplsaa, typ, value
     ):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(ValueError):
             moves.add_restricted_insertions([methane_oplsaa], [[typ]], value)
 
     def test_type_error_restricted_type_and_value(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(TypeError):
             moves.add_restricted_insertions(
                 [methane_oplsaa], ["cylinder"], [3]
             )
 
     def test_invalid_restricted_type_and_species(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"Length of 'species'"):
             moves.add_restricted_insertions(
                 [methane_oplsaa], [["slitpore", None]], [[1, None]]
             )
 
     def test_add_multiple_restricted_insertions(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves = mc.MoveSet("gcmc", [methane_oplsaa])
         moves.add_restricted_insertions(
             [methane_oplsaa], [["slitpore"]], [[3]]
         )
@@ -578,7 +578,7 @@ class TestMoves(BaseTest):
             )
 
     def test_change_ensemble(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moves = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(
             AttributeError, match=r"Ensemble cannot be changed"
         ):

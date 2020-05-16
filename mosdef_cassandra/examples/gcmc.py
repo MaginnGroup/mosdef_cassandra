@@ -24,7 +24,7 @@ def run_gcmc(custom_args={}):
     mols_to_add = [[100]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.Moves("gcmc", species_list)
+    moves = mc.MoveSet("gcmc", species_list)
 
     default_args = {
         "chemical_potentials": [-35.0],

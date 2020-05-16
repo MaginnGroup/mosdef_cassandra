@@ -27,7 +27,7 @@ def run_nvt(custom_args={}):
     # Define the system object
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
     # Get the move probabilities
-    moves = mc.Moves("nvt", species_list)
+    moves = mc.MoveSet("nvt", species_list)
 
     # Run a simulation with at 300 K with 10000 MC moves
     mc.run(

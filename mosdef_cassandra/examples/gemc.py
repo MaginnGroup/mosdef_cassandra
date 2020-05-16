@@ -26,7 +26,7 @@ def run_gemc(custom_args={}):
     mols_to_add = [[350], [100]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.Moves("gemc", species_list)
+    moves = mc.MoveSet("gemc", species_list)
 
     moves.prob_volume = 0.010
     moves.prob_swap = 0.11

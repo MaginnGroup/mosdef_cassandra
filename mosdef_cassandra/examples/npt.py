@@ -27,7 +27,7 @@ def run_npt(custom_args={}):
     # Define the system object
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
     # Get the move probabilities
-    moves = mc.Moves("npt", species_list)
+    moves = mc.MoveSet("npt", species_list)
 
     default_args = {
         "pressure": 1.0,

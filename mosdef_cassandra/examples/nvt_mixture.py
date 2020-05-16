@@ -26,7 +26,7 @@ def run_nvt_mixture(custom_args={}):
     mols_to_add = [[100, 50]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.Moves("nvt", species_list)
+    moves = mc.MoveSet("nvt", species_list)
 
     mc.run(
         system=system,

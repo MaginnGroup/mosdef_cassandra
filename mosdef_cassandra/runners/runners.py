@@ -186,7 +186,7 @@ def _run_cassandra(cassandra, inp_file, log_file):
 
 
 def _check_system(system, moves):
-    """Run a series of sanity checks on the System and Moves objects
+    """Run a series of sanity checks on the System and MoveSet
 
     """
 
@@ -219,8 +219,8 @@ def _check_system(system, moves):
                 "your System object has been corrupted"
             )
 
-    # TODO: Add check that species_topologies provided to System
-    # and Moves objects are the same
+    # TODO: Add check that species_topologies provided to the
+    # System and MoveSet are the same
 
     if not isinstance(system.species_topologies, list):
         raise TypeError(

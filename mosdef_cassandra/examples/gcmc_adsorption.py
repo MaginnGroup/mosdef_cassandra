@@ -27,7 +27,7 @@ def run_gcmc_adsorption(custom_args={}):
     mols_in_boxes = [[1, 0]]
 
     system = mc.System(box_list, species_list, mols_in_boxes=mols_in_boxes)
-    moves = mc.Moves("gcmc", species_list)
+    moves = mc.MoveSet("gcmc", species_list)
 
     default_args = {
         "chemical_potentials": ["none", -30.0],

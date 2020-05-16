@@ -1,5 +1,5 @@
-The run function
-================
+Run Monte Carlo
+===============
 
 To run a Monte Carlo simulation, we use:
 
@@ -71,8 +71,8 @@ options. For example:
     **custom_args
   )
 
-The restart function
-====================
+Restarting a simulation
+=======================
 
 MoSDeF Cassandra also supports restarting from a checkpoint file.
 This is particularly helpful when switching from an equilibration

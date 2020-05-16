@@ -55,12 +55,12 @@ Implementation
 MoSDeF Cassandra implements this organization by mapping the process of
 setting up and running an MC simulation into three discrete steps:
 
-1. Create the ``System`` object. This defines the simulation
+1. Create the ``System``. This defines the simulation
    boxes, any initial configuration(s), and the forcefield parameters for all
-   molecules in the simulation. Further detail of :doc:`The System object <system>`.
-2. Create the ``Moves`` object. This defines the all the selections related to
-   different possible Monte Carlo moves. Further detail of :doc:`The Moves object <moves>`.
-3. Pass the ``System`` and ``Moves`` objects to the ``run()`` function, along
+   molecules in the simulation. Further detail of the :doc:`System <system>`.
+2. Create the ``Moves``. This defines the all the selections related to
+   different possible Monte Carlo moves. Further detail of the :doc:`Moves <moves>`.
+3. Pass the ``System`` and ``Moves`` to the ``run()`` function, along
    with the remaining selections required for MC. Further detail of the
    :doc:`run function <runners>`.
 

@@ -1,6 +1,6 @@
 
-The System object
-=================
+System
+======
 
 The ``System`` contains all the details of the system (i.e.,
 *what* is being simulated). This includes the simulation box(es), any initial
@@ -31,8 +31,8 @@ box_list
 
 The ``box_list`` is a Python ``list`` of the simulation boxes in the system.
 It should contain a single item in the case of Monte Carlo simulations
-performed in the NVT, NpT, or GCMC ensembles, and two items for simulations in
-the GEMC or GEMC-NpT ensembles.
+performed in the NVT, NPT, or GCMC ensembles, and two items for simulations in
+the GEMC or GEMC-NPT ensembles.
 
 The simulation boxes can be empty or contain some initial structure. If the
 simulation box is empty, then the list element should be a ``mbuild.Box``.

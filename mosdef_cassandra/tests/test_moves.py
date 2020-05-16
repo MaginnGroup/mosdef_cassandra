@@ -499,6 +499,37 @@ class TestMoves(BaseTest):
         moves.prob_regrow_species = [1.0]
         assert moves.prob_regrow_species[0] == 1.0
 
+    def test_cbmc_setters(self, methane_oplsaa):
+        moves = mc.Moves("gemc", [methane_oplsaa])
+        with pytest.raises(TypeError, match=r"must be of type int"):
+            moves.cbmc_n_insert = 12.2
+        with pytest.raises(ValueError, match=r"must be greater than zero"):
+            moves.cbmc_n_insert = -2
+        moves.cbmc_n_insert = 20
+        assert moves.cbmc_n_insert == 20
+        with pytest.raises(TypeError, match=r"must be of type int"):
+            moves.cbmc_n_dihed = 12.2
+        with pytest.raises(ValueError, match=r"must be greater than zero"):
+            moves.cbmc_n_dihed = -2
+        moves.cbmc_n_dihed = 20
+        assert moves.cbmc_n_dihed == 20
+        with pytest.raises(TypeError, match=r"of type float"):
+            moves.cbmc_rcut = [3.0, [3.0]]
+        with pytest.raises(ValueError, match=r"less than zero"):
+            moves.cbmc_rcut = [3.0, -3.0]
+        moves.cbmc_rcut = [4.0, 8.0]
+        assert len(moves.cbmc_rcut) == 2
+        assert moves.cbmc_rcut[0] == 4.0
+        assert moves.cbmc_rcut[1] == 8.0
+        moves.cbmc_rcut = 5.0
+        assert len(moves.cbmc_rcut) == 2
+        assert moves.cbmc_rcut[0] == 5.0
+        assert moves.cbmc_rcut[1] == 5.0
+        moves = mc.Moves("nvt", [methane_oplsaa])
+        moves.cbmc_rcut = 7.0
+        assert len(moves.cbmc_rcut) == 1
+        assert moves.cbmc_rcut[0] == 7.0
+
     def test_print_moves(self, methane_oplsaa):
         """Simple test to make sure moves object is printed"""
 

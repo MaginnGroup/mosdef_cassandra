@@ -122,6 +122,11 @@ class Moves(object):
         else:
             self.max_volume = [0.0]
 
+        # Set the default CBMC options
+        self.cbmc_n_insert = 10
+        self.cbmc_n_dihed = 10
+        self.cbmc_rcut = 6.0
+
         # Remaining options are per-species
         self.max_dihedral = [0.0] * self._n_species
         self.prob_regrow_species = [1.0] * self._n_species
@@ -701,6 +706,60 @@ class Moves(object):
 
         self._prob_regrow_species = prob_regrow_species
 
+    @property
+    def cbmc_n_insert(self):
+        return self._cbmc_n_insert
+
+    @cbmc_n_insert.setter
+    def cbmc_n_insert(self, cbmc_n_insert):
+        if type(cbmc_n_insert) != int:
+            raise TypeError("cbmc_n_insert must be of type int")
+        if cbmc_n_insert <= 0:
+            raise ValueError("cbmc_n_insert must be greater than zero")
+        self._cbmc_n_insert = cbmc_n_insert
+
+    @property
+    def cbmc_n_dihed(self):
+        return self._cbmc_n_dihed
+
+    @cbmc_n_dihed.setter
+    def cbmc_n_dihed(self, cbmc_n_dihed):
+        if type(cbmc_n_dihed) != int:
+            raise TypeError("cbmc_n_dihed must be of type int")
+        if cbmc_n_dihed <= 0:
+            raise ValueError("cbmc_n_dihed must be greater than zero")
+        self._cbmc_n_dihed = cbmc_n_dihed
+
+    @property
+    def cbmc_rcut(self):
+        return self._cbmc_rcut
+
+    @cbmc_rcut.setter
+    def cbmc_rcut(self, cbmc_rcut):
+        if type(cbmc_rcut) not in (list, float, int):
+            raise TypeError(
+                "cbmc_rcut must be a float, or, optionally, "
+                "systems, a list with length (number of boxes)"
+            )
+        if type(cbmc_rcut) == list:
+            if len(cbmc_rcut) != self._n_boxes:
+                raise TypeError(
+                    "cbmc_rcut must be a float or a list with length "
+                    "(number of boxes)"
+                )
+        else:
+            cbmc_rcut = [cbmc_rcut] * self._n_boxes
+
+        for rcut in cbmc_rcut:
+            if type(rcut) not in (float, int):
+                raise TypeError("cbmc_rcut values must be of type float")
+            else:
+                rcut = float(rcut)
+            if rcut < 0.0:
+                raise ValueError("cbmc_rcut cannot be less than zero.")
+
+        self._cbmc_rcut = cbmc_rcut
+
     def print(self):
         """Print the current contents of Moves"""
 
@@ -709,15 +768,15 @@ Ensemble:  {ensemble}
 
 Probability of selecting each move type:
 
-Translate: {prob_translate}
-Rotate:    {prob_rotate}
-Regrow:    {prob_regrow}
-Volume:    {prob_volume}
-Insert:    {prob_insert}
-Delete:    {prob_delete}
-Swap:      {prob_swap}
-Angle:     {prob_angle}
-Dihedral:  {prob_dihedral}
+    Translate: {prob_translate}
+    Rotate:    {prob_rotate}
+    Regrow:    {prob_regrow}
+    Volume:    {prob_volume}
+    Insert:    {prob_insert}
+    Delete:    {prob_delete}
+    Swap:      {prob_swap}
+    Angle:     {prob_angle}
+    Dihedral:  {prob_dihedral}
 """.format(
             ensemble=self.ensemble,
             prob_translate=self.prob_translate,
@@ -731,57 +790,70 @@ Dihedral:  {prob_dihedral}
             prob_dihedral=self.prob_dihedral,
         )
 
+        contents += """
+CBMC selections:
+
+    Number of trial positions: {n_insert}
+    Number of trial dihedral angles: {n_dihed}
+    CBMC cutoff(s): 
+""".format(
+            n_insert=self.cbmc_n_insert, n_dihed=self.cbmc_n_dihed,
+        )
+
+        for idx, value in enumerate(self.cbmc_rcut):
+            contents += "        Box {}: {}\n".format(idx + 1, value)
+
         contents += "\n\nPer species quantities:\n\n"
-        contents += "                         "
+        contents += "                             "
         for idx in range(self._n_species):
             contents += "species{idx}     ".format(idx=idx + 1)
         contents += "\n"
-        contents += "                         "
+        contents += "                             "
         for idx in range(self._n_species):
             contents += "========     ".format(idx=idx + 1)
         contents += "\n"
-        contents += "Max translate (Ang):     "
+        contents += "    Max translate (Ang):     "
         for (box, max_translate_box) in enumerate(self.max_translate):
             if box > 0:
-                contents += "                         "
+                contents += "                             "
             for (idx, max_translate) in enumerate(max_translate_box):
                 contents += "{max_trans:4.2f}          ".format(
                     max_trans=max_translate
                 )
-            contents += "(box {box})".format(box=box + 1)
+            contents += "(Box {box})".format(box=box + 1)
             contents += "\n"
-        contents += "Max rotate (deg):        "
+        contents += "    Max rotate (deg):        "
         for (box, max_rotate_box) in enumerate(self.max_rotate):
             if box > 0:
-                contents += "                         "
+                contents += "                             "
             for (idx, max_rotate) in enumerate(max_rotate_box):
                 contents += "{max_rot:4.2f}         ".format(
                     max_rot=max_rotate
                 )
-            contents += "(box {box})".format(box=box + 1)
+            contents += "(Box {box})".format(box=box + 1)
             contents += "\n"
-        contents += "Insertable:              "
+        contents += "    Insertable:              "
         for (idx, insert) in enumerate(self.insertable):
             contents += "{insert}          ".format(insert=insert)
         contents += "\n"
-        contents += "Max dihedral:            "
+        contents += "    Max dihedral:            "
         for (idx, max_dih) in enumerate(self.max_dihedral):
             contents += "{max_dih:4.2f}          ".format(max_dih=max_dih)
         contents += "\n"
-        contents += "Prob swap:               "
+        contents += "    Prob swap:               "
         for (idx, prob_swap) in enumerate(self.prob_swap_species):
             contents += "{prob_swap:4.2f}          ".format(
                 prob_swap=prob_swap
             )
         contents += "\n"
-        contents += "Prob regrow:             "
+        contents += "    Prob regrow:             "
         for (idx, prob_regrow) in enumerate(self.prob_regrow_species):
             contents += "{regrow:4.2f}          ".format(regrow=prob_regrow)
         contents += "\n"
 
         contents += "\n\nMax volume (Ang^3):\n"
         for (box, max_vol) in enumerate(self.max_volume):
-            contents += "Box {box}: {max_vol}\n".format(
+            contents += "    Box {box}: {max_vol}\n".format(
                 box=box + 1, max_vol=max_vol
             )
 

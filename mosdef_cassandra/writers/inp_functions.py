@@ -59,12 +59,23 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     nbr_species = len(system.species_topologies)
     nbr_boxes = len(system.boxes)
 
-    # Name and ensemble
+    # Run name
     if "run_name" in kwargs:
         run_name = kwargs["run_name"]
     else:
         run_name = moves.ensemble
     inp_data += get_run_name(run_name)
+
+    # Verbose log
+    if "verbose_log" in kwargs:
+        verbose_log = kwargs["verbose_log"]
+    else:
+        verbose_log = False
+
+    if verbose_log:
+        inp_data += get_verbose_log(verbose_log)
+
+    # Ensemble
     inp_data += get_sim_type(moves.ensemble)
 
     # Number of species
@@ -330,6 +341,11 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     inp_data += get_move_probability_info(**move_prob_dict)
 
+    # CBMC information
+    inp_data += get_cbmc_info(
+        moves.cbmc_n_insert, moves.cbmc_n_dihed, moves.cbmc_rcut
+    )
+
     # Start type info
     start_types = []
     if "restart" in kwargs and kwargs["restart"]:
@@ -464,31 +480,6 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
                     fragment_files.append(line)
 
     inp_data += get_fragment_files(fragment_files)
-
-    # Verbose log section
-    if "verbose_log" in kwargs:
-        verbose_log = kwargs["verbose_log"]
-    else:
-        verbose_log = False
-
-    if verbose_log:
-        inp_data += get_verbose_log(verbose_log)
-
-    # CBMC information
-    if "cbmc_kappa_ins" in kwargs:
-        cbmc_kappa_ins = kwargs["cbmc_kappa_ins"]
-    else:
-        cbmc_kappa_ins = 10
-    if "cbmc_kappa_dih" in kwargs:
-        cbmc_kappa_dih = kwargs["cbmc_kappa_dih"]
-    else:
-        cbmc_kappa_dih = 10
-    if "cbmc_rcut" in kwargs:
-        cbmc_rcuts = [kwargs["cbmc_rcut"]] * nbr_boxes
-    else:
-        cbmc_rcuts = [6.0] * nbr_boxes
-
-    inp_data += get_cbmc_info(cbmc_kappa_ins, cbmc_kappa_dih, cbmc_rcuts)
 
     inp_data += "\nEND\n"
 
@@ -1823,6 +1814,9 @@ def print_valid_kwargs():
 def _get_possible_kwargs(desc=False):
     valid_kwargs = {
         "run_name": "str, name of output",
+        "restart": "boolean, restart from checkpoint file",
+        "restart_name": "name of checkpoint file to restart from",
+        "verbose_log": "boolean, write verbose log file",
         "vdw_style": 'str, "lj" or "none"',
         "cutoff_style": 'str, "cut" or "cut_tail" or "cut_switch" or "cut_shift"',
         "vdw_cutoff": 'float, except for "cut_switch", where [inner_cutoff, outer_cutoff].',
@@ -1856,12 +1850,9 @@ def _get_possible_kwargs(desc=False):
             '"energy_total", "energy_lj", "energy_elec", "energy_intra", "enthalpy",'
             '"pressure", "volume", "nmols", "density", "mass_density"'
         ),
-        "verbose_log": "boolean, write verbose log file",
         "cbmc_kappa_ins": "int, number of attempted insertion sites for CBMC",
         "cbmc_kappa_dih": "int, number of attempted dihedral rotations for CBMC",
         "cbmc_rcut": "float, cutoff for CBMC",
-        "restart": "boolean, restart from checkpoint file",
-        "restart_name": "name of checkpoint file to restart from",
     }
     if desc:
         return valid_kwargs

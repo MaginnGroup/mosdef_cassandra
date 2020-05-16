@@ -1508,57 +1508,22 @@ class TestInpFunctions(BaseTest):
         )
 
         (system, moves) = onecomp_system
+        moves.cbmc_rcut = [4.5]
+        moves.cbmc_n_insert = 2
+        moves.cbmc_n_dihed = 5
         inp_data = generate_input(
             system=system,
             moves=moves,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
-            cbmc_kappa_ins=2,
-            cbmc_kappa_dih=5,
-            cbmc_rcut=4.5,
         )
+        print(inp_data)
 
         assert (
             "# CBMC_Info\nkappa_ins 2\nkappa_dih 5\nrcut_cbmc 4.5\n"
             in inp_data
         )
-
-        with pytest.raises(TypeError, match=r"must be an integer"):
-            inp_data = generate_input(
-                system=system,
-                moves=moves,
-                run_type="equilibration",
-                run_length=500,
-                temperature=300.0,
-                cbmc_kappa_ins=2.5,
-                cbmc_kappa_dih=5,
-                cbmc_rcut=4.5,
-            )
-
-        with pytest.raises(TypeError, match=r"must be an integer"):
-            inp_data = generate_input(
-                system=system,
-                moves=moves,
-                run_type="equilibration",
-                run_length=500,
-                temperature=300.0,
-                cbmc_kappa_ins=2,
-                cbmc_kappa_dih=5.5,
-                cbmc_rcut=4.5,
-            )
-
-        with pytest.raises(TypeError, match=r"must be a float"):
-            inp_data = generate_input(
-                system=system,
-                moves=moves,
-                run_type="equilibration",
-                run_length=500,
-                temperature=300.0,
-                cbmc_kappa_ins=2,
-                cbmc_kappa_dih=5,
-                cbmc_rcut=[],
-            )
 
     @pytest.mark.parametrize(
         "typ,value",

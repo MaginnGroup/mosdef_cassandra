@@ -27,7 +27,7 @@ def run_npt(custom_args={}):
     # Define the system object
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
     # Get the move probabilities
-    moves = mc.MoveSet("npt", species_list)
+    moveset = mc.MoveSet("npt", species_list)
 
     default_args = {
         "pressure": 1.0,
@@ -36,11 +36,11 @@ def run_npt(custom_args={}):
     # Combine default/custom args and override default
     custom_args = {**default_args, **custom_args}
 
-    # Run a simulation with at 300 K with 10000 MC moves
+    # Run a simulation with at 300 K with 10000 MC moveset
     # Note we must define a pressure for an NPT simulation
     mc.run(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="equilibration",
         run_length=10000,
         temperature=300.0,

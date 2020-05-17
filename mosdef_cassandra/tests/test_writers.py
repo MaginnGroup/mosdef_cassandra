@@ -10,24 +10,24 @@ class TestInpFunctions(BaseTest):
     @pytest.fixture
     def onecomp_system(self, methane_oplsaa, box):
         system = mc.System([box], [methane_oplsaa], mols_to_add=[[10]])
-        moves = mc.MoveSet("nvt", [methane_oplsaa])
-        return system, moves
+        moveset = mc.MoveSet("nvt", [methane_oplsaa])
+        return system, moveset
 
     @pytest.fixture
     def twocomp_system(self, methane_oplsaa, butane_oplsaa, box):
         system = mc.System(
             [box], [methane_oplsaa, butane_oplsaa], mols_to_add=[[10, 100]]
         )
-        moves = mc.MoveSet("nvt", [methane_oplsaa, butane_oplsaa])
-        return system, moves
+        moveset = mc.MoveSet("nvt", [methane_oplsaa, butane_oplsaa])
+        return system, moveset
 
     @pytest.fixture
     def twobox_system(self, methane_oplsaa, box):
         system = mc.System(
             [box, box], [methane_oplsaa], mols_to_add=[[10], [5]]
         )
-        moves = mc.MoveSet("gemc", [methane_oplsaa])
-        return system, moves
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
+        return system, moveset
 
     @pytest.fixture
     def twocomptwobox_system(self, methane_oplsaa, butane_oplsaa, box):
@@ -36,8 +36,8 @@ class TestInpFunctions(BaseTest):
             [methane_oplsaa, butane_oplsaa],
             mols_to_add=[[10, 100], [1, 5]],
         )
-        moves = mc.MoveSet("gemc_npt", [methane_oplsaa, butane_oplsaa])
-        return system, moves
+        moveset = mc.MoveSet("gemc_npt", [methane_oplsaa, butane_oplsaa])
+        return system, moveset
 
     @pytest.fixture
     def gcmc_system(
@@ -51,15 +51,15 @@ class TestInpFunctions(BaseTest):
             mols_in_boxes=[[1, 0]],
             mols_to_add=[[0, 10]],
         )
-        moves = mc.MoveSet("gcmc", species_list)
-        return system, moves
+        moveset = mc.MoveSet("gcmc", species_list)
+        return system, moveset
 
     def test_invalid_kwargs(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         with pytest.raises(ValueError, match=r"Invalid input argument"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -67,10 +67,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_run_name(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -81,7 +81,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -92,7 +92,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -103,7 +103,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(TypeError, match=r"must be a string"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -111,10 +111,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_sim_type(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -126,19 +126,19 @@ class TestInpFunctions(BaseTest):
             inp_data = mc.writers.inp_functions.get_sim_type("gccmc")
 
     def test_nbr_species(self, onecomp_system, twocomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
         )
         assert "# Nbr_Species\n1" in inp_data
-        (system, moves) = twocomp_system
+        (system, moveset) = twocomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -146,11 +146,11 @@ class TestInpFunctions(BaseTest):
         assert "# Nbr_Species\n2" in inp_data
 
     def test_vdw_style(self, twocomp_system, twobox_system):
-        (system, moves) = twocomp_system
+        (system, moveset) = twocomp_system
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -159,7 +159,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -170,7 +170,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Unsupported vdw_style"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -180,7 +180,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -191,7 +191,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -203,7 +203,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Only one box"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -212,7 +212,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -224,7 +224,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"requires an inner"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -232,10 +232,10 @@ class TestInpFunctions(BaseTest):
                 vdw_cutoff=12.0,
             )
 
-        (system, moves) = twobox_system
+        (system, moveset) = twobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -244,7 +244,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -260,7 +260,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Unsupported cutoff style"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -269,11 +269,11 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_charge_style(self, twocomp_system, twobox_system):
-        (system, moves) = twocomp_system
+        (system, moveset) = twocomp_system
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -282,7 +282,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -292,7 +292,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -302,7 +302,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -313,7 +313,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -323,7 +323,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -335,17 +335,17 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Only one box"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
                 charge_cutoff_box2=1.0,
             )
 
-        (system, moves) = twobox_system
+        (system, moveset) = twobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -358,10 +358,10 @@ class TestInpFunctions(BaseTest):
         )
 
     def test_mixing_rule(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -370,7 +370,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -381,7 +381,7 @@ class TestInpFunctions(BaseTest):
         mixing_dict = {"ls_138_s1 ls_140_s1": "1.0 1.0"}
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -397,7 +397,7 @@ class TestInpFunctions(BaseTest):
         ):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -407,7 +407,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Unsupported mixing rule"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -415,10 +415,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_seeds(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -428,7 +428,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -440,7 +440,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(TypeError, match=r"argument should be a list"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -450,7 +450,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"must be integers"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -458,10 +458,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_rcut_min(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -471,7 +471,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -483,7 +483,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(TypeError, match=r"be of type float"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -491,10 +491,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_pair_energy(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -506,7 +506,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(TypeError, match=r"be of type boolean"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -514,10 +514,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_max_molecules(self, twocomp_system, gcmc_system):
-        (system, moves) = twocomp_system
+        (system, moveset) = twocomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -529,7 +529,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -540,10 +540,10 @@ class TestInpFunctions(BaseTest):
             "# Molecule_Files\nspecies1.mcf 100\nspecies2.mcf 1000" in inp_data
         )
 
-        (system, moves) = gcmc_system
+        (system, moveset) = gcmc_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -554,11 +554,11 @@ class TestInpFunctions(BaseTest):
             "# Molecule_Files\nspecies1.mcf 1\nspecies2.mcf 510\n" in inp_data
         )
 
-        (system, moves) = twocomp_system
+        (system, moveset) = twocomp_system
         with pytest.raises(TypeError, match=r"should be a list"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -568,7 +568,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Length of list specified"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -576,10 +576,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_boxes(self, onecomp_system, twobox_system, gcmc_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -587,10 +587,10 @@ class TestInpFunctions(BaseTest):
 
         assert "# Box_Info\n1\ncubic\n50.0\n" in inp_data
 
-        (system, moves) = twobox_system
+        (system, moveset) = twobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -598,10 +598,10 @@ class TestInpFunctions(BaseTest):
 
         assert "# Box_Info\n2\ncubic\n50.0\n\ncubic\n50.0\n" in inp_data
 
-        (system, moves) = gcmc_system
+        (system, moveset) = gcmc_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -611,10 +611,10 @@ class TestInpFunctions(BaseTest):
         assert "# Box_Info\n1\ncubic\n29.84\n" in inp_data
 
     def test_temperature(self, onecomp_system, twobox_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=200.0,
@@ -622,10 +622,10 @@ class TestInpFunctions(BaseTest):
 
         assert "# Temperature_Info\n200.0\n" in inp_data
 
-        (system, moves) = twobox_system
+        (system, moveset) = twobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=200.0,
@@ -636,7 +636,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"less than zero"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=-300.0,
@@ -645,17 +645,17 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(TypeError, match=r"of type float"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature="hi",
             )
 
     def test_pressure(self, twocomptwobox_system):
-        (system, moves) = twocomptwobox_system
+        (system, moveset) = twocomptwobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -666,7 +666,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -679,7 +679,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Pressure must be specified"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -688,7 +688,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(TypeError, match=r"of type float"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -696,10 +696,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_chempot(self, gcmc_system):
-        (system, moves) = gcmc_system
+        (system, moveset) = gcmc_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -713,7 +713,7 @@ class TestInpFunctions(BaseTest):
         ):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -722,14 +722,14 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(TypeError, match=r"of type float"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
                 chemical_potentials=["none", "string"],
             )
 
-    def test_moves_formatting(self, onecomp_system):
+    def test_moveset_formatting(self, onecomp_system):
         # Invalid keyword
         with pytest.raises(
             ValueError, match="Invalid probability info section"
@@ -958,12 +958,12 @@ class TestInpFunctions(BaseTest):
             **fake_prob_dict
         )
 
-    def test_moves_onecomp(self, onecomp_system):
+    def test_moveset_onecomp(self, onecomp_system):
 
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -982,16 +982,16 @@ class TestInpFunctions(BaseTest):
         assert "# Prob_Swap" not in inp_data
         assert "# Prob_Ring" not in inp_data
 
-        moves.prob_angle = 0.1
-        moves.prob_translate = 0.3
-        moves.prob_rotate = 0.3
-        moves.prob_regrow = 0.3
-        moves.max_translate[0][0] = 10.0
-        moves.max_rotate[0][0] = 10.0
+        moveset.prob_angle = 0.1
+        moveset.prob_translate = 0.3
+        moveset.prob_rotate = 0.3
+        moveset.prob_regrow = 0.3
+        moveset.max_translate[0][0] = 10.0
+        moveset.max_rotate[0][0] = 10.0
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1010,12 +1010,12 @@ class TestInpFunctions(BaseTest):
         assert "# Prob_Swap" not in inp_data
         assert "# Prob_Ring" not in inp_data
 
-    def test_moves_twocomp(self, twocomp_system):
+    def test_moveset_twocomp(self, twocomp_system):
 
-        (system, moves) = twocomp_system
+        (system, moveset) = twocomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1034,16 +1034,16 @@ class TestInpFunctions(BaseTest):
         assert "# Prob_Swap" not in inp_data
         assert "# Prob_Ring" not in inp_data
 
-        moves.prob_angle = 0.1
-        moves.prob_translate = 0.3
-        moves.prob_rotate = 0.3
-        moves.prob_regrow = 0.26
-        moves.max_translate[0][0] = 10.0
-        moves.max_rotate[0][0] = 10.0
+        moveset.prob_angle = 0.1
+        moveset.prob_translate = 0.3
+        moveset.prob_rotate = 0.3
+        moveset.prob_regrow = 0.26
+        moveset.max_translate[0][0] = 10.0
+        moveset.max_rotate[0][0] = 10.0
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1062,12 +1062,12 @@ class TestInpFunctions(BaseTest):
         assert "# Prob_Swap" not in inp_data
         assert "# Prob_Ring" not in inp_data
 
-    def test_moves_twobox(self, twobox_system):
+    def test_moveset_twobox(self, twobox_system):
 
-        (system, moves) = twobox_system
+        (system, moveset) = twobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1089,12 +1089,12 @@ class TestInpFunctions(BaseTest):
         )
         assert "# Prob_Ring" not in inp_data
 
-    def test_moves_twocomptwobox(self, twocomptwobox_system):
+    def test_moveset_twocomptwobox(self, twocomptwobox_system):
 
-        (system, moves) = twocomptwobox_system
+        (system, moveset) = twocomptwobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1116,12 +1116,12 @@ class TestInpFunctions(BaseTest):
         )
         assert "# Prob_Ring" not in inp_data
 
-    def test_moves_gcmc(self, gcmc_system):
+    def test_moveset_gcmc(self, gcmc_system):
 
-        (system, moves) = gcmc_system
+        (system, moveset) = gcmc_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1150,10 +1150,10 @@ class TestInpFunctions(BaseTest):
         gcmc_system,
     ):
 
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1161,10 +1161,10 @@ class TestInpFunctions(BaseTest):
 
         assert "# Start_Type\nmake_config 10\n" in inp_data
 
-        (system, moves) = twocomp_system
+        (system, moveset) = twocomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1172,10 +1172,10 @@ class TestInpFunctions(BaseTest):
 
         assert "# Start_Type\nmake_config 10 100\n" in inp_data
 
-        (system, moves) = twobox_system
+        (system, moveset) = twobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1183,10 +1183,10 @@ class TestInpFunctions(BaseTest):
 
         assert "# Start_Type\nmake_config 10\nmake_config 5\n" in inp_data
 
-        (system, moves) = twocomptwobox_system
+        (system, moveset) = twocomptwobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1196,10 +1196,10 @@ class TestInpFunctions(BaseTest):
             "# Start_Type\nmake_config 10 100\nmake_config 1 5\n" in inp_data
         )
 
-        (system, moves) = gcmc_system
+        (system, moveset) = gcmc_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1212,7 +1212,7 @@ class TestInpFunctions(BaseTest):
         system_copy._mols_to_add = [[0, 0], [0, 0]]
         inp_data = generate_input(
             system=system_copy,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1222,10 +1222,10 @@ class TestInpFunctions(BaseTest):
         assert "# Start_Type\nread_config 1 0 box1.in.xyz\n" in inp_data
 
     def test_run_type(self, onecomp_system, twobox_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1234,7 +1234,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="production",
             run_length=500,
             temperature=300.0,
@@ -1243,16 +1243,16 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Invalid run type"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="pro",
                 run_length=500,
                 temperature=300.0,
             )
 
-        (system, moves) = twobox_system
+        (system, moveset) = twobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1262,7 +1262,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1275,7 +1275,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"must be an integer"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1286,7 +1286,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"must be an integer"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1295,10 +1295,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_length_info(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1311,7 +1311,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1325,7 +1325,7 @@ class TestInpFunctions(BaseTest):
         )
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1339,7 +1339,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Invalid units"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1348,7 +1348,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"must be an integer"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1357,7 +1357,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"must be an integer"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1366,7 +1366,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"must be an integer"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=5.2,
                 temperature=300.0,
@@ -1374,7 +1374,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"must be an integer"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1383,7 +1383,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"must be an integer"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1391,10 +1391,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_property_info(self, onecomp_system, twobox_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1405,10 +1405,10 @@ class TestInpFunctions(BaseTest):
             in inp_data
         )
 
-        (system, moves) = twobox_system
+        (system, moveset) = twobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1421,7 +1421,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1436,7 +1436,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Invalid property"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1444,10 +1444,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_fragment_files(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1456,10 +1456,10 @@ class TestInpFunctions(BaseTest):
         assert "# Fragment_Files\n" in inp_data
 
     def test_verbose_log(self, onecomp_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1471,7 +1471,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(TypeError, match=r"Verbosity must be"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1479,10 +1479,10 @@ class TestInpFunctions(BaseTest):
             )
 
     def test_cbmc_info(self, onecomp_system, twobox_system):
-        (system, moves) = onecomp_system
+        (system, moveset) = onecomp_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1493,10 +1493,10 @@ class TestInpFunctions(BaseTest):
             in inp_data
         )
 
-        (system, moves) = twobox_system
+        (system, moveset) = twobox_system
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1507,13 +1507,13 @@ class TestInpFunctions(BaseTest):
             in inp_data
         )
 
-        (system, moves) = onecomp_system
-        moves.cbmc_rcut = [4.5]
-        moves.cbmc_n_insert = 2
-        moves.cbmc_n_dihed = 5
+        (system, moveset) = onecomp_system
+        moveset.cbmc_rcut = [4.5]
+        moveset.cbmc_n_insert = 2
+        moveset.cbmc_n_dihed = 5
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1535,13 +1535,13 @@ class TestInpFunctions(BaseTest):
         ],
     )
     def test_write_restricted_gcmc(self, gcmc_system, typ, value):
-        (system, moves) = gcmc_system
-        moves.add_restricted_insertions(
+        (system, moveset) = gcmc_system
+        moveset.add_restricted_insertions(
             system.species_topologies, [[None, typ]], [[None, value]]
         )
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1571,14 +1571,14 @@ class TestInpFunctions(BaseTest):
         ],
     )
     def test_fail_restricted_gcmc(self, gcmc_system, typ, value):
-        (system, moves) = gcmc_system
-        moves.add_restricted_insertions(
+        (system, moveset) = gcmc_system
+        moveset.add_restricted_insertions(
             system.species_topologies, [[None, typ]], [[None, value]]
         )
         with pytest.raises(ValueError, match=r"Restricted insertion"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,
@@ -1595,8 +1595,8 @@ class TestInpFunctions(BaseTest):
         ],
     )
     def test_write_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
-        (system, moves) = twocomptwobox_system
-        moves.add_restricted_insertions(
+        (system, moveset) = twocomptwobox_system
+        moveset.add_restricted_insertions(
             system.species_topologies,
             [[None, None], [None, typ]],
             [[None, None], [None, value]],
@@ -1604,7 +1604,7 @@ class TestInpFunctions(BaseTest):
 
         inp_data = generate_input(
             system=system,
-            moves=moves,
+            moveset=moveset,
             run_type="equilibration",
             run_length=500,
             temperature=300.0,
@@ -1634,8 +1634,8 @@ class TestInpFunctions(BaseTest):
         ],
     )
     def test_fail_restricted_gemc_npt(self, twocomptwobox_system, typ, value):
-        (system, moves) = twocomptwobox_system
-        moves.add_restricted_insertions(
+        (system, moveset) = twocomptwobox_system
+        moveset.add_restricted_insertions(
             system.species_topologies,
             [[None, None], [None, typ]],
             [[None, None], [None, value]],
@@ -1643,7 +1643,7 @@ class TestInpFunctions(BaseTest):
         with pytest.raises(ValueError, match=r"Restricted insertion"):
             inp_data = generate_input(
                 system=system,
-                moves=moves,
+                moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0,

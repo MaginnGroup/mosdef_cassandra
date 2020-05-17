@@ -24,10 +24,10 @@ def run_gcmc_restricted(custom_args={}):
     mols_to_add = [[10]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.MoveSet("gcmc", species_list)
+    moveset = mc.MoveSet("gcmc", species_list)
 
     # Specify restricted insertions
-    moves.add_restricted_insertions(species_list, [["sphere"]], [[20]])
+    moveset.add_restricted_insertions(species_list, [["sphere"]], [[20]])
 
     default_args = {
         "chemical_potentials": [-35.0],
@@ -39,7 +39,7 @@ def run_gcmc_restricted(custom_args={}):
 
     mc.run(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="equilibration",
         run_length=100,
         temperature=300.0,

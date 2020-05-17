@@ -63,10 +63,10 @@ def write_configs(system):
             box.save(xyz_name, overwrite=True)
 
 
-def write_input(system, moves, run_type, run_length, temperature, **kwargs):
+def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
 
     if "run_name" not in kwargs:
-        kwargs["run_name"] = moves.ensemble
+        kwargs["run_name"] = moveset.ensemble
 
     if "restart" in kwargs and kwargs["restart"]:
         if "restart_name" not in kwargs:
@@ -75,7 +75,7 @@ def write_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     inp_data = generate_input(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type=run_type,
         run_length=run_length,
         temperature=temperature,
@@ -91,11 +91,11 @@ def write_input(system, moves, run_type, run_length, temperature, **kwargs):
 
 
 def print_inputfile(
-    system, moves, run_type, run_length, temperature, **kwargs
+    system, moveset, run_type, run_length, temperature, **kwargs
 ):
 
     if "run_name" not in kwargs:
-        kwargs["run_name"] = moves.ensemble
+        kwargs["run_name"] = moveset.ensemble
 
     if "restart" in kwargs and kwargs["restart"]:
         if "restart_name" not in kwargs:
@@ -104,7 +104,7 @@ def print_inputfile(
 
     inp_data = generate_input(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type=run_type,
         run_length=run_length,
         temperature=temperature,

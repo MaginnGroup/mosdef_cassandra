@@ -26,10 +26,10 @@ def run_gemc(custom_args={}):
     mols_to_add = [[350], [100]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.MoveSet("gemc", species_list)
+    moveset = mc.MoveSet("gemc", species_list)
 
-    moves.prob_volume = 0.010
-    moves.prob_swap = 0.11
+    moveset.prob_volume = 0.010
+    moveset.prob_swap = 0.11
 
     thermo_props = [
         "energy_total",
@@ -57,7 +57,7 @@ def run_gemc(custom_args={}):
 
     mc.run(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="equilibration",
         run_length=250,
         temperature=151.0,
@@ -65,8 +65,8 @@ def run_gemc(custom_args={}):
     )
 
     # Set max translate and volume for production
-    moves.max_translate = [[0.5], [14.0]]
-    moves.max_volume = [700.0]
+    moveset.max_translate = [[0.5], [14.0]]
+    moveset.max_volume = [700.0]
 
     # Update run_name and restart_name
     custom_args["run_name"] = "prod"
@@ -74,7 +74,7 @@ def run_gemc(custom_args={}):
 
     mc.restart(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="production",
         run_length=750,
         temperature=151.0,

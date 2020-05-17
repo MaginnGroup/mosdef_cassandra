@@ -24,10 +24,11 @@ Next, we create an all-atom methane molecule from a `SMILES
 
     methane = mbuild.load("C", smiles=True)
 
-The ``methane`` object is a single all-atom methane molecule. It is an
-``mbuild.Compound``. ``methane`` contains particles
-for each element (C, H, H, H) in the molecule and bonds that
-describes the particle connectivity. However, there are no forcefield parameters
+``methane`` is a single all-atom methane molecule. It is an
+``mbuild.Compound``. ``methane`` contains particles for each
+element (C, H, H, H) in the molecule, coordinates associated
+with each particle, and the bonds that describe the particle
+connectivity. However, there are no forcefield parameters
 associated with ``methane``.
 
 .. note::
@@ -36,9 +37,9 @@ associated with ``methane``.
   that users install openbabel (``conda install -c conda-forge openbabel``)
   to have this capability and follow many of our tutorials and examples.
 
-To add forcefield parameters to our ``methane``, we load the OPLS-AA forcefield
-from foyer. The OPLS-AA forcefield is distributed with foyer. Note that not
-all atomtypes are currently defined.
+To add forcefield parameters to ``methane``, we first load the OPLS-AA
+forcefield from foyer. The OPLS-AA forcefield is distributed with foyer.
+Be aware that not all atomtypes are currently defined.
 
 .. code-block:: python
 
@@ -50,12 +51,12 @@ We then apply the forcefield using foyer:
 
     methane_ff = oplsaa.apply(methane)
 
-``methane_ff`` is a ``parmed.Structure`` object that contains forcefield
-parameters.
+``methane_ff`` is a ``parmed.Structure`` that contains all the
+forcefield parameters for our methane molecule.
 
 Now that we have a molecule with forcefield parameters, the next step is
 to define our simulation box. Since Cassandra can add molecules to a
-simulation box at the start of the simulation we can begin with an
+simulation box before the start of a simulation, we can begin with an
 empty simulation box. We will define an ``mbuild.Box`` with the box
 lengths specified in nanometers:
 
@@ -88,12 +89,11 @@ the simulation in Cassandra. We will add 50 methane molecules for this example.
     mols_to_add = [[50]]
 
 .. note::
-    ``mols_in_boxes`` and ``mols_to_add`` are always lists with one entry
-    for each box. Each entry is a list with one entry for each species
-    in the ``species_list``.
+    ``mols_in_boxes`` and ``mols_to_add`` are lists with one entry
+    for each box. Each entry is itself a list, with one entry for
+    each species in the ``species_list``.
 
-We now combine the four components created above into a single
-``System`` object.
+We now combine the four components created above into a ``System``:
 
 .. code-block:: python
 
@@ -101,35 +101,34 @@ We now combine the four components created above into a single
 
 .. note::
     ``mols_in_boxes`` and ``mols_to_add`` are optional arguments when creating
-    the ``System`` object. If not provided, it is assumed that the
-    values are zero for all species in all boxes.
+    the ``System`` object. If not provided, the values are taken as zero for
+    all species in all boxes.
 
 .. note::
     Each item in the ``species_list`` must be a ``parmed.Structure`` object with
     the associated forcefield parameters. For example, ``species_list =
-    [methane]`` would not work because the ``mbuild.Compound`` object does not
-    contain forcefield parameters.
+    [methane]`` would not work because unlike ``methane_ff``, ``methane`` is 
+    a ``mbuild.Compound`` and does not contain forcefield parameters.
 
-Now we create a ``Moves`` object. This object contains all selections related to
-the ``# Move_Probabilities`` section of the Cassandra input file. In addition
-to the probability of performing different types of MC moves, the ``Moves``
-object also contains the maximum move sizes (e.g., maximum translation distance),
-whether each species is insertable, and more. To create the moves object, we
+Now we create our ``MoveSet``. The ``MoveSet`` contains all selections
+related to the MC moves that will be performed during the simulation.
+In addition to the probability of performing different types of MC moves,
+the ``MoveSet`` contains the maximum move sizes (e.g., maximum translation distance),
+whether each species is insertable, and more. To create the ``MoveSet``, we
 specify the ensemble in which we wish to perform the MC simulation and provide
 the ``species_list``.
 
 .. code-block:: python
 
     ensemble = 'nvt'
-    moves = mc.Moves(ensemble, species_list)
+    moveset = mc.MoveSet(ensemble, species_list)
 
-Some attributes of the moves object can be edited after it is created. This
+Some attributes of the ``MoveSet`` can be edited after it is created. This
 allows complete control over all the move-related selections in Cassandra. To
-view the current selections in the moves object, use the ``moves.print()``
-command.
+view the current selections, use ``moveset.print()``.
 
-The only remaining step is to run the simulation. The ``mc.run`` function requires
-five arguments: the ``System`` object, the ``Moves`` object, a selection of
+The final step is to run the simulation. The ``run`` function requires
+five arguments: the ``System``, ``MoveSet`` object, a selection of
 ``"equilibration"`` or ``"production"`` (``run_type``), the simulation length
 (``run_length``), and the desired temperature.
 
@@ -137,7 +136,7 @@ five arguments: the ``System`` object, the ``Moves`` object, a selection of
 
     mc.run(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="equilibration",
         run_length=10000,
         temperature=300.0

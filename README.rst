@@ -94,16 +94,16 @@ Monte Carlo calculation is self-contained in the script below.
   species_list = [methane_ff]
   molecules_to_add = [[100]]
 
-  # Create the System object
+  # Create the System
   system = mc.System(box_list, species_list, mols_to_add=molecules_to_add)
 
-  # Create the Moves object
-  moves = mc.Moves(ensemble, species_list)
+  # Create the MoveSet
+  moveset = mc.MoveSet(ensemble, species_list)
 
   # Run a Monte Carlo simulation!
   mc.run(
       system=system,
-      moves=moves,
+      moveset=moveset,
       run_type="equilibration",
       run_length=1000,
       temperature=300.0

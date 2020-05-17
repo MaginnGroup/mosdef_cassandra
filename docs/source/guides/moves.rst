@@ -1,27 +1,34 @@
-Moves
-=====
+MoveSet
+=======
 
-The moves object contains all the information related to the Monte Carlo
-moves that will be attempted during the simulation. This includes the types
-of moves, probability of selecting each move type, and choices such as the
-maximum translation distance, maximum volume move size, etc. The two primary factors
-affecting these selections are the ``ensemble`` and ``species_list``. These two
-items are used to assign default values assigned all of the attributes of 
-the ``mc.Moves`` object. Nonetheless, most of the attributes can be edited
-once the object has been created.
+The ``MoveSet`` contains all the information related to the
+Monte Carlo moves that will be attempted during the simulation.
+This includes the types of moves, the probability of selecting
+each move type, and the other related choices, such as the
+maximum translation distance, maximum volume move size,
+configurational biasing options, etc. The desired ensemble and
+the species in the system are used to assign default values to
+all of the attributes of the ``MoveSet``. Nonetheless, most
+attributes can be edited once the object has been created.
 
-mc.Moves is one of two objects that must be created prior to running a MC
-simulation in MoSDeF Cassandra. 
-
-Creating mc.Moves object requires specifying the following:
+The ``MoveSet`` is one of two objects that must be created prior to
+running a MC simulation in MoSDeF Cassandra. Creating the ``MoveSet``
+requires specification of the following:
 
 * The desired ensemble
 * A list of the unique chemical species in the system (species_list)
 
+Instantiating the ``MoveSet`` normally appears as follows:
+
+.. code-block:: python
+
+  import mosdef_cassandra as mc
+  moveset = mc.MoveSet("nvt", species_list)
+
 Attributes
 ++++++++++
 
-The ``mc.Moves`` object contains attributes that can be grouped into
+The ``MoveSet`` contains attributes that can be grouped into
 the following four categories.
 
 **Overall attributes**, specified as a single number for the entire system:
@@ -57,20 +64,20 @@ the following four categories.
 * ``max_rotate`` - maximum rotation angle
 
 
-Printing the contents of the Moves object
-+++++++++++++++++++++++++++++++++++++++++
+Printing the contents of the MoveSet
+++++++++++++++++++++++++++++++++++++
 
-Imagine we have created a moves object as follows:
+Imagine we have created a ``MoveSet`` as follows:
 
 .. code-block:: python
 
-  moves = mc.Moves('nvt', species_list)
+  moveset = mc.MoveSet('nvt', species_list)
 
 We can then print the current contents with:
 
 .. code-block:: python
 
-  moves.print()
+  moveset.print()
 
 Example output for a single species (OPLS-AA methane):
 

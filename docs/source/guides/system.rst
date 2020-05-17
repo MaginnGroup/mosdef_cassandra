@@ -8,19 +8,29 @@ structure(s) in the simulation box(es), and the force field parameters
 describing the interactions between particles in the system.
 
 The ``System`` is one of two objects that must be created prior to running
-a MC simulation. When the system object is created, mosdef_cassandra performs
-several consistency checks and ensures all the required details are
-provided.
+a MC simulation. Creating the ``System`` requires specification of the following:
 
-Creating the ``mc.System`` object requires specifying the following:
-
-* A list of the simulation boxes in the system (``box_list``)
-* A list of the unique chemical species in the system (``species_list``)
+* A list of the simulation boxes (``box_list``)
+* A list of the unique chemical species (``species_list``)
 
 and perhaps,
 
-* The number of molecules in each box (``mols_in_boxes``)
-* The number of molecules for Cassandra to add (``mols_to_add``)
+* The number of molecules already present in each box
+  in the ``box_list`` (``mols_in_boxes``)
+* The number of molecules for Cassandra to add to each box
+  prior to beginning the MC simulation (``mols_to_add``)
+
+Instantiating the ``System`` normally appears as follows:
+
+.. code-block:: python
+
+  import mosdef_cassandra as mc
+  system = mc.System(
+      box_list,
+      species_list,
+      mols_in_boxes=mols_in_boxes,
+      mols_to_add=mols_to_add
+  )
 
 These items comprise a complete description of the system to be simulated in
 Cassandra. The box information, forcefield information, number of species,
@@ -30,12 +40,12 @@ box_list
 ~~~~~~~~
 
 The ``box_list`` is a Python ``list`` of the simulation boxes in the system.
-It should contain a single item in the case of Monte Carlo simulations
+It should contain a single item in the case of simulations
 performed in the NVT, NPT, or GCMC ensembles, and two items for simulations in
 the GEMC or GEMC-NPT ensembles.
 
-The simulation boxes can be empty or contain some initial structure. If the
-simulation box is empty, then the list element should be a ``mbuild.Box``.
+Each simulation box can be empty or contain an initial structure. If a
+simulation box is empty, then the list element should be an ``mbuild.Box``.
 An ``mbuild.Box`` can be created as follows:
 
 .. code-block:: python
@@ -44,11 +54,25 @@ An ``mbuild.Box`` can be created as follows:
 
 
 where the lengths are specified in units of nanometers and the box angles
-are specified in degrees. If the angles are not specified they are assumed to
-be 90 degrees.
+are specified in degrees. If the angles are not specified they are taken as
+90 degrees.
 
-If the simulation box is not empty, but rather contains some initial structure,
-then the list element for that box should be a ``mbuild.Compound`` object.
+If a simulation box contains an initial structure, then the list
+element should be an ``mbuild.Compound`` object. mBuild supports reading
+many common simulation file formats via ``mbuild.load``. See the
+`mBuild documentation <https://mbuild.mosdef.org/en/stable/>`_
+for more details.
+
+.. warning::
+
+  If an initial structure (i.e., an ``mbuild.Compound``) is provided, the
+  order of atoms is *very* important. Each complete molecule
+  must appear one after another. Within each molecule, the order of 
+  atoms in *must match* the order of atoms in the
+  relevant species provided in the ``species_list``. If there are
+  multiple different species, then all molecules of species1 must
+  be provided before any molecules of species2, and so on. We hope
+  to relax these restrictions in future releases.
 
 For a single-box simulation with an initially empty simulation box:
 
@@ -63,25 +87,15 @@ with ``mbuild``:
 
 .. code-block:: Python
 
-  zeolite = mbuild.load("zeolite.pdb")
+  zeolite_box = mbuild.load("zeolite.pdb")
   vapor_box = mbuild.Box([3.,3.,3.])
 
-  box_list = [zeolite, vapor_box]
+  box_list = [zeolite_box, vapor_box]
 
 In this case, the initial structure and box dimensions for the box
 containing the zeolite are taken from the PDB file. Note that
 the box dimensions can be manually edited by changing the
 ``mbuild.Compound.periodicity`` attribute.
-
-.. warning::
-
-  If an initial structure (i.e., an ``mbuild.Compound``) is provided, the
-  order of the atoms must follow a *very* specific order. Each complete
-  molecule must appear one at a time. The order of the atoms in each molecule
-  must *exactly* match the order of the atoms in the relevant species provided
-  in the ``species_list``. If there are multiple different species, then all
-  the molecules of species1 must be provided before any molecules of species2,
-  and so on.
 
 .. note::
 
@@ -100,12 +114,17 @@ The ``species_list`` is a Python ``list`` of the unique chemical species in the
 system. For example, a simulation of pure methane contains one unique chemical
 species (methane), regardless of the number of methane molecules in the
 simulation. A simulation containing a mixture of methane and ethane has two
-unique chemical species. Therefore, in the first example the
-``species_list`` should contain a single item and in the second example the
-``species_list`` should contain two items. Each item in the ``species_list`` is
+unique chemical species. Therefore, in the first example, the
+``species_list`` contains a single item and in the second example the
+``species_list`` contains two items. Each item in the ``species_list`` is
 a ``parmed.Structure``. All the forcefield required force field
 parameters for each species must be in their respective
 ``parmed.Structure``.
+
+.. note::
+  
+  The ``parmed.Structure`` will be replaced with a
+  ``gmso.Topology`` as the GMSO package matures.
 
 For example, to simulate a mixture of methane and ethane with the
 OPLS-AA force field, we could use the following sequence of steps to generate
@@ -138,27 +157,28 @@ mols_in_boxes
 ~~~~~~~~~~~~~
 
 The ``mols_in_boxes`` is a ``list`` containing the number of molecules of each
-species currently in each box specified in ``box_list``. If the simulation
-box(es) are empty, then ``mols_in_boxes`` does not need to be specified. If
-specified, it is provided as a nested list with ``shape=(n_boxes, n_species)``.
-This is perhaps easier to explain with a series of examples.
+species currently in each box specified in ``box_list``. If all simulation
+box(es) are empty, ``mols_in_boxes`` does not need to be specified. When
+specified, it is a nested list with ``shape=(n_boxes, n_species)``.
+This is perhaps easier to explain with a few examples.
 
-Consider a system with a single simulation box and a single
-species. If the initial structure provided in ``box_list`` contains
-100 molecules, then:
+Consider a system with one simulation box and one species.
+If the initial structure provided in ``box_list`` contains
+100 molecules of that species, then:
 
 .. code-block:: Python
 
   mols_in_boxes = [[100]]
 
-For a system with a single simulation box and two species; the initial
-structure contains 25 molecules of the first and 75 molecules of the second:
+For a system with one simulation box and two species, where there
+are 25 molecules of the first species and 75 molecules of the
+second species:
 
 .. code-block:: Python
 
   mols_in_boxes = [[25, 75]]
 
-For a system with two simulation boxes and a single species; the first box
+For a system with two simulation boxes and one species, where the first box
 contains 100 molecules and the second box is empty:
 
 .. code-block:: Python
@@ -180,11 +200,11 @@ in the ``species_list``.
 
 mols_to_add
 ~~~~~~~~~~~~~
-Cassandra has the ability to insert molecules in a simulation box prior to
-starting the MC simulation. Therefore, you can provide an empty simulation
-box and tell Cassandra to add some number of molecules before beginning the
-MC simulation. This capability is controlled through the ``mols_to_add`` option.
-The format of ``mols_to_add`` is analogous to ``mols_in_boxes``; If
+Cassandra can insert molecules in a simulation box prior to
+starting an MC simulation. Therefore, you can provide an empty simulation
+box and request Cassandra to add some number of molecules before beginning the
+simulation. This capability is controlled through the ``mols_to_add`` option.
+The format of ``mols_to_add`` is analogous to ``mols_in_boxes``. If
 specified, it is provided as a nested list with ``shape=(n_boxes, n_species)``.
 
 

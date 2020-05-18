@@ -6,3 +6,5 @@ mbuild >= 0.10.5
 openbabel
 pytest
 cassandra >= 1.2.2
+unyt >= 2.4
+pandas >= 1.0

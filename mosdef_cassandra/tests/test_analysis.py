@@ -4,6 +4,7 @@ import numpy as np
 
 from mosdef_cassandra.analysis import ThermoProps
 from mosdef_cassandra.tests.base_test import BaseTest
+from mosdef_cassandra.tests.base_test import get_fn
 
 try:
     import pandas as pd
@@ -15,24 +16,24 @@ except ImportError:
 
 class TestAnalysis(BaseTest):
     def test_read_prp(self):
-        thermo = ThermoProps("files/equil.out.box1.prp")
+        thermo = ThermoProps(get_fn("equil.out.box1.prp"))
         assert thermo._data.shape == (201, 7)
         assert np.isclose(thermo._data[-1, 3], 42.242944)
         assert np.isclose(thermo._data[0, 2], 22378.33)
 
     def test_extract_prop(self):
-        thermo = ThermoProps("files/equil.out.box1.prp")
+        thermo = ThermoProps(get_fn("equil.out.box1.prp"))
         assert thermo.prop("Pressure").shape == (201,)
         assert np.isclose(thermo.prop("Pressure")[-1].value, 42.242944)
         assert np.isclose(thermo.prop("Energy_InterVDW")[0].value, 22378.33)
 
     def test_invalid_prop(self):
-        thermo = ThermoProps("files/equil.out.box1.prp")
+        thermo = ThermoProps(get_fn("equil.out.box1.prp"))
         with pytest.raises(ValueError, match=r"not an available"):
             chem_pot = thermo.prop("Chemical_Potential")
 
     def test_extract_range(self):
-        thermo = ThermoProps("files/equil.out.box1.prp")
+        thermo = ThermoProps(get_fn("equil.out.box1.prp"))
         pressure = thermo.prop("Pressure", start=15, end=30)
         sweep = thermo.prop("MC_SWEEP", start=15, end=30)
 
@@ -44,7 +45,7 @@ class TestAnalysis(BaseTest):
 
     @pytest.mark.skipif(not has_pandas, reason="pandas not installed")
     def test_to_df(self):
-        thermo = ThermoProps("files/equil.out.box1.prp")
+        thermo = ThermoProps(get_fn("equil.out.box1.prp"))
         df = thermo.to_df()
         arrays = [
             (

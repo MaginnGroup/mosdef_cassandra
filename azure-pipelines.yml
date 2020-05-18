@@ -96,7 +96,7 @@ jobs:
         conda config --add channels conda-forge
         conda update -c defaults conda
         conda update --all
-        conda create -n  bleeding-test-environment
+        conda create --yes -n bleeding-test-environment python=$(python.version) --file requirements-dev.txt
       displayName: Create a new bleeding test environment
 
     - bash: |

@@ -3,6 +3,8 @@ import mbuild
 import foyer
 import mosdef_cassandra as mc
 
+from os.path import join, split, abspath
+
 
 class BaseTest:
     @pytest.fixture
@@ -73,3 +75,19 @@ class BaseTest:
         methane = mbuild.load("C", smiles=True)
         methane.boundingbox.lengths = [5.0, 5.0, 5.0]
         return methane
+
+
+def get_fn(filename):
+    """Gets the full path of the file name for a particular test file.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the file to get
+
+    Returns
+    -------
+    path: str
+        Name of the test file with the full path location
+    """
+    return join(split(abspath(__file__))[0], "files", filename)

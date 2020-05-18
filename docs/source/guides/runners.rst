@@ -71,12 +71,15 @@ specifying a larger number of custom options. For example:
     **custom_args
   )
 
-Restarting a simulation
-=======================
+Restart a simulation
+====================
 
-MoSDeF Cassandra also supports restarting from a checkpoint file.
-This is particularly helpful when switching from an equilibration
-to production simulation.
+MoSDeF Cassandra also supports restarting from a Cassandra
+checkpoint file. The checkpoint file contains the coordinates,
+box information, and state of the random number generator
+required for an exact restart. This functionality is particularly
+helpful when switching from an equilibration to
+production simulation.
 
 The procedure follows:
 

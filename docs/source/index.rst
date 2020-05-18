@@ -124,6 +124,7 @@ Table of Contents
    :caption: Guides
 
    guides/philosophy
+   guides/unyts
    guides/system
    guides/moveset
    guides/runners

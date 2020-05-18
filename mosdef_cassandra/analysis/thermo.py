@@ -3,11 +3,11 @@ import os
 import numpy as np
 import unyt as u
 
-class ThermoProperties:
+class ThermoProps:
     """Store thermodynamic properties from a Cassandra .prp file"""
 
     def __init__(self, filename):
-        """Create the ThermoProperties object
+        """Create ThermoProps from a .prp file
         
         Parameters
         ----------
@@ -16,7 +16,7 @@ class ThermoProperties:
 
         Returns
         -------
-        ThermoProperties
+        ThermoProps
             object containing the contents of the prp file
         """
 
@@ -108,7 +108,7 @@ class ThermoProperties:
         return self._data[start_idx:end_idx, col_idx] * self._unyts[col_idx]
    
     def to_df(self):
-        """Convert ThermoProperties to a pandas.DataFrame"""
+        """Convert ThermoProps to a pandas.DataFrame"""
         try:
             import pandas as pd
         except ModuleNotFoundError:

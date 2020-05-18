@@ -5,113 +5,113 @@ import warnings
 from mosdef_cassandra.tests.base_test import BaseTest
 
 
-class TestMoves(BaseTest):
+class TestMoveSet(BaseTest):
     def test_invalid_ensemble(self, methane_oplsaa):
         with pytest.raises(ValueError, match=r"Invalid ensemble"):
-            moves = mc.Moves("nvtn", [methane_oplsaa])
+            moveset = mc.MoveSet("nvtn", [methane_oplsaa])
 
     def test_invalid_species_list(self, methane_oplsaa):
         with pytest.raises(
             TypeError,
             match=r"species_topologies should " "be a list of species",
         ):
-            moves = mc.Moves("nvt", methane_oplsaa)
+            moveset = mc.MoveSet("nvt", methane_oplsaa)
 
     def test_invalid_species_type(self):
         with pytest.raises(
             TypeError, match=r"each species should be " "a parmed.Structure"
         ):
-            moves = mc.Moves("nvt", [1])
+            moveset = mc.MoveSet("nvt", [1])
 
     def test_ensemble_nvt(self, methane_oplsaa):
-        moves = mc.Moves("nvt", [methane_oplsaa])
-        assert moves.ensemble == "nvt"
-        assert moves.prob_translate == 0.33
-        assert moves.prob_rotate == 0.33
-        assert moves.prob_regrow == 0.34
-        assert moves.prob_volume == 0.0
-        assert moves.prob_angle == 0.0
-        assert moves.prob_dihedral == 0.0
-        assert moves.prob_insert == 0.0
-        assert moves.prob_swap == 0.0
+        moveset = mc.MoveSet("nvt", [methane_oplsaa])
+        assert moveset.ensemble == "nvt"
+        assert moveset.prob_translate == 0.33
+        assert moveset.prob_rotate == 0.33
+        assert moveset.prob_regrow == 0.34
+        assert moveset.prob_volume == 0.0
+        assert moveset.prob_angle == 0.0
+        assert moveset.prob_dihedral == 0.0
+        assert moveset.prob_insert == 0.0
+        assert moveset.prob_swap == 0.0
 
         # Per box attributes
-        assert len(moves.max_translate) == 1
-        assert len(moves.max_rotate) == 1
-        assert len(moves.max_volume) == 1
-        assert len(moves.prob_swap_from_box) == 1
-        assert moves.prob_swap_from_box[0] == 1.0
-        assert moves.max_volume[0] == 0.0
+        assert len(moveset.max_translate) == 1
+        assert len(moveset.max_rotate) == 1
+        assert len(moveset.max_volume) == 1
+        assert len(moveset.prob_swap_from_box) == 1
+        assert moveset.prob_swap_from_box[0] == 1.0
+        assert moveset.max_volume[0] == 0.0
         # Per species-per-box
-        assert len(moves.max_translate[0]) == 1
-        assert len(moves.max_rotate[0]) == 1
+        assert len(moveset.max_translate[0]) == 1
+        assert len(moveset.max_rotate[0]) == 1
         # Per species attributes
-        assert len(moves.insertable) == 1
-        assert len(moves.prob_swap_species) == 1
-        assert len(moves.prob_regrow_species) == 1
+        assert len(moveset.insertable) == 1
+        assert len(moveset.prob_swap_species) == 1
+        assert len(moveset.prob_regrow_species) == 1
         # Should be regrow-able but not insertable
-        assert moves.prob_regrow_species[0] == 1.0
-        assert moves.insertable[0] == False
+        assert moveset.prob_regrow_species[0] == 1.0
+        assert moveset.insertable[0] == False
 
     def test_ensemble_npt(self, methane_oplsaa):
-        moves = mc.Moves("npt", [methane_oplsaa])
-        assert moves.ensemble == "npt"
-        assert moves.prob_translate == 0.33
-        assert moves.prob_rotate == 0.33
-        assert moves.prob_regrow == 0.335
-        assert moves.prob_volume == 0.005
-        assert moves.prob_angle == 0.0
-        assert moves.prob_dihedral == 0.0
-        assert moves.prob_insert == 0.0
-        assert moves.prob_swap == 0.0
+        moveset = mc.MoveSet("npt", [methane_oplsaa])
+        assert moveset.ensemble == "npt"
+        assert moveset.prob_translate == 0.33
+        assert moveset.prob_rotate == 0.33
+        assert moveset.prob_regrow == 0.335
+        assert moveset.prob_volume == 0.005
+        assert moveset.prob_angle == 0.0
+        assert moveset.prob_dihedral == 0.0
+        assert moveset.prob_insert == 0.0
+        assert moveset.prob_swap == 0.0
 
         # Per box attributes
-        assert len(moves.max_translate) == 1
-        assert len(moves.max_rotate) == 1
-        assert len(moves.max_volume) == 1
-        assert len(moves.prob_swap_from_box) == 1
-        assert moves.prob_swap_from_box[0] == 1.0
-        assert moves.max_volume[0] == 500.0
+        assert len(moveset.max_translate) == 1
+        assert len(moveset.max_rotate) == 1
+        assert len(moveset.max_volume) == 1
+        assert len(moveset.prob_swap_from_box) == 1
+        assert moveset.prob_swap_from_box[0] == 1.0
+        assert moveset.max_volume[0] == 500.0
         # Per species-per-box
-        assert len(moves.max_translate[0]) == 1
-        assert len(moves.max_rotate[0]) == 1
+        assert len(moveset.max_translate[0]) == 1
+        assert len(moveset.max_rotate[0]) == 1
         # Per species attributes
-        assert len(moves.insertable) == 1
-        assert len(moves.prob_swap_species) == 1
-        assert len(moves.prob_regrow_species) == 1
+        assert len(moveset.insertable) == 1
+        assert len(moveset.prob_swap_species) == 1
+        assert len(moveset.prob_regrow_species) == 1
         # Should be regrow-able but not insertable
-        assert moves.prob_regrow_species[0] == 1.0
-        assert moves.insertable[0] == False
+        assert moveset.prob_regrow_species[0] == 1.0
+        assert moveset.insertable[0] == False
 
     def test_ensemble_gcmc(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
-        assert moves.ensemble == "gcmc"
-        assert moves.prob_translate == 0.25
-        assert moves.prob_rotate == 0.25
-        assert moves.prob_regrow == 0.30
-        assert moves.prob_volume == 0.0
-        assert moves.prob_angle == 0.0
-        assert moves.prob_dihedral == 0.0
-        assert moves.prob_insert == 0.1
-        assert moves.prob_swap == 0.0
+        moveset = mc.MoveSet("gcmc", [methane_oplsaa])
+        assert moveset.ensemble == "gcmc"
+        assert moveset.prob_translate == 0.25
+        assert moveset.prob_rotate == 0.25
+        assert moveset.prob_regrow == 0.30
+        assert moveset.prob_volume == 0.0
+        assert moveset.prob_angle == 0.0
+        assert moveset.prob_dihedral == 0.0
+        assert moveset.prob_insert == 0.1
+        assert moveset.prob_swap == 0.0
 
         # Per box attributes
-        assert len(moves.max_translate) == 1
-        assert len(moves.max_rotate) == 1
-        assert len(moves.max_volume) == 1
-        assert len(moves.prob_swap_from_box) == 1
-        assert moves.prob_swap_from_box[0] == 1.0
-        assert moves.max_volume[0] == 0.0
+        assert len(moveset.max_translate) == 1
+        assert len(moveset.max_rotate) == 1
+        assert len(moveset.max_volume) == 1
+        assert len(moveset.prob_swap_from_box) == 1
+        assert moveset.prob_swap_from_box[0] == 1.0
+        assert moveset.max_volume[0] == 0.0
         # Per species-per-box
-        assert len(moves.max_translate[0]) == 1
-        assert len(moves.max_rotate[0]) == 1
+        assert len(moveset.max_translate[0]) == 1
+        assert len(moveset.max_rotate[0]) == 1
         # Per species attributes
-        assert len(moves.insertable) == 1
-        assert len(moves.prob_swap_species) == 1
-        assert len(moves.prob_regrow_species) == 1
+        assert len(moveset.insertable) == 1
+        assert len(moveset.prob_swap_species) == 1
+        assert len(moveset.prob_regrow_species) == 1
         # Should be insertable and regrow-able
-        assert moves.insertable[0] == True
-        assert moves.prob_regrow_species[0] == 1.0
+        assert moveset.insertable[0] == True
+        assert moveset.prob_regrow_species[0] == 1.0
 
     @pytest.mark.parametrize(
         "typ,value",
@@ -123,44 +123,44 @@ class TestMoves(BaseTest):
         ],
     )
     def test_restricted_gcmc(self, methane_oplsaa, typ, value):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
-        moves.add_restricted_insertions([methane_oplsaa], [[typ]], [[value]])
+        moveset = mc.MoveSet("gcmc", [methane_oplsaa])
+        moveset.add_restricted_insertions([methane_oplsaa], [[typ]], [[value]])
 
-        assert moves._restricted_type == [[typ]]
-        assert moves._restricted_value == [[value]]
+        assert moveset._restricted_type == [[typ]]
+        assert moveset._restricted_value == [[value]]
 
     def test_ensemble_gemc(self, methane_oplsaa):
-        moves = mc.Moves("gemc", [methane_oplsaa])
-        assert moves.ensemble == "gemc"
-        assert moves.prob_translate == 0.30
-        assert moves.prob_rotate == 0.30
-        assert moves.prob_regrow == 0.295
-        assert moves.prob_volume == 0.005
-        assert moves.prob_angle == 0.0
-        assert moves.prob_dihedral == 0.0
-        assert moves.prob_insert == 0.0
-        assert moves.prob_swap == 0.1
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
+        assert moveset.ensemble == "gemc"
+        assert moveset.prob_translate == 0.30
+        assert moveset.prob_rotate == 0.30
+        assert moveset.prob_regrow == 0.295
+        assert moveset.prob_volume == 0.005
+        assert moveset.prob_angle == 0.0
+        assert moveset.prob_dihedral == 0.0
+        assert moveset.prob_insert == 0.0
+        assert moveset.prob_swap == 0.1
 
         # Per box attributes
-        assert len(moves.max_translate) == 2
-        assert len(moves.max_rotate) == 2
-        assert len(moves.prob_swap_from_box) == 2
-        assert moves.prob_swap_from_box[0] == 0.5
-        assert moves.prob_swap_from_box[1] == 0.5
-        assert len(moves.max_volume) == 1
-        assert moves.max_volume[0] == 500.0
+        assert len(moveset.max_translate) == 2
+        assert len(moveset.max_rotate) == 2
+        assert len(moveset.prob_swap_from_box) == 2
+        assert moveset.prob_swap_from_box[0] == 0.5
+        assert moveset.prob_swap_from_box[1] == 0.5
+        assert len(moveset.max_volume) == 1
+        assert moveset.max_volume[0] == 500.0
         # Per species-per-box
-        assert len(moves.max_translate[0]) == 1
-        assert len(moves.max_rotate[0]) == 1
-        assert len(moves.max_translate[1]) == 1
-        assert len(moves.max_rotate[1]) == 1
+        assert len(moveset.max_translate[0]) == 1
+        assert len(moveset.max_rotate[0]) == 1
+        assert len(moveset.max_translate[1]) == 1
+        assert len(moveset.max_rotate[1]) == 1
         # Per species attributes
-        assert len(moves.insertable) == 1
-        assert len(moves.prob_swap_species) == 1
-        assert len(moves.prob_regrow_species) == 1
+        assert len(moveset.insertable) == 1
+        assert len(moveset.prob_swap_species) == 1
+        assert len(moveset.prob_regrow_species) == 1
         # Should be insertable and regrow-able
-        assert moves.insertable[0] == True
-        assert moves.prob_regrow_species[0] == 1.0
+        assert moveset.insertable[0] == True
+        assert moveset.prob_regrow_species[0] == 1.0
 
     @pytest.mark.parametrize(
         "typ,value",
@@ -172,373 +172,373 @@ class TestMoves(BaseTest):
         ],
     )
     def test_restricted_gemc(self, methane_oplsaa, typ, value):
-        moves = mc.Moves("gemc", [methane_oplsaa])
-        moves.add_restricted_insertions(
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
+        moveset.add_restricted_insertions(
             [methane_oplsaa], [[None], [typ]], [[None], [value]]
         )
 
-        assert moves._restricted_type == [[None], [typ]]
-        assert moves._restricted_value == [[None], [value]]
+        assert moveset._restricted_type == [[None], [typ]]
+        assert moveset._restricted_value == [[None], [value]]
 
     def test_ensemble_gemcnpt(self, methane_oplsaa):
-        moves = mc.Moves("gemc_npt", [methane_oplsaa])
-        assert moves.ensemble == "gemc_npt"
-        assert moves.prob_translate == 0.30
-        assert moves.prob_rotate == 0.30
-        assert moves.prob_regrow == 0.295
-        assert moves.prob_volume == 0.005
-        assert moves.prob_angle == 0.0
-        assert moves.prob_dihedral == 0.0
-        assert moves.prob_insert == 0.0
-        assert moves.prob_swap == 0.1
+        moveset = mc.MoveSet("gemc_npt", [methane_oplsaa])
+        assert moveset.ensemble == "gemc_npt"
+        assert moveset.prob_translate == 0.30
+        assert moveset.prob_rotate == 0.30
+        assert moveset.prob_regrow == 0.295
+        assert moveset.prob_volume == 0.005
+        assert moveset.prob_angle == 0.0
+        assert moveset.prob_dihedral == 0.0
+        assert moveset.prob_insert == 0.0
+        assert moveset.prob_swap == 0.1
 
         # Per box attributes
-        assert len(moves.max_translate) == 2
-        assert len(moves.max_rotate) == 2
-        assert len(moves.prob_swap_from_box) == 2
-        assert moves.prob_swap_from_box[0] == 0.5
-        assert moves.prob_swap_from_box[1] == 0.5
-        assert len(moves.max_volume) == 2
-        assert moves.max_volume[0] == 500.0
-        assert moves.max_volume[1] == 5000.0
+        assert len(moveset.max_translate) == 2
+        assert len(moveset.max_rotate) == 2
+        assert len(moveset.prob_swap_from_box) == 2
+        assert moveset.prob_swap_from_box[0] == 0.5
+        assert moveset.prob_swap_from_box[1] == 0.5
+        assert len(moveset.max_volume) == 2
+        assert moveset.max_volume[0] == 500.0
+        assert moveset.max_volume[1] == 5000.0
         # Per species-per-box
-        assert len(moves.max_translate[0]) == 1
-        assert len(moves.max_rotate[0]) == 1
-        assert len(moves.max_translate[1]) == 1
-        assert len(moves.max_rotate[1]) == 1
+        assert len(moveset.max_translate[0]) == 1
+        assert len(moveset.max_rotate[0]) == 1
+        assert len(moveset.max_translate[1]) == 1
+        assert len(moveset.max_rotate[1]) == 1
         # Per species attributes
-        assert len(moves.insertable) == 1
-        assert len(moves.prob_swap_species) == 1
-        assert len(moves.prob_regrow_species) == 1
+        assert len(moveset.insertable) == 1
+        assert len(moveset.prob_swap_species) == 1
+        assert len(moveset.prob_regrow_species) == 1
         # Should be insertable and regrow-able
-        assert moves.insertable[0] == True
-        assert moves.prob_regrow_species[0] == 1.0
+        assert moveset.insertable[0] == True
+        assert moveset.prob_regrow_species[0] == 1.0
 
     def test_restricted_gemc_npt(self, methane_oplsaa):
-        moves = mc.Moves("gemc_npt", [methane_oplsaa])
-        moves.add_restricted_insertions(
+        moveset = mc.MoveSet("gemc_npt", [methane_oplsaa])
+        moveset.add_restricted_insertions(
             [methane_oplsaa], [[None], ["slitpore"]], [[None], [3]]
         )
 
-        assert moves._restricted_type == [[None], ["slitpore"]]
-        assert moves._restricted_value == [[None], [3]]
+        assert moveset._restricted_type == [[None], ["slitpore"]]
+        assert moveset._restricted_value == [[None], [3]]
 
     def test_single_site_nvt(self, methane_trappe):
 
-        moves = mc.Moves("nvt", [methane_trappe])
-        assert moves.ensemble == "nvt"
-        assert moves.prob_rotate == 0.0
-        assert moves.prob_regrow == 0.0
-        assert moves.prob_translate == 1.0
-        assert moves.prob_volume == 0.0
-        assert moves.prob_angle == 0.0
-        assert moves.prob_dihedral == 0.0
-        assert moves.prob_insert == 0.0
-        assert moves.prob_swap == 0.0
+        moveset = mc.MoveSet("nvt", [methane_trappe])
+        assert moveset.ensemble == "nvt"
+        assert moveset.prob_rotate == 0.0
+        assert moveset.prob_regrow == 0.0
+        assert moveset.prob_translate == 1.0
+        assert moveset.prob_volume == 0.0
+        assert moveset.prob_angle == 0.0
+        assert moveset.prob_dihedral == 0.0
+        assert moveset.prob_insert == 0.0
+        assert moveset.prob_swap == 0.0
 
         # Per box attributes
-        assert len(moves.max_translate) == 1
-        assert len(moves.max_rotate) == 1
-        assert len(moves.max_volume) == 1
-        assert len(moves.prob_swap_from_box) == 1
-        assert moves.prob_swap_from_box[0] == 1.0
-        assert moves.max_volume[0] == 0.0
+        assert len(moveset.max_translate) == 1
+        assert len(moveset.max_rotate) == 1
+        assert len(moveset.max_volume) == 1
+        assert len(moveset.prob_swap_from_box) == 1
+        assert moveset.prob_swap_from_box[0] == 1.0
+        assert moveset.max_volume[0] == 0.0
         # Per species-per-box
-        assert len(moves.max_translate[0]) == 1
-        assert len(moves.max_rotate[0]) == 1
+        assert len(moveset.max_translate[0]) == 1
+        assert len(moveset.max_rotate[0]) == 1
         # Per species attributes
-        assert len(moves.insertable) == 1
-        assert len(moves.prob_swap_species) == 1
-        assert len(moves.prob_regrow_species) == 1
+        assert len(moveset.insertable) == 1
+        assert len(moveset.prob_swap_species) == 1
+        assert len(moveset.prob_regrow_species) == 1
         # Should NOT be insertable or regrow-able
-        assert moves.insertable[0] == False
-        assert moves.prob_regrow_species[0] == 0.0
+        assert moveset.insertable[0] == False
+        assert moveset.prob_regrow_species[0] == 0.0
 
     def test_single_site_gemc(self, methane_trappe):
 
-        moves = mc.Moves("gemc", [methane_trappe])
-        assert moves.ensemble == "gemc"
-        assert moves.prob_rotate == 0.0
-        assert moves.prob_regrow == 0.0
-        assert moves.prob_translate == pytest.approx(0.895)
-        assert moves.prob_volume == 0.005
-        assert moves.prob_angle == 0.0
-        assert moves.prob_dihedral == 0.0
-        assert moves.prob_insert == 0.0
-        assert moves.prob_swap == 0.1
+        moveset = mc.MoveSet("gemc", [methane_trappe])
+        assert moveset.ensemble == "gemc"
+        assert moveset.prob_rotate == 0.0
+        assert moveset.prob_regrow == 0.0
+        assert moveset.prob_translate == pytest.approx(0.895)
+        assert moveset.prob_volume == 0.005
+        assert moveset.prob_angle == 0.0
+        assert moveset.prob_dihedral == 0.0
+        assert moveset.prob_insert == 0.0
+        assert moveset.prob_swap == 0.1
 
         # Per box attributes
-        assert len(moves.max_translate) == 2
-        assert len(moves.max_rotate) == 2
-        assert len(moves.max_volume) == 1
-        assert len(moves.prob_swap_from_box) == 2
-        assert moves.prob_swap_from_box[0] == 0.5
-        assert moves.prob_swap_from_box[1] == 0.5
-        assert moves.max_volume[0] == 500.0
+        assert len(moveset.max_translate) == 2
+        assert len(moveset.max_rotate) == 2
+        assert len(moveset.max_volume) == 1
+        assert len(moveset.prob_swap_from_box) == 2
+        assert moveset.prob_swap_from_box[0] == 0.5
+        assert moveset.prob_swap_from_box[1] == 0.5
+        assert moveset.max_volume[0] == 500.0
         # Per species-per-box
-        assert len(moves.max_translate[0]) == 1
-        assert len(moves.max_translate[1]) == 1
-        assert len(moves.max_rotate[0]) == 1
-        assert len(moves.max_rotate[1]) == 1
+        assert len(moveset.max_translate[0]) == 1
+        assert len(moveset.max_translate[1]) == 1
+        assert len(moveset.max_rotate[0]) == 1
+        assert len(moveset.max_rotate[1]) == 1
         # Per species attributes
-        assert len(moves.insertable) == 1
-        assert len(moves.prob_swap_species) == 1
-        assert len(moves.prob_regrow_species) == 1
+        assert len(moveset.insertable) == 1
+        assert len(moveset.prob_swap_species) == 1
+        assert len(moveset.prob_regrow_species) == 1
         # Should be insertable and NOT regrow-able
-        assert moves.insertable[0] == True
-        assert moves.prob_regrow_species[0] == 0.0
+        assert moveset.insertable[0] == True
+        assert moveset.prob_regrow_species[0] == 0.0
 
     def test_gcmc_lattice(self, fixed_lattice_trappe, methane_trappe):
 
-        moves = mc.Moves("gcmc", [fixed_lattice_trappe, methane_trappe])
-        assert moves.ensemble == "gcmc"
-        assert moves.prob_translate == pytest.approx(0.8)
-        assert moves.prob_rotate == 0.0
-        assert moves.prob_regrow == 0.0
-        assert moves.prob_volume == 0.0
-        assert moves.prob_angle == 0.0
-        assert moves.prob_dihedral == 0.0
-        assert moves.prob_insert == 0.1
-        assert moves.prob_swap == pytest.approx(0.0)
+        moveset = mc.MoveSet("gcmc", [fixed_lattice_trappe, methane_trappe])
+        assert moveset.ensemble == "gcmc"
+        assert moveset.prob_translate == pytest.approx(0.8)
+        assert moveset.prob_rotate == 0.0
+        assert moveset.prob_regrow == 0.0
+        assert moveset.prob_volume == 0.0
+        assert moveset.prob_angle == 0.0
+        assert moveset.prob_dihedral == 0.0
+        assert moveset.prob_insert == 0.1
+        assert moveset.prob_swap == pytest.approx(0.0)
 
         # Per box attributes
-        assert len(moves.max_translate) == 1
-        assert len(moves.max_rotate) == 1
-        assert len(moves.max_volume) == 1
-        assert len(moves.prob_swap_from_box) == 1
-        assert moves.prob_swap_from_box[0] == 1.0
-        assert moves.max_volume[0] == 0.0
+        assert len(moveset.max_translate) == 1
+        assert len(moveset.max_rotate) == 1
+        assert len(moveset.max_volume) == 1
+        assert len(moveset.prob_swap_from_box) == 1
+        assert moveset.prob_swap_from_box[0] == 1.0
+        assert moveset.max_volume[0] == 0.0
         # Per species-per-box
-        assert len(moves.max_translate[0]) == 2
-        assert len(moves.max_rotate[0]) == 2
+        assert len(moveset.max_translate[0]) == 2
+        assert len(moveset.max_rotate[0]) == 2
         # Per species attributes
-        assert len(moves.insertable) == 2
-        assert len(moves.prob_swap_species) == 2
-        assert len(moves.prob_regrow_species) == 2
+        assert len(moveset.insertable) == 2
+        assert len(moveset.prob_swap_species) == 2
+        assert len(moveset.prob_regrow_species) == 2
         # Lattice should not be insertable or regrow-able
-        assert moves.insertable[0] == False
-        assert moves.prob_regrow_species[0] == 0.0
+        assert moveset.insertable[0] == False
+        assert moveset.prob_regrow_species[0] == 0.0
         # Methane should be insertable and not regrow-able
-        assert moves.insertable[1] == True
-        assert moves.prob_regrow_species[1] == 0.0
+        assert moveset.insertable[1] == True
+        assert moveset.prob_regrow_species[1] == 0.0
 
     def test_prob_setters(self, methane_oplsaa):
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moveset = mc.MoveSet("nvt", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"prob_translate must"):
-            moves.prob_translate = []
+            moveset.prob_translate = []
         with pytest.raises(TypeError, match=r"prob_translate must"):
-            moves.prob_translate = True
+            moveset.prob_translate = True
         with pytest.raises(ValueError, match=r"Probability must"):
-            moves.prob_translate = -0.2
+            moveset.prob_translate = -0.2
 
         with pytest.raises(TypeError, match=r"prob_rotate must"):
-            moves.prob_rotate = []
+            moveset.prob_rotate = []
         with pytest.raises(TypeError, match=r"prob_rotate must"):
-            moves.prob_rotate = True
+            moveset.prob_rotate = True
         with pytest.raises(ValueError, match=r"Probability must"):
-            moves.prob_rotate = -0.2
+            moveset.prob_rotate = -0.2
 
         with pytest.raises(TypeError, match=r"prob_angle must"):
-            moves.prob_angle = []
+            moveset.prob_angle = []
         with pytest.raises(TypeError, match=r"prob_angle must"):
-            moves.prob_angle = True
+            moveset.prob_angle = True
         with pytest.raises(ValueError, match=r"Probability must"):
-            moves.prob_angle = -0.2
+            moveset.prob_angle = -0.2
 
         with pytest.raises(TypeError, match=r"prob_dihedral must"):
-            moves.prob_dihedral = []
+            moveset.prob_dihedral = []
         with pytest.raises(TypeError, match=r"prob_dihedral must"):
-            moves.prob_dihedral = True
+            moveset.prob_dihedral = True
         with pytest.raises(ValueError, match=r"Probability must"):
-            moves.prob_dihedral = -0.2
+            moveset.prob_dihedral = -0.2
 
         with pytest.raises(TypeError, match=r"prob_regrow must"):
-            moves.prob_regrow = []
+            moveset.prob_regrow = []
         with pytest.raises(TypeError, match=r"prob_regrow must"):
-            moves.prob_regrow = True
+            moveset.prob_regrow = True
         with pytest.raises(ValueError, match=r"Probability must"):
-            moves.prob_regrow = -0.2
+            moveset.prob_regrow = -0.2
 
         with pytest.raises(TypeError, match=r"prob_volume must"):
-            moves.prob_volume = []
+            moveset.prob_volume = []
         with pytest.raises(TypeError, match=r"prob_volume must"):
-            moves.prob_volume = True
+            moveset.prob_volume = True
         with pytest.raises(ValueError, match=r"Probability must"):
-            moves.prob_volume = -0.2
+            moveset.prob_volume = -0.2
         with pytest.raises(ValueError, match=r"Ensemble is nvt."):
-            moves.prob_volume = 0.02
+            moveset.prob_volume = 0.02
 
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"Ensemble is gemc."):
-            moves.prob_volume = 0.0
+            moveset.prob_volume = 0.0
 
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moveset = mc.MoveSet("nvt", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"prob_insert must"):
-            moves.prob_insert = []
+            moveset.prob_insert = []
         with pytest.raises(TypeError, match=r"prob_insert must"):
-            moves.prob_insert = True
+            moveset.prob_insert = True
         with pytest.raises(ValueError, match=r"Probability must"):
-            moves.prob_insert = -0.2
+            moveset.prob_insert = -0.2
         with pytest.raises(ValueError, match=r"Ensemble is nvt."):
-            moves.prob_insert = 0.2
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+            moveset.prob_insert = 0.2
+        moveset = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"Ensemble is gcmc."):
-            moves.prob_insert = 0.0
+            moveset.prob_insert = 0.0
 
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moveset = mc.MoveSet("nvt", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"prob_swap must"):
-            moves.prob_swap = []
+            moveset.prob_swap = []
         with pytest.raises(TypeError, match=r"prob_swap must"):
-            moves.prob_swap = True
+            moveset.prob_swap = True
         with pytest.raises(ValueError, match=r"Probability must"):
-            moves.prob_swap = -0.2
+            moveset.prob_swap = -0.2
         with pytest.raises(ValueError, match=r"Ensemble is nvt."):
-            moves.prob_swap = 0.2
-        moves = mc.Moves("gemc", [methane_oplsaa])
+            moveset.prob_swap = 0.2
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"Ensemble is gemc."):
-            moves.prob_swap = 0.0
+            moveset.prob_swap = 0.0
 
     def test_maxval_setters(self, methane_oplsaa):
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_translate = 1.0
+            moveset.max_translate = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_translate = [[1.0, 1.0], [1.0]]
+            moveset.max_translate = [[1.0, 1.0], [1.0]]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.max_translate = [[1.0], [True]]
+            moveset.max_translate = [[1.0], [True]]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.max_translate = [[1.0], [-1.0]]
-        moves.max_translate = [[1.0], [1]]
-        assert moves.max_translate[1][0] == 1.0
+            moveset.max_translate = [[1.0], [-1.0]]
+        moveset.max_translate = [[1.0], [1]]
+        assert moveset.max_translate[1][0] == 1.0
 
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_rotate = 1.0
+            moveset.max_rotate = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_rotate = [[1.0, 1.0], [1.0]]
+            moveset.max_rotate = [[1.0, 1.0], [1.0]]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.max_rotate = [[1.0], [True]]
+            moveset.max_rotate = [[1.0], [True]]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.max_rotate = [[1.0], [-1.0]]
-        moves.max_rotate = [[1.0], [1]]
-        assert moves.max_rotate[1][0] == 1.0
+            moveset.max_rotate = [[1.0], [-1.0]]
+        moveset.max_rotate = [[1.0], [1]]
+        assert moveset.max_rotate[1][0] == 1.0
 
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_dihedral = 1.0
+            moveset.max_dihedral = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.max_dihedral = [1.0, 1.0, 1.0]
+            moveset.max_dihedral = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.max_dihedral = [True]
+            moveset.max_dihedral = [True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.max_dihedral = [-1.0]
-        moves.max_dihedral = [1.0]
-        assert moves.max_dihedral[0] == 1.0
+            moveset.max_dihedral = [-1.0]
+        moveset.max_dihedral = [1.0]
+        assert moveset.max_dihedral[0] == 1.0
 
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.prob_swap_from_box = 1.0
+            moveset.prob_swap_from_box = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.prob_swap_from_box = [1.0, 1.0, 1.0]
+            moveset.prob_swap_from_box = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.prob_swap_from_box = [0.5, True]
+            moveset.prob_swap_from_box = [0.5, True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.prob_swap_from_box = [0.5, -0.5]
-        moves.prob_swap_from_box = [0.5, 0.5]
-        assert moves.prob_swap_from_box[0] == 0.5
+            moveset.prob_swap_from_box = [0.5, -0.5]
+        moveset.prob_swap_from_box = [0.5, 0.5]
+        assert moveset.prob_swap_from_box[0] == 0.5
 
-        moves = mc.Moves("gemc", [methane_oplsaa])
-        moves.max_volume = 1.0
-        assert len(moves.max_volume) == 1
-        assert moves.max_volume[0] == 1.0
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
+        moveset.max_volume = 1.0
+        assert len(moveset.max_volume) == 1
+        assert moveset.max_volume[0] == 1.0
         with pytest.raises(TypeError, match=r"a list with length"):
-            moves.max_volume = [1.0, 1.0, 1.0]
+            moveset.max_volume = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.max_volume = [True]
+            moveset.max_volume = [True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.max_volume = [-100]
-        moves.max_volume = [5000.0]
-        assert moves.max_volume[0] == 5000.0
-        moves = mc.Moves("gemc_npt", [methane_oplsaa])
+            moveset.max_volume = [-100]
+        moveset.max_volume = [5000.0]
+        assert moveset.max_volume[0] == 5000.0
+        moveset = mc.MoveSet("gemc_npt", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"a list with length"):
-            moves.max_volume = [1.0, 1.0, 1.0]
+            moveset.max_volume = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.max_volume = [True, 50000.0]
+            moveset.max_volume = [True, 50000.0]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.max_volume = [-100, 100.0]
-        moves.max_volume = [5000.0, 50000.0]
-        assert moves.max_volume[1] == 50000.0
+            moveset.max_volume = [-100, 100.0]
+        moveset.max_volume = [5000.0, 50000.0]
+        assert moveset.max_volume[1] == 50000.0
 
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.insertable = 1.0
+            moveset.insertable = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.insertable = [1.0, 1.0, 1.0]
+            moveset.insertable = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"as a boolean type"):
-            moves.insertable = [2.0]
-        moves.insertable = [True]
-        assert moves.insertable[0] == True
+            moveset.insertable = [2.0]
+        moveset.insertable = [True]
+        assert moveset.insertable[0] == True
 
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.prob_swap_species = 1.0
+            moveset.prob_swap_species = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.prob_swap_species = [1.0, 1.0, 1.0]
+            moveset.prob_swap_species = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.prob_swap_species = [True]
+            moveset.prob_swap_species = [True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.prob_swap_species = [-1.0]
-        moves.prob_swap_species = [1.0]
-        assert moves.prob_swap_species[0] == 1.0
+            moveset.prob_swap_species = [-1.0]
+        moveset.prob_swap_species = [1.0]
+        assert moveset.prob_swap_species[0] == 1.0
 
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.prob_regrow_species = 1.0
+            moveset.prob_regrow_species = 1.0
         with pytest.raises(ValueError, match=r"must be a list"):
-            moves.prob_regrow_species = [1.0, 1.0, 1.0]
+            moveset.prob_regrow_species = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.prob_regrow_species = [True]
+            moveset.prob_regrow_species = [True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moves.prob_regrow_species = [-1.0]
-        moves.prob_regrow_species = [1.0]
-        assert moves.prob_regrow_species[0] == 1.0
+            moveset.prob_regrow_species = [-1.0]
+        moveset.prob_regrow_species = [1.0]
+        assert moveset.prob_regrow_species[0] == 1.0
 
     def test_cbmc_setters(self, methane_oplsaa):
-        moves = mc.Moves("gemc", [methane_oplsaa])
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"must be of type int"):
-            moves.cbmc_n_insert = 12.2
+            moveset.cbmc_n_insert = 12.2
         with pytest.raises(ValueError, match=r"must be greater than zero"):
-            moves.cbmc_n_insert = -2
-        moves.cbmc_n_insert = 20
-        assert moves.cbmc_n_insert == 20
+            moveset.cbmc_n_insert = -2
+        moveset.cbmc_n_insert = 20
+        assert moveset.cbmc_n_insert == 20
         with pytest.raises(TypeError, match=r"must be of type int"):
-            moves.cbmc_n_dihed = 12.2
+            moveset.cbmc_n_dihed = 12.2
         with pytest.raises(ValueError, match=r"must be greater than zero"):
-            moves.cbmc_n_dihed = -2
-        moves.cbmc_n_dihed = 20
-        assert moves.cbmc_n_dihed == 20
+            moveset.cbmc_n_dihed = -2
+        moveset.cbmc_n_dihed = 20
+        assert moveset.cbmc_n_dihed == 20
         with pytest.raises(TypeError, match=r"of type float"):
-            moves.cbmc_rcut = [3.0, [3.0]]
+            moveset.cbmc_rcut = [3.0, [3.0]]
         with pytest.raises(ValueError, match=r"less than zero"):
-            moves.cbmc_rcut = [3.0, -3.0]
-        moves.cbmc_rcut = [4.0, 8.0]
-        assert len(moves.cbmc_rcut) == 2
-        assert moves.cbmc_rcut[0] == 4.0
-        assert moves.cbmc_rcut[1] == 8.0
-        moves.cbmc_rcut = 5.0
-        assert len(moves.cbmc_rcut) == 2
-        assert moves.cbmc_rcut[0] == 5.0
-        assert moves.cbmc_rcut[1] == 5.0
-        moves = mc.Moves("nvt", [methane_oplsaa])
-        moves.cbmc_rcut = 7.0
-        assert len(moves.cbmc_rcut) == 1
-        assert moves.cbmc_rcut[0] == 7.0
+            moveset.cbmc_rcut = [3.0, -3.0]
+        moveset.cbmc_rcut = [4.0, 8.0]
+        assert len(moveset.cbmc_rcut) == 2
+        assert moveset.cbmc_rcut[0] == 4.0
+        assert moveset.cbmc_rcut[1] == 8.0
+        moveset.cbmc_rcut = 5.0
+        assert len(moveset.cbmc_rcut) == 2
+        assert moveset.cbmc_rcut[0] == 5.0
+        assert moveset.cbmc_rcut[1] == 5.0
+        moveset = mc.MoveSet("nvt", [methane_oplsaa])
+        moveset.cbmc_rcut = 7.0
+        assert len(moveset.cbmc_rcut) == 1
+        assert moveset.cbmc_rcut[0] == 7.0
 
-    def test_print_moves(self, methane_oplsaa):
-        """Simple test to make sure moves object is printed"""
+    def test_print_moveset(self, methane_oplsaa):
+        """Simple test to make sure moveset object is printed"""
 
-        moves = mc.Moves("gemc", [methane_oplsaa])
-        moves.print()
+        moveset = mc.MoveSet("gemc", [methane_oplsaa])
+        moveset.print()
 
     def test_invalid_ensemble_and_restriction(self, methane_oplsaa):
-        moves = mc.Moves("nvt", [methane_oplsaa])
+        moveset = mc.MoveSet("nvt", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"only valid"):
-            moves.add_restricted_insertions(
+            moveset.add_restricted_insertions(
                 [methane_oplsaa], [["slitpore"]], [[1]]
             )
 
@@ -549,37 +549,37 @@ class TestMoves(BaseTest):
     def test_value_error_restricted_type_and_value(
         self, methane_oplsaa, typ, value
     ):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moveset = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(ValueError):
-            moves.add_restricted_insertions([methane_oplsaa], [[typ]], value)
+            moveset.add_restricted_insertions([methane_oplsaa], [[typ]], value)
 
     def test_type_error_restricted_type_and_value(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moveset = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(TypeError):
-            moves.add_restricted_insertions(
+            moveset.add_restricted_insertions(
                 [methane_oplsaa], ["cylinder"], [3]
             )
 
     def test_invalid_restricted_type_and_species(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moveset = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(ValueError, match=r"Length of 'species'"):
-            moves.add_restricted_insertions(
+            moveset.add_restricted_insertions(
                 [methane_oplsaa], [["slitpore", None]], [[1, None]]
             )
 
     def test_add_multiple_restricted_insertions(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
-        moves.add_restricted_insertions(
+        moveset = mc.MoveSet("gcmc", [methane_oplsaa])
+        moveset.add_restricted_insertions(
             [methane_oplsaa], [["slitpore"]], [[3]]
         )
         with pytest.warns(None) as record:
-            moves.add_restricted_insertions(
+            moveset.add_restricted_insertions(
                 [methane_oplsaa], [["cylinder"]], [[3]]
             )
 
     def test_change_ensemble(self, methane_oplsaa):
-        moves = mc.Moves("gcmc", [methane_oplsaa])
+        moveset = mc.MoveSet("gcmc", [methane_oplsaa])
         with pytest.raises(
             AttributeError, match=r"Ensemble cannot be changed"
         ):
-            moves.ensemble = "nvt"
+            moveset.ensemble = "nvt"

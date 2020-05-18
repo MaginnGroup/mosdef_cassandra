@@ -4,22 +4,20 @@ import parmed
 import warnings
 
 
-class Moves(object):
+class MoveSet(object):
     def __init__(self, ensemble, species_topologies):
         """A class to contain all the move probabilities and related
         values required to perform a simulation in ``Cassandra``.
 
-        A Moves object contains a variety of move probabilities
+        A MoveSet contains the move probabilities
         and other related quantities (e.g., max translation/rotation)
-        that are required to run Cassandra. When the moves object
+        that are required to run Cassandra. When the MoveSet
         is created the specified ``ensemble`` and ``species_topologies``
-        are used to generate guesses for all required values.
+        are used to generate initial guesses for all required values.
         Depending upon the specifics of your system, these guesses may
         be very reasonable or downright terrible. Use the same
         ``species_topologies`` for your call to ``mosdef_cassandra.System()``
-        and ``mosdef_cassandra.Moves()``. Consult the Cassandra user
-        manual for more details on the meaning of different move
-        probabilities.
+        and ``mosdef_cassandra.MoveSet()``. 
 
         Parameters
         ----------
@@ -32,7 +30,7 @@ class Moves(object):
 
         Returns
         -------
-        ``mosdef_cassandra.Moves``
+        ``mosdef_cassandra.MoveSet``
 
         """
 
@@ -287,7 +285,7 @@ class Moves(object):
     def ensemble(self, ensemble):
         if hasattr(self, "_ensemble"):
             raise AttributeError(
-                "Ensemble cannot be changed. Please create a new Moves object instead."
+                "Ensemble cannot be changed. Please create a new MoveSet instead."
             )
         valid_ensembles = ["nvt", "npt", "gcmc", "gemc", "gemc_npt"]
         if ensemble not in valid_ensembles:
@@ -761,7 +759,7 @@ class Moves(object):
         self._cbmc_rcut = [float(rcut) for rcut in cbmc_rcut]
 
     def print(self):
-        """Print the current contents of Moves"""
+        """Print the current contents of the MoveSet"""
 
         contents = """
 Ensemble:  {ensemble}

@@ -8,7 +8,7 @@ API Documentation
     :members:
     :special-members:
 
-.. autoclass:: mosdef_cassandra.Moves
+.. autoclass:: mosdef_cassandra.MoveSet
     :members:
     :special-members:
 
@@ -19,3 +19,8 @@ API Documentation
 .. autofunction:: mosdef_cassandra.print_valid_kwargs
 
 .. autofunction:: mosdef_cassandra.print_inputfile
+
+.. autoclass:: mosdef_cassandra.analysis.ThermoProps
+  :members:
+
+  .. automethod:: __init__

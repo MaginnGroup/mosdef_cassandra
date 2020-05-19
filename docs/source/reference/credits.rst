@@ -7,8 +7,6 @@ Ryan DeFever - **Creator and lead developer**
 
 Ray Matsumoto - **Developer**
 
-Ryan Smith - **Developer**
-
 MoSDeF Cassandra was developed in close collaboration with the
 `MoSDeF <https://mosdef.org>`_ team.
 

@@ -71,7 +71,7 @@ specifying a larger number of custom options. For example:
     **custom_args
   )
 
-Restart a simulation
+Restart a Simulation
 ====================
 
 MoSDeF Cassandra also supports restarting from a Cassandra

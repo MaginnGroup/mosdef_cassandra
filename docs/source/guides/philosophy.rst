@@ -10,7 +10,7 @@ simulator.
 
 .. _keyconcepts:
 
-Key concepts
+Key Concepts
 ============
 
 MoSDeF Cassandra integrates the `Cassandra Monte Carlo (MC)

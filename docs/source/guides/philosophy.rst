@@ -2,9 +2,9 @@
 Philosophy
 ==========
 
-Performing a Monte Carlo simulation should be straightforward
-and intuitive. The simulation setup procedure should not be prone to error.
-The process should be easily repeatible and extensible by others. And none of
+Performing a Monte Carlo simulation should be simple and intuitive.
+The simulation setup procedure should not be prone to error.
+The process should be easily reproducible and extensible. And none of
 the prior goals can sacrifice the complete flexibility required by the expert
 simulator.
 
@@ -40,39 +40,27 @@ however, we focus on the MoSDeF Cassandra package, proceeding with
 the assumption that the reader has a basic understanding of MC methods as
 applied in molecular simulations.
 
-Organization
-~~~~~~~~~~~~
-
-.. The development of the MoSDeF Cassandra interface is motivated by a pair of
-   simple questions: *What are the components of a Monte Carlo simulation?* and
-   *What is the simplest logical organization of these components?*
+Organization and Implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The MoSDeF Cassandra interface is motivated by a simple
 question: **What is the simplest logical organization of the components of a
 Monte Carlo simulation?**
 
-We organize the components of a Monte Carlo simulation into two primary groups: the
-*system* and the *move set*. The *system* is what you are simulating; the simulation
-boxes, any initial structures in the simulation boxes, and the forcefield parameters
-used to describe the physics of the simulation. The *move set* are what you do during
-the simulation; the types of MC moves that are attempted, the probabilities of
-each, and any other parameters associated with the attempted moves.
-
-Implementation
-~~~~~~~~~~~~~~
+Our answer to this question divides the simulation setup into two components: the
+*system* and the *move set*. The *system* specifies what you are simulating;
+the simulation box(es), initial configuration(s), and the forcefield parameters.
+The *move set* specifies what happens during the simulation; the types of MC
+moves that are attempted, the probabilities of each, and any other parameters
+required to define the attempted moves.
 
 MoSDeF Cassandra implements this organization by mapping the process of
 setting up and running an MC simulation into three discrete steps:
 
-1. Create the ``System``. This defines the simulation
-   boxes, any initial configuration(s), and the forcefield parameters for all
-   molecules in the simulation. Further detail of the :doc:`System <system>`.
-2. Create the ``MoveSet``. This defines the all the selections related to
-   different possible Monte Carlo moves. Further detail of the
-   :doc:`MoveSet <moveset>`.
-3. Pass the ``System`` and ``MoveSet`` to the ``run()`` function, along
-   with a few remaining selections required for MC. Further detail of the
-   :doc:`run function <runners>`.
+1. Create the :doc:`System <system>`
+2. Create the :doc:`MoveSet <moveset>`
+3. Pass the ``System`` and ``MoveSet`` to the :doc:`run function <runners>`
 
-
+Dive into our :doc:`Quickstart Guide <../getting_started/quickstart>` or
+:doc:`Examples <../getting_started/examples>` to see this workflow in action!
 

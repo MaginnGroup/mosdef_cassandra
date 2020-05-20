@@ -1,17 +1,17 @@
 Unyts
 =====
 
-Unyt is a Python library for working with physical units.
-The package documentation can be found
-`here <https://unyt.readthedocs.io/en/stable/>`_. In MoSDeF
-Cassandra, all quantities that have physical units
+`Unyt <https://unyt.readthedocs.io/en/stable/>`_
+is a Python library for working with physical units.
+In MoSDeF Cassandra, all quantities that have physical units
 associated with them must be specified as a ``unyt_quantity``.
-The benefit of this approach is that users can specify
-quantities in any units they desire. Users are not forced
-to reference the manual to determine the default units of
-Cassandra. Using the ``unyt`` package also removes
-any ambiguity with regards to the physical units of
-any quantity in a MoSDeF Cassandra script.
+This approach yields several benefits. Users can specify
+quantities in any (dimensionally valid) units they desire,
+and thus do not need to dig through the reference the manual
+to determine the correct units for each quantity.
+Possible errors in unit conversions are mitigated, and
+we remove any possible ambiguity with regards to the
+units of physical quantities in MoSDeF Cassandra scripts.
 
 Basic usage
 +++++++++++

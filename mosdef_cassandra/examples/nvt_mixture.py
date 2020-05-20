@@ -4,7 +4,7 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_nvt_mixture():
+def run_nvt_mixture(custom_args={}):
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)
     propane = mbuild.load("CCC", smiles=True)
@@ -27,14 +27,15 @@ def run_nvt_mixture():
     mols_to_add = [[100, 50]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.Moves("nvt", species_list)
+    moveset = mc.MoveSet("nvt", species_list)
 
     mc.run(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="equilibration",
         run_length=10000,
         temperature=200.0 * u.K,
+        **custom_args,
     )
 
 

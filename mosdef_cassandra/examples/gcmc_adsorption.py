@@ -5,7 +5,7 @@ import unyt as u
 from mosdef_cassandra.examples.structures import carbon_lattice
 
 
-def run_gcmc_adsorption():
+def run_gcmc_adsorption(custom_args={}):
 
     # Use mbuild to create molecules
     lattice = carbon_lattice()
@@ -28,9 +28,9 @@ def run_gcmc_adsorption():
     mols_in_boxes = [[1, 0]]
 
     system = mc.System(box_list, species_list, mols_in_boxes=mols_in_boxes)
-    moves = mc.Moves("gcmc", species_list)
+    moveset = mc.MoveSet("gcmc", species_list)
 
-    custom_args = {
+    default_args = {
         "chemical_potentials": ["none", -30.0 * (u.kJ / u.mol)],
         "rcut_min": 0.5 * u.angstrom,
         "vdw_cutoff": 14.0 * u.angstrom,
@@ -39,9 +39,12 @@ def run_gcmc_adsorption():
         "prop_freq": 10,
     }
 
+    # Combine default/custom args and override default
+    custom_args = {**default_args, **custom_args}
+
     mc.run(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="equilibration",
         run_length=10000,
         temperature=300.0 * u.K,

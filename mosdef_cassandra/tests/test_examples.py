@@ -4,7 +4,9 @@ import os
 import pytest
 
 import mosdef_cassandra.examples as ex
+import unyt as u
 from mosdef_cassandra.utils.tempdir import *
+from mosdef_cassandra.utils.exceptions import *
 from mosdef_cassandra.tests.base_test import BaseTest
 
 
@@ -31,6 +33,15 @@ class TestExamples(BaseTest):
                     if "Cassandra simulation complete" in line:
                         completed = True
                 assert completed
+
+    def test_run_failure(self):
+        kwargs = {"vdw_cutoff": 17.0 * u.angstrom}
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                with pytest.raises(
+                    CassandraRuntimeError, match=r"Cassandra exited with"
+                ):
+                    ex.run_nvt(kwargs)
 
     def test_run_npt(self):
         with temporary_directory() as tmp_dir:

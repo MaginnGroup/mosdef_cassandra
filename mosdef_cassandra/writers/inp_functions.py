@@ -9,11 +9,13 @@ from unyt import dimensions
 from mosdef_cassandra.utils.units import validate_unit
 
 
-def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
+def generate_input(
+    system, moveset, run_type, run_length, temperature, **kwargs
+):
     """Construct an input file section by section (with defaults)
 
     Default options are provided based upon the mosdef_cassandra.System
-    and mosdef_cassandra.Moves objects and typically reasonable choices;
+    and mosdef_cassandra.MoveSet and are typically reasonable choices;
     these may or may not be good choices for your specific system. Any
     options can be overriden by specifying the relevant choices with
     keyword arguments in **kwargs.
@@ -22,7 +24,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     ----------
     system : mosdef_cassandra.System
         system to be simulated
-    moves : mosdef_cassandra.Moves
+    moveset : mosdef_cassandra.MoveSet
         move probabilities
     run_type : str
         'equil' or 'prod'
@@ -69,13 +71,24 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     nbr_species = len(system.species_topologies)
     nbr_boxes = len(system.boxes)
 
-    # Name and ensemble
+    # Run name
     if "run_name" in kwargs:
         run_name = kwargs["run_name"]
     else:
-        run_name = moves.ensemble
+        run_name = moveset.ensemble
     inp_data += get_run_name(run_name)
-    inp_data += get_sim_type(moves.ensemble)
+
+    # Verbose log
+    if "verbose_log" in kwargs:
+        verbose_log = kwargs["verbose_log"]
+    else:
+        verbose_log = False
+
+    if verbose_log:
+        inp_data += get_verbose_log(verbose_log)
+
+    # Ensemble
+    inp_data += get_sim_type(moveset.ensemble)
 
     # Number of species
     inp_data += get_nbr_species(nbr_species)
@@ -245,7 +258,8 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             for ibox in range(nbr_boxes):
                 max_mols += system.mols_in_boxes[ibox][isp]
                 max_mols += system.mols_to_add[ibox][isp]
-            if moves.ensemble == "gcmc" and moves.sp_insertable[isp]:
+            # TODO: Document/improve this
+            if moveset.ensemble == "gcmc" and moveset.insertable[isp]:
                 max_mols += 500
 
             max_molecules_dict["species%d.mcf" % (isp + 1)] = max_mols
@@ -265,7 +279,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]
         boxes.append(box_matrix)
     inp_data += get_box_info(
-        boxes, moves._restricted_type, moves._restricted_value
+        boxes, moveset._restricted_type, moveset._restricted_value
     )
 
     # convert temperature to Kelvin
@@ -276,7 +290,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
     # convert units in kwargs
     _convert_kwarg_units(kwargs)
 
-    if moves.ensemble == "npt" or moves.ensemble == "gemc_npt":
+    if moveset.ensemble == "npt" or moveset.ensemble == "gemc_npt":
         if "pressure" in kwargs:
             pressure = kwargs["pressure"]
         else:
@@ -292,7 +306,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
 
         inp_data += get_pressure_info(pressures)
 
-    if moves.ensemble == "gcmc":
+    if moveset.ensemble == "gcmc":
         if "chemical_potentials" in kwargs:
             chemical_potentials = kwargs["chemical_potentials"]
         else:
@@ -311,7 +325,7 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
             )
 
         for isp, chempot in enumerate(chemical_potentials):
-            if moves.sp_insertable[isp] == False and chempot != "none":
+            if moveset.insertable[isp] == False and chempot != "none":
                 raise ValueError(
                     "The chemical potential of non-insertable "
                     'species should be "none"'
@@ -321,46 +335,80 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
 
     # Move probability info
     # Check moves units
-    moves = _convert_moves_units(moves)
+    moveset = _convert_moveset_units(moveset)
     move_prob_dict = {}
-    if moves.prob_translate > 0.0:
+    if moveset.prob_translate > 0.0:
         move_prob_dict["translate"] = [
-            moves.prob_translate,
-            *[[val.to_value() for val in box] for box in moves.max_translate],
+            moveset.prob_translate,
+            *[[val.to_value() for val in box] for box in moveset.max_translate],
         ]
-    if moves.prob_rotate > 0.0:
-        move_prob_dict["rotate"] = [
-            moves.prob_rotate,
-            *[[val.to_value() for val in box] for box in moves.max_rotate],
-        ]
-    if moves.prob_angle > 0.0:
-        move_prob_dict["angle"] = moves.prob_angle
+    #if moves.prob_rotate > 0.0:
+    #    move_prob_dict["rotate"] = [
+    #        moves.prob_rotate,
+    #        *[[val.to_value() for val in box] for box in moves.max_rotate],
+    #    ]
+    #if moves.prob_angle > 0.0:
+    #    move_prob_dict["angle"] = moves.prob_angle
 
-    if moves.prob_dihedral > 0.0:
-        move_prob_dict["dihedral"] = [moves.prob_dihedral, moves.max_dihedrals]
-    if moves.prob_regrow > 0.0:
-        move_prob_dict["regrow"] = [moves.prob_regrow, moves.sp_prob_regrow]
-    if moves.prob_volume > 0.0:
+    #if moves.prob_dihedral > 0.0:
+    #    move_prob_dict["dihedral"] = [moves.prob_dihedral, moves.max_dihedrals]
+    #if moves.prob_regrow > 0.0:
+    #    move_prob_dict["regrow"] = [moves.prob_regrow, moves.sp_prob_regrow]
+    #if moves.prob_volume > 0.0:
+    #    move_prob_dict["volume"] = [
+    #        moves.prob_volume,
+    #        [i.to_value() for i in moves.max_volume],
+    #    ]
+    #if moves.prob_insert > 0.0:
+    #    move_prob_dict["insert"] = [moves.prob_insert, moves.sp_insertable]
+    #if moves.prob_swap > 0.0:
+    #if moveset.prob_rotate > 0.0:
+    #    move_prob_dict["rotate"] = [moveset.prob_rotate, *moveset.max_rotate]
+    if moveset.prob_rotate > 0.0:
+        move_prob_dict["rotate"] = [
+            moveset.prob_rotate,
+            *[[val.to_value() for val in box] for box in moveset.max_rotate],
+        ]
+    if moveset.prob_angle > 0.0:
+        move_prob_dict["angle"] = moveset.prob_angle
+
+    if moveset.prob_dihedral > 0.0:
+        move_prob_dict["dihedral"] = [
+            moveset.prob_dihedral,
+            moveset.max_dihedrals,
+        ]
+    if moveset.prob_regrow > 0.0:
+        move_prob_dict["regrow"] = [
+            moveset.prob_regrow,
+            moveset.prob_regrow_species,
+        ]
+    if moveset.prob_volume > 0.0:
+        #move_prob_dict["volume"] = [moveset.prob_volume, moveset.max_volume]
         move_prob_dict["volume"] = [
-            moves.prob_volume,
-            [i.to_value() for i in moves.max_volume],
+            moveset.prob_volume,
+            [i.to_value() for i in moveset.max_volume],
         ]
-    if moves.prob_insert > 0.0:
-        move_prob_dict["insert"] = [moves.prob_insert, moves.sp_insertable]
-    if moves.prob_swap > 0.0:
+    if moveset.prob_insert > 0.0:
+        move_prob_dict["insert"] = [moveset.prob_insert, moveset.insertable]
+    if moveset.prob_swap > 0.0:
         move_prob_dict["swap"] = [
-            moves.prob_swap,
-            moves.sp_insertable,
-            moves.sp_prob_swap,
-            moves.prob_swap_from_box,
+            moveset.prob_swap,
+            moveset.insertable,
+            moveset.prob_swap_species,
+            moveset.prob_swap_from_box,
         ]
-    if moves._restricted_type and moves._restricted_value:
+    if moveset._restricted_type and moveset._restricted_value:
         move_prob_dict["restricted_insertion"] = [
-            moves._restricted_type,
-            moves._restricted_value,
+            moveset._restricted_type,
+            moveset._restricted_value,
         ]
 
     inp_data += get_move_probability_info(**move_prob_dict)
+
+    # CBMC information
+    inp_data += get_cbmc_info(
+        moveset.cbmc_n_insert, moveset.cbmc_n_dihed, moveset.cbmc_rcut
+    )
 
     # Start type info
     start_types = []
@@ -407,9 +455,9 @@ def generate_input(system, moves, run_type, run_length, temperature, **kwargs):
         thermal_stat_freq = 1000
 
     if (
-        moves.ensemble == "npt"
-        or moves.ensemble == "gemc"
-        or moves.ensemble == "gemc_npt"
+        moveset.ensemble == "npt"
+        or moveset.ensemble == "gemc"
+        or moveset.ensemble == "gemc_npt"
     ):
         if "vol_stat_freq" in kwargs:
             vol_stat_freq = kwargs["vol_stat_freq"]
@@ -1871,6 +1919,9 @@ def print_valid_kwargs():
 def _get_possible_kwargs(desc=False):
     valid_kwargs = {
         "run_name": "str, name of output",
+        "restart": "boolean, restart from checkpoint file",
+        "restart_name": "name of checkpoint file to restart from",
+        "verbose_log": "boolean, write verbose log file",
         "vdw_style": 'str, "lj" or "none"',
         "cutoff_style": 'str, "cut" or "cut_tail" or "cut_switch" or "cut_shift"',
         "vdw_cutoff": 'unyt array, except for "cut_switch", where [inner_cutoff, outer_cutoff].',
@@ -1904,7 +1955,6 @@ def _get_possible_kwargs(desc=False):
             '"energy_total", "energy_lj", "energy_elec", "energy_intra", "enthalpy",'
             '"pressure", "volume", "nmols", "density", "mass_density"'
         ),
-        "verbose_log": "boolean, write verbose log file",
         "cbmc_kappa_ins": "int, number of attempted insertion sites for CBMC",
         "cbmc_kappa_dih": "int, number of attempted dihedral rotations for CBMC",
         "cbmc_rcut": "unyt array, cutoff for CBMC",
@@ -2051,18 +2101,18 @@ def _convert_kwarg_units(kwargs):
     return kwargs
 
 
-def _convert_moves_units(moves):
+def _convert_moveset_units(moveset):
     # Convert max volume
     new_max_volume = list()
-    for max_vol in moves.max_volume:
+    for max_vol in moveset.max_volume:
         max_vol = max_vol.to("angstrom**3")
         new_max_volume.append(max_vol)
-    moves.max_volume = new_max_volume
+    moveset.max_volume = new_max_volume
 
     # Convert restricted insertion
     new_restricted_value = list()
-    if moves._restricted_value:
-        for box in moves._restricted_value:
+    if moveset._restricted_value:
+        for box in moveset._restricted_value:
             for val in box:
                 if val:
                     if isinstance(val, list):
@@ -2070,20 +2120,20 @@ def _convert_moves_units(moves):
                     else:
                         val = val.to("angstrom")
                 new_restricted_value.append(val)
-    moves._restricted_value = new_restricted_value
+    moveset._restricted_value = new_restricted_value
 
     # Convert max translate
     new_max_translate = list()
-    for maxs in moves.max_translate:
+    for maxs in moveset.max_translate:
         maxs = [i.to("angstrom") for i in maxs]
         new_max_translate.append(maxs)
-    moves.max_translate = new_max_translate
+    moveset.max_translate = new_max_translate
 
     # Convert max rotate
     new_max_rotate = list()
-    for maxs in moves.max_rotate:
+    for maxs in moveset.max_rotate:
         maxs = [i.to("degree") for i in maxs]
         new_max_rotate.append(maxs)
-    moves.max_rotate = new_max_rotate
+    moveset.max_rotate = new_max_rotate
 
-    return moves
+    return moveset

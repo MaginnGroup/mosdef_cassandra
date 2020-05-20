@@ -4,7 +4,7 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_gemc():
+def run_gemc(custom_args={}):
 
     # Use mbuild to create molecules
     methane = mbuild.Compound(name="_CH4")
@@ -27,10 +27,10 @@ def run_gemc():
     mols_to_add = [[350], [100]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.Moves("gemc", species_list)
+    moveset = mc.MoveSet("gemc", species_list)
 
-    moves.prob_volume = 0.010
-    moves.prob_swap = 0.11
+    moveset.prob_volume = 0.010
+    moveset.prob_swap = 0.11
 
     thermo_props = [
         "energy_total",
@@ -41,7 +41,7 @@ def run_gemc():
         "mass_density",
     ]
 
-    custom_args = {
+    default_args = {
         "run_name": "equil",
         "charge_style": "none",
         "rcut_min": 2.0 * u.angstrom,
@@ -53,9 +53,12 @@ def run_gemc():
         "properties": thermo_props,
     }
 
+    # Combine default/custom args and override default
+    custom_args = {**default_args, **custom_args}
+
     mc.run(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="equilibration",
         run_length=250,
         temperature=151.0 * u.K,
@@ -63,8 +66,8 @@ def run_gemc():
     )
 
     # Set max translate and volume for production
-    moves.max_translate = [[0.5 * u.angstrom], [14.0 * u.angstrom]]
-    moves.max_volume = [700.0 * (u.angstrom ** 3)]
+    moveset.max_translate = [[0.5 * u.angstrom], [14.0 * u.angstrom]]
+    moveset.max_volume = [700.0 * (u.angstrom ** 3)]
 
     # Update run_name and restart_name
     custom_args["run_name"] = "prod"
@@ -72,7 +75,7 @@ def run_gemc():
 
     mc.restart(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="production",
         run_length=750,
         temperature=151.0 * u.K,

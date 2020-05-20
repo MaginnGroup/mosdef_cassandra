@@ -4,7 +4,7 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_gcmc():
+def run_gcmc(custom_args={}):
 
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)
@@ -25,16 +25,23 @@ def run_gcmc():
     mols_to_add = [[100]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.Moves("gcmc", species_list)
+    moveset = mc.MoveSet("gcmc", species_list)
+
+    default_args = {
+        "chemical_potentials": [-35.0 * (u.kJ / u.mol)],
+        "prop_freq": 100,
+    }
+
+    # Combine default/custom args and override default
+    custom_args = {**default_args, **custom_args}
 
     mc.run(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="equilibration",
         run_length=1000,
         temperature=300.0 * u.K,
-        chemical_potentials=[-35.0 * (u.kJ / u.mol)],
-        prop_freq=100,
+        **custom_args,
     )
 
 

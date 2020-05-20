@@ -4,7 +4,7 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_gcmc_restricted():
+def run_gcmc_restricted(custom_args={}):
 
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)
@@ -25,21 +25,28 @@ def run_gcmc_restricted():
     mols_to_add = [[10]]
 
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    moves = mc.Moves("gcmc", species_list)
+    moveset = mc.MoveSet("gcmc", species_list)
 
     # Specify restricted insertions
-    moves.add_restricted_insertions(
+    moveset.add_restricted_insertions(
         species_list, [["sphere"]], [[20 * u.angstrom]]
     )
 
+    default_args = {
+        "chemical_potentials": [-35.0 * (u.kJ/u.mol)],
+        "prop_freq": 10,
+    }
+
+    # Combine default/custom args and override default
+    custom_args = {**default_args, **custom_args}
+
     mc.run(
         system=system,
-        moves=moves,
+        moveset=moveset,
         run_type="equilibration",
         run_length=100,
         temperature=300.0 * u.K,
-        chemical_potentials=[-35.0 * (u.kJ / u.mol)],
-        prop_freq=10,
+        **custom_args,
     )
 
 

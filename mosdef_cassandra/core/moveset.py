@@ -7,22 +7,20 @@ import warnings
 import unyt as u
 
 
-class Moves(object):
+class MoveSet(object):
     def __init__(self, ensemble, species_topologies):
         """A class to contain all the move probabilities and related
         values required to perform a simulation in ``Cassandra``.
 
-        A Moves object contains a variety of move probabilities
+        A MoveSet contains the move probabilities
         and other related quantities (e.g., max translation/rotation)
-        that are required to run Cassandra. When the moves object
+        that are required to run Cassandra. When the MoveSet
         is created the specified ``ensemble`` and ``species_topologies``
-        are used to generate guesses for all required values.
+        are used to generate initial guesses for all required values.
         Depending upon the specifics of your system, these guesses may
         be very reasonable or downright terrible. Use the same
         ``species_topologies`` for your call to ``mosdef_cassandra.System()``
-        and ``mosdef_cassandra.Moves()``. Consult the Cassandra user
-        manual for more details on the meaning of different move
-        probabilities.
+        and ``mosdef_cassandra.MoveSet()``. 
 
         Parameters
         ----------
@@ -35,7 +33,7 @@ class Moves(object):
 
         Returns
         -------
-        ``mosdef_cassandra.Moves``
+        ``mosdef_cassandra.MoveSet``
 
         """
 
@@ -72,17 +70,17 @@ class Moves(object):
         self.prob_dihedral = 0.0
 
         if self.ensemble == "nvt":
-            self.prob_translate = 0.35
-            self.prob_rotate = 0.35
-            self.prob_regrow = 0.30
+            self.prob_translate = 0.33
+            self.prob_rotate = 0.33
+            self.prob_regrow = 0.34
             self.prob_volume = 0.0
             self.prob_insert = 0.0
             self.prob_swap = 0.0
         elif self.ensemble == "npt":
-            self.prob_translate = 0.34
-            self.prob_rotate = 0.34
-            self.prob_regrow = 0.30
-            self.prob_volume = 0.02
+            self.prob_translate = 0.33
+            self.prob_rotate = 0.33
+            self.prob_regrow = 0.335
+            self.prob_volume = 0.005
             self.prob_insert = 0.0
             self.prob_swap = 0.0
         # GCMC sums to 0.9 b/c symmetric prob_delete
@@ -94,17 +92,17 @@ class Moves(object):
             self.prob_insert = 0.1
             self.prob_swap = 0.0
         elif self.ensemble == "gemc":
-            self.prob_translate = 0.29
-            self.prob_rotate = 0.29
-            self.prob_regrow = 0.30
-            self.prob_volume = 0.02
+            self.prob_translate = 0.30
+            self.prob_rotate = 0.30
+            self.prob_regrow = 0.295
+            self.prob_volume = 0.005
             self.prob_insert = 0.0
             self.prob_swap = 0.1
         elif self.ensemble == "gemc_npt":
-            self.prob_translate = 0.29
-            self.prob_rotate = 0.29
-            self.prob_regrow = 0.30
-            self.prob_volume = 0.02
+            self.prob_translate = 0.30
+            self.prob_rotate = 0.30
+            self.prob_regrow = 0.295
+            self.prob_volume = 0.005
             self.prob_insert = 0.0
             self.prob_swap = 0.1
         else:
@@ -130,18 +128,29 @@ class Moves(object):
         else:
             self.max_volume = [0.0 * (u.angstrom ** 3)]
 
+        # Set the default CBMC options
+        self.cbmc_n_insert = 10
+        self.cbmc_n_dihed = 10
+        self.cbmc_rcut = 6.0
+
         # Remaining options are per-species
         self.max_dihedral = [0.0] * self._n_species
-        self.sp_insertable = [True] * self._n_species
-        self.sp_prob_swap = [1.0] * self._n_species
-        self.sp_prob_regrow = [1.0] * self._n_species
+        self.prob_regrow_species = [1.0] * self._n_species
+        if self.ensemble in ["gcmc", "gemc", "gemc_npt"]:
+            self.insertable = [True] * self._n_species
+        else:
+            self.insertable = [False] * self._n_species
+        if self.ensemble in ["gemc", "gemc_npt"]:
+            self.prob_swap_species = [1.0] * self._n_species
+        else:
+            self.prob_swap_species = [0.0] * self._n_species
 
         # Here we handle species-wise exceptions
         for ispec, species in enumerate(species_topologies):
             if len(species.atoms) == 1:
                 for ibox in range(self._n_boxes):
                     self.max_rotate[ibox][ispec] = 0.0 * u.degree
-                self.sp_prob_regrow[ispec] = 0.0
+                self.prob_regrow_species[ispec] = 0.0
             elif len(species.bonds) == 0:
                 print(
                     "Treating {} as a non-insertable rigid species "
@@ -150,27 +159,27 @@ class Moves(object):
                 for ibox in range(self._n_boxes):
                     self.max_translate[ibox][ispec] = 0.0 * u.angstrom
                     self.max_rotate[ibox][ispec] = 0.0 * u.degree
-                self.sp_prob_regrow[ispec] = 0.0
-                self.sp_insertable[ispec] = False
-                self.sp_prob_swap[ispec] = 0.0
+                self.prob_regrow_species[ispec] = 0.0
+                self.insertable[ispec] = False
+                self.prob_swap_species[ispec] = 0.0
 
         # Correct species_prob_regrow
-        if sum(self.sp_prob_regrow) > 0:
-            sp_regrowth_prob = 1.0 / sum(self.sp_prob_regrow)
-            for i, prob in enumerate(self.sp_prob_regrow):
+        if sum(self.prob_regrow_species) > 0:
+            sp_regrowth_prob = 1.0 / sum(self.prob_regrow_species)
+            for i, prob in enumerate(self.prob_regrow_species):
                 if prob > 0.0:
-                    self.sp_prob_regrow[i] = sp_regrowth_prob
+                    self.prob_regrow_species[i] = sp_regrowth_prob
 
-        if sum(self.sp_prob_swap) > 0:
+        if sum(self.prob_swap_species) > 0:
             # Correct species_prob_swap
-            sp_prob_swap = 1.0 / sum(self.sp_prob_swap)
-            for i, insertable in enumerate(self.sp_insertable):
-                if insertable:
-                    self.sp_prob_swap[i] = sp_prob_swap
+            prob_swap_species = 1.0 / sum(self.prob_swap_species)
+            for idx, insert in enumerate(self.insertable):
+                if insert:
+                    self.prob_swap_species[idx] = prob_swap_species
 
         # If all species have no prob regrowth, set prob_regrow to
         # zero and redistribute prob to translate/rotate
-        if sum(self.sp_prob_regrow) == 0.0:
+        if sum(self.prob_regrow_species) == 0.0:
             self.prob_translate += self.prob_regrow / 2.0
             self.prob_rotate += self.prob_regrow / 2.0
             self.prob_regrow = 0.0
@@ -291,6 +300,10 @@ class Moves(object):
 
     @ensemble.setter
     def ensemble(self, ensemble):
+        if hasattr(self, "_ensemble"):
+            raise AttributeError(
+                "Ensemble cannot be changed. Please create a new MoveSet instead."
+            )
         valid_ensembles = ["nvt", "npt", "gcmc", "gemc", "gemc_npt"]
         if ensemble not in valid_ensembles:
             raise ValueError(
@@ -583,71 +596,79 @@ class Moves(object):
 
     @max_volume.setter
     def max_volume(self, max_volume):
-        if not isinstance(max_volume, list):
-            raise ValueError(
-                "max_volume must be a list with " "length (number of boxes)"
+        if type(max_volume) not in (list, u.unyt_array):
+            raise TypeError(
+                "max_volume must be a unyt array, or, optionally, "
+                "a list with length (number of boxes)"
             )
-        if self.ensemble != "gemc":
-            if len(max_volume) != self._n_boxes:
-                raise ValueError(
-                    "max_volume must be a list with "
-                    "length (number of boxes)"
-                )
+        if type(max_volume) == list:
+            if self.ensemble == "gemc_npt":
+                if len(max_volume) != self._n_boxes:
+                    raise TypeError(
+                        "max_volume must be a unyt array or a list with length "
+                        "(number of boxes) for gemc_npt"
+                    )
+            else:
+                if len(max_volume) != 1:
+                    raise TypeError(
+                        "max_volume must be a unyt_array or a list with length "
+                        "1 for all ensembles except gemc_npt"
+                    )
         else:
-            if len(max_volume) != 1:
-                raise ValueError(
-                    "max_volume must be a list of " "length (1) for gemc"
-                )
+            if self.ensemble == "gemc_npt":
+                max_volume = [max_volume] * self._n_boxes
+            else:
+                max_volume = [max_volume]
+
         for max_vol in max_volume:
             validate_unit(max_vol, dimensions.volume)
+            #if type(max_vol) not in (float, int):
+            #    raise TypeError("max_volume values must be of type float")
             if max_vol < 0.0:
-                raise ValueError(
-                    "Maximum volume change for a box "
-                    "cannot be less than zero"
-                )
+                raise ValueError("max_volume cannot be less than zero.")
 
+        #self._max_volume = [float(max_vol) for max_vol in max_volume]
         self._max_volume = max_volume
 
     @property
-    def sp_insertable(self):
-        return self._sp_insertable
+    def insertable(self):
+        return self._insertable
 
-    @sp_insertable.setter
-    def sp_insertable(self, sp_insertable):
+    @insertable.setter
+    def insertable(self, insertable):
 
         if (
-            not isinstance(sp_insertable, list)
-            or len(sp_insertable) != self._n_species
+            not isinstance(insertable, list)
+            or len(insertable) != self._n_species
         ):
             raise ValueError(
-                "sp_insertable must be a list with length "
-                "(number of species)"
+                "insertable must be a list with length " "(number of species)"
             )
-        for insertable in sp_insertable:
-            if not isinstance(insertable, bool):
+        for insert in insertable:
+            if not isinstance(insert, bool):
                 raise TypeError(
                     "The insertability of each species "
                     "must be provided as a boolean type."
                 )
 
-        self._sp_insertable = sp_insertable
+        self._insertable = insertable
 
     @property
-    def sp_prob_swap(self):
-        return self._sp_prob_swap
+    def prob_swap_species(self):
+        return self._prob_swap_species
 
-    @sp_prob_swap.setter
-    def sp_prob_swap(self, sp_prob_swap):
+    @prob_swap_species.setter
+    def prob_swap_species(self, prob_swap_species):
 
         if (
-            not isinstance(sp_prob_swap, list)
-            or len(sp_prob_swap) != self._n_species
+            not isinstance(prob_swap_species, list)
+            or len(prob_swap_species) != self._n_species
         ):
             raise ValueError(
-                "sp_prob_swap must be a list with length "
+                "prob_swap_species must be a list with length "
                 "(number of species)"
             )
-        for prob_swap in sp_prob_swap:
+        for prob_swap in prob_swap_species:
             if type(prob_swap) not in (float, int):
                 raise TypeError(
                     "Probability of swapping a species "
@@ -661,24 +682,24 @@ class Moves(object):
                     "cannot be less than zero"
                 )
 
-        self._sp_prob_swap = sp_prob_swap
+        self._prob_swap_species = prob_swap_species
 
     @property
-    def sp_prob_regrow(self):
-        return self._sp_prob_regrow
+    def prob_regrow_species(self):
+        return self._prob_regrow_species
 
-    @sp_prob_regrow.setter
-    def sp_prob_regrow(self, sp_prob_regrow):
+    @prob_regrow_species.setter
+    def prob_regrow_species(self, prob_regrow_species):
 
         if (
-            not isinstance(sp_prob_regrow, list)
-            or len(sp_prob_regrow) != self._n_species
+            not isinstance(prob_regrow_species, list)
+            or len(prob_regrow_species) != self._n_species
         ):
             raise ValueError(
-                "sp_prob_regrow must be a list with length "
+                "prob_regrow_species must be a list with length "
                 "(number of species)"
             )
-        for prob_regrow in sp_prob_regrow:
+        for prob_regrow in prob_regrow_species:
             if type(prob_regrow) not in (float, int):
                 raise TypeError(
                     "Probability of regrowing a species "
@@ -692,25 +713,77 @@ class Moves(object):
                     "cannot be less than zero"
                 )
 
-        self._sp_prob_regrow = sp_prob_regrow
+        self._prob_regrow_species = prob_regrow_species
+
+    @property
+    def cbmc_n_insert(self):
+        return self._cbmc_n_insert
+
+    @cbmc_n_insert.setter
+    def cbmc_n_insert(self, cbmc_n_insert):
+        if type(cbmc_n_insert) != int:
+            raise TypeError("cbmc_n_insert must be of type int")
+        if cbmc_n_insert <= 0:
+            raise ValueError("cbmc_n_insert must be greater than zero")
+        self._cbmc_n_insert = cbmc_n_insert
+
+    @property
+    def cbmc_n_dihed(self):
+        return self._cbmc_n_dihed
+
+    @cbmc_n_dihed.setter
+    def cbmc_n_dihed(self, cbmc_n_dihed):
+        if type(cbmc_n_dihed) != int:
+            raise TypeError("cbmc_n_dihed must be of type int")
+        if cbmc_n_dihed <= 0:
+            raise ValueError("cbmc_n_dihed must be greater than zero")
+        self._cbmc_n_dihed = cbmc_n_dihed
+
+    @property
+    def cbmc_rcut(self):
+        return self._cbmc_rcut
+
+    @cbmc_rcut.setter
+    def cbmc_rcut(self, cbmc_rcut):
+        if type(cbmc_rcut) not in (list, float, int):
+            raise TypeError(
+                "cbmc_rcut must be a float, or, optionally, "
+                "a list with length (number of boxes)"
+            )
+        if type(cbmc_rcut) == list:
+            if len(cbmc_rcut) != self._n_boxes:
+                raise TypeError(
+                    "cbmc_rcut must be a float or a list with length "
+                    "(number of boxes)"
+                )
+        else:
+            cbmc_rcut = [cbmc_rcut] * self._n_boxes
+
+        for rcut in cbmc_rcut:
+            if type(rcut) not in (float, int):
+                raise TypeError("cbmc_rcut values must be of type float")
+            if rcut < 0.0:
+                raise ValueError("cbmc_rcut cannot be less than zero.")
+
+        self._cbmc_rcut = [float(rcut) for rcut in cbmc_rcut]
 
     def print(self):
-        """Print the current contents of Moves"""
+        """Print the current contents of the MoveSet"""
 
         contents = """
 Ensemble:  {ensemble}
 
 Probability of selecting each move type:
 
-Translate: {prob_translate}
-Rotate:    {prob_rotate}
-Regrow:    {prob_regrow}
-Volume:    {prob_volume}
-Insert:    {prob_insert}
-Delete:    {prob_delete}
-Swap:      {prob_swap}
-Angle:     {prob_angle}
-Dihedral:  {prob_dihedral}
+    Translate: {prob_translate}
+    Rotate:    {prob_rotate}
+    Regrow:    {prob_regrow}
+    Volume:    {prob_volume}
+    Insert:    {prob_insert}
+    Delete:    {prob_delete}
+    Swap:      {prob_swap}
+    Angle:     {prob_angle}
+    Dihedral:  {prob_dihedral}
 """.format(
             ensemble=self.ensemble,
             prob_translate=self.prob_translate,
@@ -724,53 +797,70 @@ Dihedral:  {prob_dihedral}
             prob_dihedral=self.prob_dihedral,
         )
 
+        contents += """
+CBMC selections:
+
+    Number of trial positions: {n_insert}
+    Number of trial dihedral angles: {n_dihed}
+    CBMC cutoff(s): 
+""".format(
+            n_insert=self.cbmc_n_insert, n_dihed=self.cbmc_n_dihed,
+        )
+
+        for idx, value in enumerate(self.cbmc_rcut):
+            contents += "        Box {}: {}\n".format(idx + 1, value)
+
         contents += "\n\nPer species quantities:\n\n"
-        contents += "                         "
+        contents += "                             "
         for idx in range(self._n_species):
             contents += "species{idx}     ".format(idx=idx + 1)
         contents += "\n"
-        contents += "                         "
+        contents += "                             "
         for idx in range(self._n_species):
             contents += "========     ".format(idx=idx + 1)
         contents += "\n"
-        contents += "Max translate (Ang):     "
+        contents += "    Max translate (Ang):     "
         for (box, max_translate_box) in enumerate(self.max_translate):
+            if box > 0:
+                contents += "                             "
             for (idx, max_translate) in enumerate(max_translate_box):
                 contents += "{max_trans:4.2f}          ".format(
                     max_trans=max_translate
                 )
-            contents += "(box {box})".format(box=box + 1)
+            contents += "(Box {box})".format(box=box + 1)
             contents += "\n"
-        contents += "Max rotate (deg):        "
+        contents += "    Max rotate (deg):        "
         for (box, max_rotate_box) in enumerate(self.max_rotate):
+            if box > 0:
+                contents += "                             "
             for (idx, max_rotate) in enumerate(max_rotate_box):
                 contents += "{max_rot:4.2f}         ".format(
                     max_rot=max_rotate
                 )
-            contents += "(box {box})".format(box=box + 1)
+            contents += "(Box {box})".format(box=box + 1)
             contents += "\n"
-        contents += "Insertable:              "
-        for (idx, insert) in enumerate(self.sp_insertable):
+        contents += "    Insertable:              "
+        for (idx, insert) in enumerate(self.insertable):
             contents += "{insert}          ".format(insert=insert)
         contents += "\n"
-        contents += "Max dihedral:            "
+        contents += "    Max dihedral:            "
         for (idx, max_dih) in enumerate(self.max_dihedral):
             contents += "{max_dih:4.2f}          ".format(max_dih=max_dih)
         contents += "\n"
-        contents += "Prob swap:               "
-        for (idx, prob_swap) in enumerate(self.sp_prob_swap):
+        contents += "    Prob swap:               "
+        for (idx, prob_swap) in enumerate(self.prob_swap_species):
             contents += "{prob_swap:4.2f}          ".format(
                 prob_swap=prob_swap
             )
         contents += "\n"
-        contents += "Prob regrow:             "
-        for (idx, prob_regrow) in enumerate(self.sp_prob_regrow):
+        contents += "    Prob regrow:             "
+        for (idx, prob_regrow) in enumerate(self.prob_regrow_species):
             contents += "{regrow:4.2f}          ".format(regrow=prob_regrow)
         contents += "\n"
 
         contents += "\n\nMax volume (Ang^3):\n"
         for (box, max_vol) in enumerate(self.max_volume):
-            contents += "Box {box}: {max_vol}\n".format(
+            contents += "    Box {box}: {max_vol}\n".format(
                 box=box + 1, max_vol=max_vol
             )
 

@@ -478,12 +478,6 @@ class Moves(object):
                     "shape (number of boxes, number of species)"
                 )
             for max_val in max_translate_box:
-                # if type(max_val) not in (float, int):
-                #    raise TypeError(
-                #        "Max translation values must be " "of type float"
-                #    )
-                # else:
-                #    max_val = float(max_val)
                 validate_unit(max_val, dimensions.length)
                 if max_val.to_value() < 0.0:
                     raise ValueError(
@@ -517,12 +511,6 @@ class Moves(object):
                     "shape (number of boxes, number of species)"
                 )
             for max_val in max_rotate_box:
-                # if type(max_val) not in (float, int):
-                #    raise TypeError(
-                #        "Max rotation values must be " "of type float"
-                #    )
-                # else:
-                #    max_val = float(max_val)
                 validate_unit(max_val, dimensions.angle)
                 if max_val.to_value() < 0.0:
                     raise ValueError(

@@ -36,6 +36,9 @@ This design choice was made to reduce the errors in simulations that stem from i
 The base data structure of **unyt** is the **unyt_array** (a subclass of numpy ndarray) which carries both a value and a unit.  
 One of the main functionalities of **unyt** is the ability to convert units.  
 In **MoSDeF Cassandra**, a user can pass in a unyt_array of any valid unit type which will get then get converted into the standard unit specified by **Cassandra**.
+Unyt arrays are expected for values with units, such as cutoffs, angles, volumes,
+pressures, and temperatures.  Unyt arrays are not expected for values such as
+probabilities.
 
 Resources
 ~~~~~~~~~

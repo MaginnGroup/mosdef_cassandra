@@ -33,7 +33,7 @@ def run_gcmc_restricted(custom_args={}):
     )
 
     default_args = {
-        "chemical_potentials": [-35.0 * (u.kJ/u.mol)],
+        "chemical_potentials": [-35.0 * (u.kJ / u.mol)],
         "prop_freq": 10,
     }
 

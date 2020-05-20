@@ -622,12 +622,12 @@ class MoveSet(object):
 
         for max_vol in max_volume:
             validate_unit(max_vol, dimensions.volume)
-            #if type(max_vol) not in (float, int):
+            # if type(max_vol) not in (float, int):
             #    raise TypeError("max_volume values must be of type float")
             if max_vol < 0.0:
                 raise ValueError("max_volume cannot be less than zero.")
 
-        #self._max_volume = [float(max_vol) for max_vol in max_volume]
+        # self._max_volume = [float(max_vol) for max_vol in max_volume]
         self._max_volume = max_volume
 
     @property

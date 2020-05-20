@@ -340,29 +340,32 @@ def generate_input(
     if moveset.prob_translate > 0.0:
         move_prob_dict["translate"] = [
             moveset.prob_translate,
-            *[[val.to_value() for val in box] for box in moveset.max_translate],
+            *[
+                [val.to_value() for val in box]
+                for box in moveset.max_translate
+            ],
         ]
-    #if moves.prob_rotate > 0.0:
+    # if moves.prob_rotate > 0.0:
     #    move_prob_dict["rotate"] = [
     #        moves.prob_rotate,
     #        *[[val.to_value() for val in box] for box in moves.max_rotate],
     #    ]
-    #if moves.prob_angle > 0.0:
+    # if moves.prob_angle > 0.0:
     #    move_prob_dict["angle"] = moves.prob_angle
 
-    #if moves.prob_dihedral > 0.0:
+    # if moves.prob_dihedral > 0.0:
     #    move_prob_dict["dihedral"] = [moves.prob_dihedral, moves.max_dihedrals]
-    #if moves.prob_regrow > 0.0:
+    # if moves.prob_regrow > 0.0:
     #    move_prob_dict["regrow"] = [moves.prob_regrow, moves.sp_prob_regrow]
-    #if moves.prob_volume > 0.0:
+    # if moves.prob_volume > 0.0:
     #    move_prob_dict["volume"] = [
     #        moves.prob_volume,
     #        [i.to_value() for i in moves.max_volume],
     #    ]
-    #if moves.prob_insert > 0.0:
+    # if moves.prob_insert > 0.0:
     #    move_prob_dict["insert"] = [moves.prob_insert, moves.sp_insertable]
-    #if moves.prob_swap > 0.0:
-    #if moveset.prob_rotate > 0.0:
+    # if moves.prob_swap > 0.0:
+    # if moveset.prob_rotate > 0.0:
     #    move_prob_dict["rotate"] = [moveset.prob_rotate, *moveset.max_rotate]
     if moveset.prob_rotate > 0.0:
         move_prob_dict["rotate"] = [
@@ -383,7 +386,7 @@ def generate_input(
             moveset.prob_regrow_species,
         ]
     if moveset.prob_volume > 0.0:
-        #move_prob_dict["volume"] = [moveset.prob_volume, moveset.max_volume]
+        # move_prob_dict["volume"] = [moveset.prob_volume, moveset.max_volume]
         move_prob_dict["volume"] = [
             moveset.prob_volume,
             [i.to_value() for i in moveset.max_volume],

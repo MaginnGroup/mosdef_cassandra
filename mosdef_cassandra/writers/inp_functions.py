@@ -31,7 +31,7 @@ def generate_input(
     run_length : float
         simulation length in units of (default=steps), or your choice
         as specified by the 'units' option in **kwargs
-    temperature : unyt array
+    temperature : unyt_array
         temperature of the system
     **kwargs : dict
         keyword arguments. Details below.
@@ -1927,11 +1927,11 @@ def _get_possible_kwargs(desc=False):
         "verbose_log": "boolean, write verbose log file",
         "vdw_style": 'str, "lj" or "none"',
         "cutoff_style": 'str, "cut" or "cut_tail" or "cut_switch" or "cut_shift"',
-        "vdw_cutoff": 'unyt array, except for "cut_switch", where [inner_cutoff, outer_cutoff].',
+        "vdw_cutoff": 'unyt_array with `length` units, except for "cut_switch", where [inner_cutoff, outer_cutoff].',
         "vdw_cutoff_box1": 'customize vdw cutoff for box 1. see "vdw_cutoff" for format',
         "vdw_cutoff_box2": 'customize vdw cutoff for box 2. see "vdw_cutoff" for format',
         "charge_style": 'str, "none" or "cut" or "ewald" or "dsf"',
-        "charge_cutoff": "unyt array",
+        "charge_cutoff": "unyt_array with `length` units",
         "charge_cutoff_box1": 'customize charge cutoff for box 1. see "charge_cutoff" for format',
         "charge_cutoff_box2": 'customize charge cutoff for box 2. see "charge_cutoff" for format',
         "ewald_accuracy": "float, accuracy of ewald sum",
@@ -1939,13 +1939,13 @@ def _get_possible_kwargs(desc=False):
         "mixing_rule": 'str, "lb" or "geometric" or "custom"',
         "custom_mixing_dict": "dict, one key-value pair per atomtype-pair, key=str of species comb, value=str of params",
         "seeds": "list of ints, [seed1,seed2], where each seed is an integer",
-        "rcut_min": "unyt array, automatically reject move if atoms are closer than this distance",
+        "rcut_min": "unyt_array with `length` units, automatically reject move if atoms are closer than this distance",
         "pair_energy": "boolean, store pair energies (faster but requires more memory)",
         "max_molecules": "list of ints, maximum number of molecules for each species",
-        "pressure": "unyt array, desired pressure (npt and gemc-npt)",
+        "pressure": "unyt_array with `pressure` units, desired pressure (npt and gemc-npt)",
         "pressure_box1": 'customize pressure for box 1. see "pressure" for format',
         "pressure_box2": 'customize pressure for box 2. see "pressure" for format',
-        "chemical_potentials": "list of unyt arrays, specify the desired chemical potential for each species",
+        "chemical_potentials": "list of unyt_array with units of `energy/mol`, specify the desired chemical potential for each species",
         "thermal_stat_freq": "int, frequency of printing/updating non-volume moves",
         "vol_stat_freq": "int, frequency of printing/updating volume moves",
         "units": 'str, units for run/thermo/coord run_length/freqs. "minutes" or "steps" or "sweeps"',
@@ -1960,7 +1960,7 @@ def _get_possible_kwargs(desc=False):
         ),
         "cbmc_kappa_ins": "int, number of attempted insertion sites for CBMC",
         "cbmc_kappa_dih": "int, number of attempted dihedral rotations for CBMC",
-        "cbmc_rcut": "unyt array, cutoff for CBMC",
+        "cbmc_rcut": "unyt_array with `length` units, cutoff for CBMC",
         "restart": "boolean, restart from checkpoint file",
         "restart_name": "name of checkpoint file to restart from",
     }

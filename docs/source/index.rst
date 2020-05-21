@@ -92,7 +92,7 @@ required to run the Monte Carlo simulation is contained in the script below.
       moveset=moveset,
       run_type="equilibration",
       run_length=1000,
-      temperature=300.0
+      temperature=300.0 * u.K
   )
 
 Several additional examples can be found :doc:`here <getting_started/examples>`.
@@ -127,6 +127,7 @@ Table of Contents
    guides/unyts
    guides/system
    guides/moveset
+   guides/kwargs
    guides/runners
 
 .. toctree::

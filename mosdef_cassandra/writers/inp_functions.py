@@ -378,7 +378,10 @@ def generate_input(
     if moveset.prob_dihedral > 0.0:
         move_prob_dict["dihedral"] = [
             moveset.prob_dihedral,
-            moveset.max_dihedrals,
+            *[
+                [val.to_value() for val in box]
+                for box in moveset.max_dihedrals
+            ],
         ]
     if moveset.prob_regrow > 0.0:
         move_prob_dict["regrow"] = [

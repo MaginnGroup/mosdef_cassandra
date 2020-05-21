@@ -134,7 +134,7 @@ class MoveSet(object):
         self.cbmc_rcut = 6.0
 
         # Remaining options are per-species
-        self.max_dihedral = [0.0] * self._n_species
+        self.max_dihedral = [0.0 * u.degree] * self._n_species
         self.prob_regrow_species = [1.0] * self._n_species
         if self.ensemble in ["gcmc", "gemc", "gemc_npt"]:
             self.insertable = [True] * self._n_species
@@ -548,13 +548,13 @@ class MoveSet(object):
                 "(number of species)"
             )
         for max_val in max_dihedral:
-            if type(max_val) not in (float, int):
-                raise TypeError("Max dihedral values must be " "of type float")
-            else:
-                max_val = float(max_val)
-            if max_val < 0.0:
+            if not isinstance(max_val, u.unyt_array):
+                raise TypeError("Max dihedral values must be a unyt array")
+            if max_val.to_value() < 0.0 or max_val.to_value() > 360.0:
                 raise ValueError(
-                    "Max dihedral values cannot " "be less than zero"
+                    "Max dihedral values cannot "
+                    "be less than zero"
+                    " or greater than 360 degrees"
                 )
 
         self._max_dihedral = max_dihedral

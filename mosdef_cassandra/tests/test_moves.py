@@ -432,15 +432,21 @@ class TestMoveSet(BaseTest):
         assert moveset.max_rotate[1][0] == 1.0 * u.degree
 
         with pytest.raises(ValueError, match=r"must be a list"):
-            moveset.max_dihedral = 1.0
+            moveset.max_dihedral = 1.0 * u.degree
         with pytest.raises(ValueError, match=r"must be a list"):
-            moveset.max_dihedral = [1.0, 1.0, 1.0]
-        with pytest.raises(TypeError, match=r"of type float"):
+            moveset.max_dihedral = [
+                1.0 * u.degree,
+                1.0 * u.degree,
+                1.0 * u.degree,
+            ]
+        with pytest.raises(TypeError, match=r"unyt array"):
             moveset.max_dihedral = [True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moveset.max_dihedral = [-1.0]
-        moveset.max_dihedral = [1.0]
-        assert moveset.max_dihedral[0] == 1.0
+            moveset.max_dihedral = [-1.0 * u.degree]
+        with pytest.raises(ValueError, match=r"greater than 360"):
+            moveset.max_dihedral = [370.0 * u.degree]
+        moveset.max_dihedral = [1.0 * u.degree]
+        assert moveset.max_dihedral[0] == 1.0 * u.degree
 
         with pytest.raises(ValueError, match=r"must be a list"):
             moveset.prob_swap_from_box = 1.0

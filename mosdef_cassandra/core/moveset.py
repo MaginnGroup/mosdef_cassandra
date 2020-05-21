@@ -550,7 +550,10 @@ class MoveSet(object):
         for max_val in max_dihedral:
             if not isinstance(max_val, u.unyt_array):
                 raise TypeError("Max dihedral values must be a unyt array")
-            if max_val.to_value() < 0.0 or max_val.to_value() > 360.0:
+            if (
+                max_val.to("degree").to_value() < 0.0
+                or max_val.to("degree").to_value() > 360.0
+            ):
                 raise ValueError(
                     "Max dihedral values cannot "
                     "be less than zero"

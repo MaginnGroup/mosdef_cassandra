@@ -1,6 +1,7 @@
 import mbuild
 import foyer
 import mosdef_cassandra as mc
+import unyt as u
 
 
 def run_gemc(custom_args={}):
@@ -43,8 +44,8 @@ def run_gemc(custom_args={}):
     default_args = {
         "run_name": "equil",
         "charge_style": "none",
-        "rcut_min": 2.0,
-        "vdw_cutoff": 14.0,
+        "rcut_min": 2.0 * u.angstrom,
+        "vdw_cutoff": 14.0 * u.angstrom,
         "units": "sweeps",
         "steps_per_sweep": 450,
         "coord_freq": 50,
@@ -60,13 +61,13 @@ def run_gemc(custom_args={}):
         moveset=moveset,
         run_type="equilibration",
         run_length=250,
-        temperature=151.0,
+        temperature=151.0 * u.K,
         **custom_args,
     )
 
     # Set max translate and volume for production
-    moveset.max_translate = [[0.5], [14.0]]
-    moveset.max_volume = [700.0]
+    moveset.max_translate = [[0.5 * u.angstrom], [14.0 * u.angstrom]]
+    moveset.max_volume = [700.0 * (u.angstrom ** 3)]
 
     # Update run_name and restart_name
     custom_args["run_name"] = "prod"
@@ -77,7 +78,7 @@ def run_gemc(custom_args={}):
         moveset=moveset,
         run_type="production",
         run_length=750,
-        temperature=151.0,
+        temperature=151.0 * u.K,
         **custom_args,
     )
 

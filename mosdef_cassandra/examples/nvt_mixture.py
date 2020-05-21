@@ -1,6 +1,7 @@
 import mbuild
 import foyer
 import mosdef_cassandra as mc
+import unyt as u
 
 
 def run_nvt_mixture(custom_args={}):
@@ -33,7 +34,7 @@ def run_nvt_mixture(custom_args={}):
         moveset=moveset,
         run_type="equilibration",
         run_length=10000,
-        temperature=200.0,
+        temperature=200.0 * u.K,
         **custom_args,
     )
 

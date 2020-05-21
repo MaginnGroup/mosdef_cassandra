@@ -1,6 +1,7 @@
 import mbuild
 import foyer
 import mosdef_cassandra as mc
+import unyt as u
 
 
 def run_npt(custom_args={}):
@@ -30,7 +31,7 @@ def run_npt(custom_args={}):
     moveset = mc.MoveSet("npt", species_list)
 
     default_args = {
-        "pressure": 1.0,
+        "pressure": 1.0 * u.bar,
     }
 
     # Combine default/custom args and override default
@@ -43,7 +44,7 @@ def run_npt(custom_args={}):
         moveset=moveset,
         run_type="equilibration",
         run_length=10000,
-        temperature=300.0,
+        temperature=300.0 * u.K,
         **custom_args,
     )
 

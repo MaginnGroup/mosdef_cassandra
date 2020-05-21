@@ -1,6 +1,7 @@
 import mbuild
 import foyer
 import mosdef_cassandra as mc
+import unyt as u
 
 
 def run_gcmc_restricted(custom_args={}):
@@ -27,10 +28,12 @@ def run_gcmc_restricted(custom_args={}):
     moveset = mc.MoveSet("gcmc", species_list)
 
     # Specify restricted insertions
-    moveset.add_restricted_insertions(species_list, [["sphere"]], [[20]])
+    moveset.add_restricted_insertions(
+        species_list, [["sphere"]], [[20 * u.angstrom]]
+    )
 
     default_args = {
-        "chemical_potentials": [-35.0],
+        "chemical_potentials": [-35.0 * (u.kJ / u.mol)],
         "prop_freq": 10,
     }
 
@@ -42,7 +45,7 @@ def run_gcmc_restricted(custom_args={}):
         moveset=moveset,
         run_type="equilibration",
         run_length=100,
-        temperature=300.0,
+        temperature=300.0 * u.K,
         **custom_args,
     )
 

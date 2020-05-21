@@ -1,6 +1,7 @@
 import mbuild
 import foyer
 import mosdef_cassandra as mc
+import unyt as u
 
 
 def run_gcmc(custom_args={}):
@@ -27,7 +28,7 @@ def run_gcmc(custom_args={}):
     moveset = mc.MoveSet("gcmc", species_list)
 
     default_args = {
-        "chemical_potentials": [-35.0],
+        "chemical_potentials": [-35.0 * (u.kJ / u.mol)],
         "prop_freq": 100,
     }
 
@@ -39,7 +40,7 @@ def run_gcmc(custom_args={}):
         moveset=moveset,
         run_type="equilibration",
         run_length=1000,
-        temperature=300.0,
+        temperature=300.0 * u.K,
         **custom_args,
     )
 

@@ -26,20 +26,6 @@ Warning
 **MoSDeF Cassandra** is still in early development (0.x releases). The API may
 change unexpectedly.
 
-Specifying Units
-~~~~~~~~~~~~~~~~
-
-**MoSDeF Cassandra** uses the `unyt https://unyt.readthedocs.io/en/stable/`_ package to
-specify various units in a Cassandra simulation.  
-This design choice was made to reduce the errors in simulations that stem from incorrect assumptions of units. 
-The base data structure of **unyt** is the **unyt_array** (a subclass of numpy ndarray) which carries both a value and a unit.  
-One of the main functionalities of **unyt** is the ability to convert units.  
-In **MoSDeF Cassandra**, a user can pass in a unyt_array of any valid unit type which will get then get converted into the standard unit specified by **Cassandra**.
-Unyt arrays are expected for values with units, such as cutoffs, angles, volumes,
-pressures, and temperatures.  Unyt arrays are not expected for values such as
-probabilities.  A list of arguments and their required type can be viewed by
-running `mosdef_cassandra.print_valid_kwargs`.
-
 Resources
 ~~~~~~~~~
 
@@ -88,6 +74,7 @@ Monte Carlo calculation is self-contained in the script below.
 
   import mbuild
   import foyer
+  import unyt as u
   import mosdef_cassandra as mc
 
   # Create a methane molecule from a SMILES string
@@ -120,7 +107,7 @@ Monte Carlo calculation is self-contained in the script below.
       moveset=moveset,
       run_type="equilibration",
       run_length=1000,
-      temperature=300.0 * unyt.K
+      temperature=300.0 * u.K
   )
 
 Credits
@@ -130,5 +117,3 @@ Development of MoSDeF Cassandra was supported by the National Science Foundation
 under grant NSF Grant Number 1835874. Any opinions, findings, and conclusions or
 recommendations expressed in this material are those of the author(s) and do
 not necessarily reflect the views of the National Science Foundation.
-
-

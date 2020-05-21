@@ -17,7 +17,7 @@ class ThermoProps:
         Returns
         -------
         ThermoProps
-            object containing the contents of the prp file
+            object containing the contents of the .prp file
         """
 
         self.filename = filename
@@ -87,7 +87,7 @@ class ThermoProps:
 
         Returns
         -------
-        uynt_array
+        unyt_array
             the property with units
         """
         if prp_name not in self._properties:

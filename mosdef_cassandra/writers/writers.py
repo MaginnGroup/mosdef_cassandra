@@ -71,6 +71,7 @@ def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
     if "restart" in kwargs and kwargs["restart"]:
         if "restart_name" not in kwargs:
             kwargs["restart_name"] = kwargs["run_name"]
+        if kwargs["restart_name"] == kwargs["run_name"]:
             kwargs["run_name"] = kwargs["run_name"] + "-rst"
 
     inp_data = generate_input(
@@ -93,6 +94,30 @@ def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
 def print_inputfile(
     system, moveset, run_type, run_length, temperature, **kwargs
 ):
+    """Print an example Cassandra input file to screen
+
+    This function allows one to look at the Cassandra input file that
+    will be generated without running the MC simulation. The arguments
+    are identical mosdef_cassandra.run
+
+    Parameters
+    ----------
+    system : mosdef_cassandra.System
+        the System to simulate
+    moves : mosdef_cassandra.Moves
+        the Move set to simulate
+    run_type : "equilibration" or "production"
+        the type of run; in "equilibration" mode, Cassandra adaptively changes
+        the maximum translation, rotation, and volume move sizes to achieve
+        an acceptance ratio of 0.5
+    run_length : int
+        length of the MC simulation
+    temperature : float
+        temperature at which to perform the MC simulation
+    **kwargs : keyword arguments
+        any other valid keyword arguments, see
+        ``mosdef_cassandra.print_valid_kwargs()`` for details
+    """
 
     if "run_name" not in kwargs:
         kwargs["run_name"] = moveset.ensemble
@@ -100,7 +125,9 @@ def print_inputfile(
     if "restart" in kwargs and kwargs["restart"]:
         if "restart_name" not in kwargs:
             kwargs["restart_name"] = kwargs["run_name"]
+        if kwargs["restart_name"] == kwargs["run_name"]:
             kwargs["run_name"] = kwargs["run_name"] + "-rst"
+
 
     inp_data = generate_input(
         system=system,

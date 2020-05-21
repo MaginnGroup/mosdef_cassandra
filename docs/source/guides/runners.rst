@@ -1,30 +1,30 @@
-The run function
-================
+Run Monte Carlo
+===============
 
-To run a Monte Carlo simulation, we use:
+To run a Monte Carlo simulation, use:
 
 .. code-block:: python
 
   mc.run(
     system=system,
-    moves=moves,
+    moveset=moveset,
     run_type="equilibration",
     run_length=1000,
     temperature=300.0
   )
 
-The function has five required arguments: an ``mc.System`` object,
-an ``mc.Moves`` object, a choice of ``run_type``, the ``run_length``,
+The ``run`` function has five required arguments: a ``System``,
+``MoveSet``, a choice of ``run_type``, the ``run_length``,
 and the ``temperature``. Other optional arguments can be specified
 individually or with a dictionary. For example, if we were performing
-and NPT simulation and wished to specify the pressure, we could do the
+and NPT simulation and needed to specify the pressure, we could do the
 following:
 
 .. code-block:: python
 
   mc.run(
     system=system,
-    moves=moves,
+    moveset=moveset,
     run_type="equilibration",
     run_length=1000,
     temperature=300.0,
@@ -41,15 +41,15 @@ or, if we wished to use a dictionary:
 
   mc.run(
     system=system,
-    moves=moves,
+    moveset=moveset,
     run_type="equilibration",
     run_length=1000,
     temperature=300.0,
     **custom_args
   )
 
-The dictionary-based approach is cleaner when specify a larger number of custom
-options. For example:
+The dictionary-based approach is easier to read when
+specifying a larger number of custom options. For example:
 
 .. code-block:: python
 
@@ -64,19 +64,22 @@ options. For example:
 
   mc.run(
     system=system,
-    moves=moves,
+    moveset=moveset,
     run_type="equilibration",
     run_length=1000,
     temperature=300.0,
     **custom_args
   )
 
-The restart function
+Restart a Simulation
 ====================
 
-MoSDeF Cassandra also supports restarting from a checkpoint file.
-This is particularly helpful when switching from an equilibration
-to production simulation. 
+MoSDeF Cassandra also supports restarting from a Cassandra
+checkpoint file. The checkpoint file contains the coordinates,
+box information, and state of the random number generator
+required for an exact restart. This functionality is particularly
+helpful when switching from an equilibration to
+production simulation.
 
 The procedure follows:
 
@@ -84,7 +87,7 @@ The procedure follows:
 
   mc.run(
     system=system,
-    moves=moves,
+    moveset=moveset,
     run_type="equilibration",
     run_length=1000,
     temperature=300.0,
@@ -93,7 +96,7 @@ The procedure follows:
 
   mc.restart(
     system=system,
-    moves=moves,
+    moveset=moveset,
     run_type="production",
     run_length=1000,
     temperature=300.0,
@@ -102,20 +105,18 @@ The procedure follows:
   )
 
 Notice the usage of ``run_name`` in both commands and ``restart_name`` in the
-call to ``mc.restart``. The output from the equilibration is named ``"equil"``.
-Therefore, when we use ``mc.restart``, we specify that it should restart
-from the output files named ``"equil"``.
+call to ``restart``. The output from the equilibration is named ``"equil"``.
+Therefore, when we use ``restart``, we specify that it should restart
+from the output files named ``"equil"``, while the new ``run_name`` is
+``"prod"``.
 
-.. note:: 
-  In Cassandra, during an "equilibration",
-  the move sizes are adjusted to achieve a 50% acceptance ratio. In
-  a "production" run the move sizes are fixed.
+.. note::
+  If the ``run_type`` is ``"equilibration"``, Cassandra adjusts the
+  maximum translation, rotation, and volume move sizes to achieve a
+  50% acceptance ratio. If the ``run_type`` is ``"production"``, the
+  maximum move sizes are fixed to the specified values.
 
 .. warning::
-  If using ``mc.restart()``, the move sizes are read from the
-  checkpoint file and therefore the move sizes in the ``Moves``
-  object are NOT used.
-
-
-
-
+  When using ``restart``, the maximum translation, rotation and volume
+  move sizes are read from the checkpoint file and the values in the
+  ``MoveSet`` are ignored.

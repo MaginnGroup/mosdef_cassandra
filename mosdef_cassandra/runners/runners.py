@@ -12,6 +12,32 @@ from mosdef_cassandra.utils.exceptions import CassandraRuntimeError
 
 
 def run(system, moveset, run_type, run_length, temperature, **kwargs):
+    """Run the Monte Carlo simulation with Cassandra
+
+    The following steps are performed: write the molecular connectivity
+    files for each species to disk, write the starting structures
+    (if any) to disk, generate and write the Cassandra input file to disk,
+    call Cassandra to generate the required fragment libraries, and
+    call Cassandra to run the MC simulation.
+
+    Parameters
+    ----------
+    system : mosdef_cassandra.System
+        the System to simulate
+    moveset : mosdef_cassandra.MoveSet
+        the MoveSet to simulate
+    run_type : "equilibration" or "production"
+        the type of run; in "equilibration" mode, Cassandra adaptively changes
+        the maximum translation, rotation, and volume move sizes to achieve
+        an acceptance ratio of 0.5
+    run_length : int
+        length of the MC simulation
+    temperature : float
+        temperature at which to perform the MC simulation
+    **kwargs : keyword arguments
+        any other valid keyword arguments, see
+        ``mosdef_cassandra.print_valid_kwargs()`` for details
+    """
 
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
@@ -64,6 +90,38 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
 
 
 def restart(system, moveset, run_type, run_length, temperature, **kwargs):
+    """Restart a Monte Carlo simulation with Cassandra
+
+    This function is used to restart a Cassandra simulation from a
+    checkpoint file. No new MCF files are written to disk; the function
+    assumes they already exist. No new fragment libraries are generated,
+    again, these should already exist from the original run. The maximum
+    translation, rotation, and volume move sizes are read from the checkpoint
+    file so the values specified in mc.Moves are **not** used. Similarly,
+    the starting structure is taken from the checkpoint file. The
+    keyword argument "restart_name" should specify the old "run_name",
+    i.e., the "run_name" that you are restarting from. If the "restart_name"
+    is not provided or if the "run_name" is the same as "restart_name",
+    "-rst" will be appended to the "run_name".
+
+    Parameters
+    ----------
+    system : mosdef_cassandra.System
+        the System to simulate
+    moveset : mosdef_cassandra.MoveSet
+        the MoveSet to simulate
+    run_type : "equilibration" or "production"
+        the type of run; in "equilibration" mode, Cassandra adaptively changes
+        the maximum translation, rotation, and volume move sizes to achieve
+        an acceptance ratio of 0.5
+    run_length : int
+        length of the MC simulation
+    temperature : float
+        temperature at which to perform the MC simulation
+    **kwargs : keyword arguments
+        any other valid keyword arguments, see
+        ``mosdef_cassandra.print_valid_kwargs()`` for details
+    """
 
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2

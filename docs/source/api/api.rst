@@ -4,15 +4,23 @@ API Documentation
 .. autosummary::
    :toctree: autosummary
 
-   mosdef_cassandra.canvas
-
-
-.. autoclass:: mosdef_cassandra.core.system.System
+.. autoclass:: mosdef_cassandra.System
     :members:
     :special-members:
 
-.. autoclass:: mosdef_cassandra.core.moves.Moves
+.. autoclass:: mosdef_cassandra.MoveSet
     :members:
     :special-members:
 
+.. autofunction:: mosdef_cassandra.run
 
+.. autofunction:: mosdef_cassandra.restart
+
+.. autofunction:: mosdef_cassandra.print_valid_kwargs
+
+.. autofunction:: mosdef_cassandra.print_inputfile
+
+.. autoclass:: mosdef_cassandra.analysis.ThermoProps
+  :members:
+
+  .. automethod:: __init__

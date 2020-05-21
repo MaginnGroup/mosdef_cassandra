@@ -1,5 +1,5 @@
 MoSDeF Cassandra
-================ 
+================
 |Citing|
 |CodeCov|
 |Azure|
@@ -12,9 +12,9 @@ MoSDeF Cassandra
 Overview
 ~~~~~~~~
 
-**MoSDeF Cassandra** is a Python wrapper for the **Cassandra** Monte Carlo code.
-The wrapper provides close integration with the **MoSDeF** tools and provides a
-user-friendly interface to Cassandra.
+**MoSDeF Cassandra** is a Python interface for the **Cassandra** Monte Carlo software.
+It offers complete integration with the **MoSDeF** tools and a user-friendly
+interface for Cassandra.
 
 .. warning::
   **MoSDeF Cassandra** is still in early development (0.x releases). The API may
@@ -26,7 +26,8 @@ Resources
 * :doc:`Installation guide <getting_started/install>`: Instructions for installing MoSDeF Cassandra
 * :ref:`keyconcepts`: How we think about MoSDeF Cassandra
 * `GitHub repository <https://github.com/MaginnGroup/mosdef_cassandra>`_: View the source code, contribute, and raise issues
-* `Cassandra <https://cassandra.nd.edu>`_: Home of the Cassandra Monte Carlo package
+* `Cassandra <https://cassandra.nd.edu>`_: Learn more about the Cassandra Monte Carlo software
+* `Cassandra respository <https://github.com/MaginnGroup/Cassandra>`_: View the source of the Cassandra Monte Carlo software
 * `MoSDeF tools <https://mosdef.org>`_: A collection of tools for constructing systems and applying forcefield parameters for particle-based simulations
 
 Citation
@@ -38,19 +39,22 @@ tools if you use this tool in your research. See :doc:`here <reference/citing>` 
 Installation
 ~~~~~~~~~~~~
 
-Installation instructions are :doc:`here <getting_started/install>`. A conda installation will
-be added in the near future.
+Installation instructions are :doc:`here <getting_started/install>`.
+A conda installation is available:
+
+.. code-block:: bash
+
+    conda create --name mc mosdef_cassandra foyer -c conda-forge -c mosdef -c omnia
 
 Example
 ~~~~~~~
 
-**MoSDeF Cassandra** provides a Python interface to **Cassandra**. The workflow
+MoSDeF Cassandra provides a Python interface to Cassandra. The workflow
 consists of first constructing a system and move set. These two objects are
-passed to the runner that performs the Monte Carlo simulation with
-**Cassandra**. We use classes from the **MoSDeF** tools to structure some of the
-simulation inputs. The example below demonstrates an NVT Monte Carlo simulation
-of OPLS methane. No input files are required. Everything required to run the
-Monte Carlo calculation is contained in the script below.
+passed to a function that calls Cassandra to perform the Monte Carlo simulation.
+The example below demonstrates an NVT Monte Carlo simulation
+of OPLS methane. No additional files are required. Everything
+required to run the Monte Carlo simulation is contained in the script below.
 
 .. code-block:: python
 
@@ -76,16 +80,16 @@ Monte Carlo calculation is contained in the script below.
   species_list = [methane_ff]
   molecules_to_add = [[100]]
 
-  # Create the System object
+  # Create the System
   system = mc.System(box_list, species_list, mols_to_add=molecules_to_add)
 
-  # Create the Moves object
-  moves = mc.Moves(ensemble, species_list)
+  # Create the MoveSet
+  moveset = mc.MoveSet(ensemble, species_list)
 
   # Run a Monte Carlo simulation!
   mc.run(
       system=system,
-      moves=moves,
+      moveset=moveset,
       run_type="equilibration",
       run_length=1000,
       temperature=300.0
@@ -120,8 +124,9 @@ Table of Contents
    :caption: Guides
 
    guides/philosophy
+   guides/unyts
    guides/system
-   guides/moves
+   guides/moveset
    guides/runners
 
 .. toctree::

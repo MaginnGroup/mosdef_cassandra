@@ -15,11 +15,10 @@ MoSDeF Cassandra
 Overview
 ~~~~~~~~
 
-**MoSDeF Cassandra** is a Python wrapper for the
-`Cassandra <https://cassandra.nd.edu>`_ Monte Carlo code.
-The wrapper interfaces with the `MoSDeF <https://mosdef.org>`_
-tools and provides a user-friendly interface to Cassandra
-without sacrificing any capabilities of Cassandra.
+**MoSDeF Cassandra** is a Python interface for the
+`Cassandra <https://cassandra.nd.edu>`_ Monte Carlo software.
+It offers complete integration with the `MoSDeF <https://mosdef.org>`_
+tools and provides a user-friendly interface for Cassandra.
 
 Warning
 ~~~~~~~
@@ -66,9 +65,13 @@ tools if you use this tool in your research. Details
 Installation
 ~~~~~~~~~~~~
 
-Installation instructions are
+Complete installation instructions are
 `here <https://mosdef-cassandra.readthedocs.io/en/latest/getting_started/install.html>`_.
-A conda installation will be added in the near future.
+However, for most users we recommend the conda installation:
+
+.. code-block:: bash
+
+    conda create --name mc mosdef_cassandra foyer -c conda-forge -c mosdef -c omnia
 
 Examples
 ~~~~~~~~
@@ -78,8 +81,8 @@ consists of first constructing a system and move set. These two objects are
 passed to the runner that performs the Monte Carlo simulation with
 **Cassandra**. We use classes from the **MoSDeF** tools to structure some of the
 simulation inputs. The example below demonstrates an NVT Monte Carlo simulation
-of OPLS methane. No input files are required. Everything required to run the
-Monte Carlo calculation is contained in the script below.
+of OPLS-AA methane. No other input files are required. Everything required to run the
+Monte Carlo calculation is self-contained in the script below.
 
 .. code-block:: python
 
@@ -105,16 +108,16 @@ Monte Carlo calculation is contained in the script below.
   species_list = [methane_ff]
   molecules_to_add = [[100]]
 
-  # Create the System object
+  # Create the System
   system = mc.System(box_list, species_list, mols_to_add=molecules_to_add)
 
-  # Create the Moves object
-  moves = mc.Moves(ensemble, species_list)
+  # Create the MoveSet
+  moveset = mc.MoveSet(ensemble, species_list)
 
   # Run a Monte Carlo simulation!
   mc.run(
       system=system,
-      moves=moves,
+      moveset=moveset,
       run_type="equilibration",
       run_length=1000,
       temperature=300.0 * unyt.K

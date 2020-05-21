@@ -79,10 +79,7 @@ We can then print the current contents with:
 
   moveset.print()
 
-Example output for a single species (OPLS-AA methane):
-
-.. code-block::
-
+Example output for a single species (OPLS-AA methane)::
 
   Ensemble:  nvt
   

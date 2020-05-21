@@ -128,7 +128,6 @@ def print_inputfile(
         if kwargs["restart_name"] == kwargs["run_name"]:
             kwargs["run_name"] = kwargs["run_name"] + "-rst"
 
-
     inp_data = generate_input(
         system=system,
         moveset=moveset,

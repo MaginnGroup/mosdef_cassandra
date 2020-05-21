@@ -49,12 +49,23 @@ The value (without units) can be extracted as:
 Unyts in MoSDeF Cassandra
 +++++++++++++++++++++++++
 
+The base data structure of ``unyt`` is the ``unyt_array`` or ``unyt_quantity``
+(a subclass of numpy ndarray) which carries both a value and a unit.
+One of the main functionalities of **unyt** is the ability to convert units.
+In **MoSDeF Cassandra**, a user can pass in a ``unyt_quantity`` of any valid
+unit type which will get then get converted into the standard unit
+specified by **Cassandra**. Unyt arrays are expected for values with
+units, such as cutoffs, angles, volumes, pressures, and temperatures.
+Unyt arrays are **not** expected for dimensionless values such as probabilities.  A
+list of arguments and their required type can be viewed by running
+``mosdef_cassandra.print_valid_kwargs``.
 
 
-Cavaets
-+++++++
+Important Cavaets
++++++++++++++++++
 
-
+``mBuild`` does not use the ``unyt`` package. The distance units in
+``mBuild`` are **nanometers**.
 
 
 

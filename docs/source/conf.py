@@ -40,12 +40,19 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.extlinks",
+    "autoapi.extension",
 ]
 
 autosummary_generate = True
 napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
+
+# AutoAPI options
+autoapi_generate_api_docs = False
+autoapi_dirs = [
+    '../../mosdef_cassandra',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -96,4 +103,4 @@ html_static_path = ["_static"]
 
 # These paths are either relative to the html_static_path
 # or fully qualifed paths (e.g., https://...)
-html_css_files = [ 'css/mc-theme.css' ]
+html_css_files = ["css/mc-theme.css"]

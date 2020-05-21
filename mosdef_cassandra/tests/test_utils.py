@@ -1,8 +1,11 @@
 import pytest
 import numpy as np
+import unyt as u
 
 from mosdef_cassandra.tests.base_test import BaseTest
 from mosdef_cassandra.utils.convert_box import convert_to_boxmatrix
+from mosdef_cassandra.utils.units import validate_unit
+from unyt import dimensions
 
 
 class TestConvertBox(BaseTest):
@@ -68,3 +71,23 @@ class TestConvertBox(BaseTest):
         box = [10.0, 10.0, 10.0, 60.0, 5.0, 90.0]
         with pytest.raises(ValueError, match=r"Illegal box"):
             box_matrix = convert_to_boxmatrix(box)
+
+    @pytest.mark.parametrize(
+        "unit,dimension",
+        [
+            (u.nm, dimensions.length),
+            (u.bar, dimensions.pressure),
+            (u.K, dimensions.temperature),
+            ((u.kJ / u.mol), dimensions.energy),
+        ],
+    )
+    def test_validate_unit(self, unit, dimension):
+        validate_unit(1 * unit, dimension)
+
+    def test_validate_unit_int_error(self):
+        with pytest.raises(TypeError):
+            validate_unit(1, dimensions.length)
+
+    def test_invalid_dimension(self):
+        with pytest.raises(TypeError, match="does not match"):
+            validate_unit(1 * u.nm, dimensions.temperature)

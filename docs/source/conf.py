@@ -81,6 +81,7 @@ pygments_style = "default"
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
+html_logo = "resources/mosdef_cassandra_logo_gray.png"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -92,3 +93,7 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# These paths are either relative to the html_static_path
+# or fully qualifed paths (e.g., https://...)
+html_css_files = [ 'css/mc-theme.css' ]

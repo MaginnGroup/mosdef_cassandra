@@ -51,7 +51,7 @@ napoleon_use_ivar = True
 # AutoAPI options
 autoapi_generate_api_docs = False
 autoapi_dirs = [
-    '../../mosdef_cassandra',
+    "../../mosdef_cassandra",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

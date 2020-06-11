@@ -1,8 +1,8 @@
 numpy
 parmed
 networkx
-foyer >= 0.7.3
-mbuild >= 0.10.5
+foyer >= 0.7.5
+mbuild >= 0.10.6
 openbabel
 pytest
 cassandra >= 1.2.2

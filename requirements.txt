@@ -1,6 +1,6 @@
 numpy
 parmed
 networkx
-mbuild >= 0.10.5
+mbuild >= 0.10.6
 cassandra >= 1.2.2
 unyt >= 2.4

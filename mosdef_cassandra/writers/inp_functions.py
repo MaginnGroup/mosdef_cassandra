@@ -982,14 +982,17 @@ def get_box_info(boxes, restricted_type, restricted_value):
             for typ, value in zip(restrict_types, restrict_vals):
                 _check_restricted_insertions(box, typ, value)
                 if typ == "interface":
+                    value[0] = value[0].to("angstrom")
+                    value[1] = value[1].to("angstrom")
                     inp_data += """restricted_insertion {} {} {}
                     """.format(
-                        typ, value[0], value[1]
+                        typ, value[0].to_value(), value[1].to_value()
                     )
                 elif typ:
+                    value = value.to("angstrom")
                     inp_data += """restricted_insertion {} {}
                     """.format(
-                        typ, value
+                        typ, value.to_value()
                     )
 
     else:

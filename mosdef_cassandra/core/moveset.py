@@ -318,12 +318,10 @@ class MoveSet(object):
 
     @prob_translate.setter
     def prob_translate(self, prob_translate):
-        if type(prob_translate) not in (float, int):
-            raise TypeError("prob_translate must be of type float")
-        else:
-            prob_translate = float(prob_translate)
-        if prob_translate < 0.0 or prob_translate > 1.0:
-            raise ValueError("Probability must be between 0.0 and 1.0.")
+        prob_translate = self._validate_probability(
+            prob_translate,
+            "prob_translate",
+        )
         self._prob_translate = prob_translate
 
     @property
@@ -332,12 +330,10 @@ class MoveSet(object):
 
     @prob_rotate.setter
     def prob_rotate(self, prob_rotate):
-        if type(prob_rotate) not in (float, int):
-            raise TypeError("prob_rotate must be of type float")
-        else:
-            prob_rotate = float(prob_rotate)
-        if prob_rotate < 0.0 or prob_rotate > 1.0:
-            raise ValueError("Probability must be between 0.0 and 1.0.")
+        prob_rotate = self._validate_probability(
+            prob_rotate,
+            "prob_rotate",
+        )
         self._prob_rotate = prob_rotate
 
     @property
@@ -346,12 +342,10 @@ class MoveSet(object):
 
     @prob_angle.setter
     def prob_angle(self, prob_angle):
-        if type(prob_angle) not in (float, int):
-            raise TypeError("prob_angle must be of type float")
-        else:
-            prob_angle = float(prob_angle)
-        if prob_angle < 0.0 or prob_angle > 1.0:
-            raise ValueError("Probability must be between 0.0 and 1.0.")
+        prob_angle = self._validate_probability(
+            prob_angle,
+            "prob_angle",
+        )
         self._prob_angle = prob_angle
 
     @property
@@ -360,12 +354,10 @@ class MoveSet(object):
 
     @prob_dihedral.setter
     def prob_dihedral(self, prob_dihedral):
-        if type(prob_dihedral) not in (float, int):
-            raise TypeError("prob_dihedral must be of type float")
-        else:
-            prob_dihedral = float(prob_dihedral)
-        if prob_dihedral < 0.0 or prob_dihedral > 1.0:
-            raise ValueError("Probability must be between 0.0 and 1.0.")
+        prob_dihedral = self._validate_probability(
+            prob_dihedral,
+            "prob_dihedral",
+        )
         self._prob_dihedral = prob_dihedral
 
     @property
@@ -374,12 +366,10 @@ class MoveSet(object):
 
     @prob_regrow.setter
     def prob_regrow(self, prob_regrow):
-        if type(prob_regrow) not in (float, int):
-            raise TypeError("prob_regrow must be of type float")
-        else:
-            prob_regrow = float(prob_regrow)
-        if prob_regrow < 0.0 or prob_regrow > 1.0:
-            raise ValueError("Probability must be between 0.0 and 1.0.")
+        prob_regrow = self._validate_probability(
+            prob_regrow,
+            "prob_regrow",
+        )
         self._prob_regrow = prob_regrow
 
     @property
@@ -388,12 +378,10 @@ class MoveSet(object):
 
     @prob_volume.setter
     def prob_volume(self, prob_volume):
-        if type(prob_volume) not in (float, int):
-            raise TypeError("prob_volume must be of type float")
-        else:
-            prob_volume = float(prob_volume)
-        if prob_volume < 0.0 or prob_volume > 1.0:
-            raise ValueError("Probability must be between 0.0 and 1.0.")
+        prob_volume = self._validate_probability(
+            prob_volume,
+            "prob_volume",
+        )
         if prob_volume > 0.0:
             if self.ensemble == "nvt" or self.ensemble == "gcmc":
                 raise ValueError(
@@ -421,12 +409,10 @@ class MoveSet(object):
 
     @prob_insert.setter
     def prob_insert(self, prob_insert):
-        if type(prob_insert) not in (float, int):
-            raise TypeError("prob_insert must be of type float")
-        else:
-            prob_insert = float(prob_insert)
-        if prob_insert < 0.0 or prob_insert > 1.0:
-            raise ValueError("Probability must be between 0.0 and 1.0.")
+        prob_insert = self._validate_probability(
+            prob_insert,
+            "prob_insert",
+        )
         if self.ensemble != "gcmc" and prob_insert != 0.0:
             raise ValueError(
                 "Ensemble is {}. Insertion probability "
@@ -445,12 +431,10 @@ class MoveSet(object):
 
     @prob_swap.setter
     def prob_swap(self, prob_swap):
-        if type(prob_swap) not in (float, int):
-            raise TypeError("prob_swap must be of type float")
-        else:
-            prob_swap = float(prob_swap)
-        if prob_swap < 0.0 or prob_swap > 1.0:
-            raise ValueError("Probability must be between 0.0 and 1.0.")
+        prob_swap = self._validate_probability(
+            prob_swap,
+            "prob_swap",
+        )
         if self.ensemble != "gemc" and self.ensemble != "gemc_npt":
             if prob_swap != 0.0:
                 raise ValueError(
@@ -481,33 +465,8 @@ class MoveSet(object):
         for max_val in max_translate.flatten():
             if max_val.to_value() < 0.0:
                 raise ValueError(
-                    "Max translation values cannot " "be less than zero"
+                    "Max translation values cannot be less than zero"
                 )
-
-        #        if (
-        #            not isinstance(max_translate, list)
-        #            or len(max_translate) != self._n_boxes
-        #        ):
-        #            raise ValueError(
-        #                "max_translate must be a list with shape "
-        #                "(number of boxes, number of species)"
-        #            )
-        #        for max_translate_box in max_translate:
-        #            if (
-        #                not isinstance(max_translate_box, list)
-        #                or len(max_translate_box) != self._n_species
-        #            ):
-        #                raise ValueError(
-        #                    "max_translate must be a list with "
-        #                    "shape (number of boxes, number of species)"
-        #                )
-        #            for max_val in max_translate_box:
-        #                validate_unit(max_val, dimensions.length)
-        #                if max_val.to_value() < 0.0:
-        #                    raise ValueError(
-        #                        "Max translation values cannot " "be less than zero"
-        #                    )
-
         self._max_translate = max_translate
 
     @property
@@ -516,31 +475,17 @@ class MoveSet(object):
 
     @max_rotate.setter
     def max_rotate(self, max_rotate):
-
-        if (
-            not isinstance(max_rotate, list)
-            or len(max_rotate) != self._n_boxes
-        ):
-            raise ValueError(
-                "max_rotate must be a list with shape "
-                "(number of boxes, number of species)"
-            )
-        for max_rotate_box in max_rotate:
-            if (
-                not isinstance(max_rotate_box, list)
-                or len(max_rotate_box) != self._n_species
-            ):
+        max_rotate = validate_unit_list(
+            max_rotate,
+            (self._n_boxes, self._n_species),
+            dimensions.angle,
+            "max_rotate",
+        )
+        for max_val in max_rotate.flatten():
+            if max_val.to_value("degree") < 0.0 or max_val.to_value("degree") > 360.0:
                 raise ValueError(
-                    "max_rotate must be a list with "
-                    "shape (number of boxes, number of species)"
+                    "Max rotation values must be between 0.0 and 360.0 degrees."
                 )
-            for max_val in max_rotate_box:
-                validate_unit(max_val, dimensions.angle)
-                if max_val.to_value() < 0.0:
-                    raise ValueError(
-                        "Max rotation values cannot " "be less than zero"
-                    )
-
         self._max_rotate = max_rotate
 
     @property
@@ -549,28 +494,17 @@ class MoveSet(object):
 
     @max_dihedral.setter
     def max_dihedral(self, max_dihedral):
-
-        if (
-            not isinstance(max_dihedral, list)
-            or len(max_dihedral) != self._n_species
-        ):
-            raise ValueError(
-                "max_dihedral must be a list with length "
-                "(number of species)"
-            )
+        max_dihedral = validate_unit_list(
+            max_dihedral,
+            (self._n_species,),
+            dimensions.angle,
+            "max_dihedral",
+        )
         for max_val in max_dihedral:
-            if not isinstance(max_val, u.unyt_array):
-                raise TypeError("Max dihedral values must be a unyt array")
-            if (
-                max_val.to("degree").to_value() < 0.0
-                or max_val.to("degree").to_value() > 360.0
-            ):
+            if max_val.to_value("degree") < 0.0 or max_val.to_value("degree") > 360.0:
                 raise ValueError(
-                    "Max dihedral values cannot "
-                    "be less than zero"
-                    " or greater than 360 degrees"
+                    "Max dihedral rotation values must be between 0.0 and 360.0 degrees."
                 )
-
         self._max_dihedral = max_dihedral
 
     @property
@@ -584,25 +518,18 @@ class MoveSet(object):
             not isinstance(prob_swap_from_box, list)
             or len(prob_swap_from_box) != self._n_boxes
         ):
-            raise ValueError(
+            raise TypeError(
                 "prob_swap_from_box must be a list with length "
                 "(number of boxes)"
             )
+        validated_prob_swap_from_box = []
         for prob_swap in prob_swap_from_box:
-            if type(prob_swap) not in (float, int):
-                raise TypeError(
-                    "Probability of swapping from a box "
-                    "must be of type float"
-                )
-            else:
-                prob_swap = float(prob_swap)
-            if prob_swap < 0.0:
-                raise ValueError(
-                    "Probability of swapping from a box "
-                    "cannot be less than zero"
-                )
-
-        self._prob_swap_from_box = prob_swap_from_box
+            prob_swap = self._validate_probability(
+                prob_swap,
+                "prob_swap_from_box",
+            )
+            validated_prob_swap_from_box.append(prob_swap)
+        self._prob_swap_from_box = validated_prob_swap_from_box
 
     @property
     def max_volume(self):
@@ -611,37 +538,25 @@ class MoveSet(object):
     @max_volume.setter
     def max_volume(self, max_volume):
         if type(max_volume) not in (list, u.unyt_array):
-            raise TypeError(
-                "max_volume must be a unyt array, or, optionally, "
-                "a list with length (number of boxes)"
-            )
-        if type(max_volume) == list:
-            if self.ensemble == "gemc_npt":
-                if len(max_volume) != self._n_boxes:
-                    raise TypeError(
-                        "max_volume must be a unyt array or a list with length "
-                        "(number of boxes) for gemc_npt"
-                    )
-            else:
-                if len(max_volume) != 1:
-                    raise TypeError(
-                        "max_volume must be a unyt_array or a list with length "
-                        "1 for all ensembles except gemc_npt"
-                    )
-        else:
             if self.ensemble == "gemc_npt":
                 max_volume = [max_volume] * self._n_boxes
             else:
                 max_volume = [max_volume]
+        
+        if self.ensemble == "gemc_npt":
+            shape = (self._n_boxes,)
+        else:
+            shape = (1, )
 
-        for max_vol in max_volume:
-            validate_unit(max_vol, dimensions.volume)
-            # if type(max_vol) not in (float, int):
-            #    raise TypeError("max_volume values must be of type float")
+        max_volume = validate_unit_list(
+            max_volume,
+            shape,
+            dimensions.length**3,
+            "max_volume",
+        )
+        for max_vol in max_volume.flatten():
             if max_vol < 0.0:
                 raise ValueError("max_volume cannot be less than zero.")
-
-        # self._max_volume = [float(max_vol) for max_vol in max_volume]
         self._max_volume = max_volume
 
     @property
@@ -655,7 +570,7 @@ class MoveSet(object):
             not isinstance(insertable, list)
             or len(insertable) != self._n_species
         ):
-            raise ValueError(
+            raise TypeError(
                 "insertable must be a list with length " "(number of species)"
             )
         for insert in insertable:
@@ -678,25 +593,18 @@ class MoveSet(object):
             not isinstance(prob_swap_species, list)
             or len(prob_swap_species) != self._n_species
         ):
-            raise ValueError(
+            raise TypeError(
                 "prob_swap_species must be a list with length "
                 "(number of species)"
             )
+        validated_prob_swap_species = []
         for prob_swap in prob_swap_species:
-            if type(prob_swap) not in (float, int):
-                raise TypeError(
-                    "Probability of swapping a species "
-                    "must be of type float"
-                )
-            else:
-                prob_swap = float(prob_swap)
-            if prob_swap < 0.0:
-                raise ValueError(
-                    "Probability of swapping a species "
-                    "cannot be less than zero"
-                )
-
-        self._prob_swap_species = prob_swap_species
+            prob_swap = self._validate_probability(
+                prob_swap,
+                "prob_swap_species",
+            )
+            validated_prob_swap_species.append(prob_swap)
+        self._prob_swap_species = validated_prob_swap_species
 
     @property
     def prob_regrow_species(self):
@@ -704,30 +612,22 @@ class MoveSet(object):
 
     @prob_regrow_species.setter
     def prob_regrow_species(self, prob_regrow_species):
-
         if (
             not isinstance(prob_regrow_species, list)
             or len(prob_regrow_species) != self._n_species
         ):
-            raise ValueError(
+            raise TypeError(
                 "prob_regrow_species must be a list with length "
                 "(number of species)"
             )
+        validated_prob_regrow_species = []
         for prob_regrow in prob_regrow_species:
-            if type(prob_regrow) not in (float, int):
-                raise TypeError(
-                    "Probability of regrowing a species "
-                    "must be of type float"
-                )
-            else:
-                prob_regrow = float(prob_regrow)
-            if prob_regrow < 0.0:
-                raise ValueError(
-                    "Probability of regrowing a species "
-                    "cannot be less than zero"
-                )
-
-        self._prob_regrow_species = prob_regrow_species
+            prob_regrow = self._validate_probability(
+                prob_regrow,
+                "prob_regrow"
+            )
+            validated_prob_regrow_species.append(prob_regrow)
+        self._prob_regrow_species = validated_prob_regrow_species
 
     @property
     def cbmc_n_insert(self):
@@ -759,26 +659,20 @@ class MoveSet(object):
 
     @cbmc_rcut.setter
     def cbmc_rcut(self, cbmc_rcut):
-        if not isinstance(cbmc_rcut, (list, u.unyt_array)):
-            raise TypeError(
-                "cbmc_rcut must be a unyt array, or, optionally, "
-                "a list with length (number of boxes)"
-            )
-        if type(cbmc_rcut) == list:
-            if len(cbmc_rcut) != self._n_boxes:
-                raise TypeError(
-                    "cbmc_rcut must be a unyt array or a list with length "
-                    "(number of boxes)"
-                )
-        else:
+        if type(cbmc_rcut) not in (list, u.unyt_array):
             cbmc_rcut = [cbmc_rcut] * self._n_boxes
+        cbmc_rcut = validate_unit_list(
+            cbmc_rcut,
+            (self._n_boxes,),
+            dimensions.length,
+            "cbmc_rcut",
+        )
 
-        for rcut in cbmc_rcut:
-            validate_unit(rcut, dimensions.length)
+        for rcut in cbmc_rcut.flatten():
             if rcut.to_value() < 0.0:
                 raise ValueError("cbmc_rcut cannot be less than zero.")
 
-        self._cbmc_rcut = [rcut for rcut in cbmc_rcut]
+        self._cbmc_rcut = cbmc_rcut
 
     def print(self):
         """Print the current contents of the MoveSet"""
@@ -911,6 +805,15 @@ CBMC selections:
 
         print(contents)
 
+    def _validate_probability(self, probability, name):
+        if type(probability) not in (float, int):
+            raise TypeError(f"{name} must be of type float")
+        else:
+            probability = float(probability)
+        if probability < 0.0 or probability > 1.0:
+            raise ValueError(f"{name} must be between 0.0 and 1.0.")
+        return probability
+
 
 def _check_restriction_type(restriction_type, restriction_value):
     valid_restrict_types = ["sphere", "cylinder", "slitpore", "interface"]
@@ -939,3 +842,5 @@ def _check_restriction_type(restriction_type, restriction_value):
                 " single argument of type `unyt_array"
                 " should be passed".format(restriction_type)
             )
+
+

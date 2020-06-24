@@ -259,8 +259,9 @@ def generate_input(
                 max_mols += system.mols_in_boxes[ibox][isp]
                 max_mols += system.mols_to_add[ibox][isp]
             # TODO: Document/improve this
+            # Memory is cheap (most of the time)
             if moveset.ensemble == "gcmc" and moveset.insertable[isp]:
-                max_mols += 500
+                max_mols += 2000
 
             max_molecules_dict["species%d.mcf" % (isp + 1)] = max_mols
 
@@ -390,7 +391,9 @@ def generate_input(
 
     # CBMC information
     inp_data += get_cbmc_info(
-        moveset.cbmc_n_insert, moveset.cbmc_n_dihed, moveset.cbmc_rcut
+        moveset.cbmc_n_insert,
+        moveset.cbmc_n_dihed,
+        [i.to_value() for i in moveset.cbmc_rcut]
     )
 
     # Start type info
@@ -527,36 +530,6 @@ def generate_input(
                     fragment_files.append(line)
 
     inp_data += get_fragment_files(fragment_files)
-
-    # Verbose log section
-    if "verbose_log" in kwargs:
-        verbose_log = kwargs["verbose_log"]
-    else:
-        verbose_log = False
-
-    if verbose_log:
-        inp_data += get_verbose_log(verbose_log)
-
-    # CBMC information
-    if "cbmc_kappa_ins" in kwargs:
-        cbmc_kappa_ins = kwargs["cbmc_kappa_ins"]
-    else:
-        cbmc_kappa_ins = 10
-    if "cbmc_kappa_dih" in kwargs:
-        cbmc_kappa_dih = kwargs["cbmc_kappa_dih"]
-    else:
-        cbmc_kappa_dih = 10
-    if "cbmc_rcut" in kwargs:
-        if isinstance(kwargs["cbmc_rcut"], u.unyt_array):
-            cbmc_rcuts = [kwargs["cbmc_rcut"].to_value()] * nbr_boxes
-        else:
-            cbmc_rcuts = [
-                i.to_value() for i in kwargs["cbmc_rcut"]
-            ] * nbr_boxes
-    else:
-        cbmc_rcuts = [6.0] * nbr_boxes
-
-    inp_data += get_cbmc_info(cbmc_kappa_ins, cbmc_kappa_dih, cbmc_rcuts)
 
     inp_data += "\nEND\n"
 
@@ -1945,9 +1918,6 @@ def _get_possible_kwargs(desc=False):
             '"energy_total", "energy_lj", "energy_elec", "energy_intra", "enthalpy",'
             '"pressure", "volume", "nmols", "density", "mass_density"'
         ),
-        "cbmc_kappa_ins": "int, number of attempted insertion sites for CBMC",
-        "cbmc_kappa_dih": "int, number of attempted dihedral rotations for CBMC",
-        "cbmc_rcut": "unyt_array or unyt_quantity with `length` units, cutoff for CBMC",
         "restart": "boolean, restart from checkpoint file",
         "restart_name": "name of checkpoint file to restart from",
     }
@@ -2031,8 +2001,6 @@ def _check_kwarg_units(kwargs):
         for mu in kwargs["chemical_potentials"]:
             if not isinstance(mu, str):
                 validate_unit(mu, dimensions.energy)
-    if "cbmc_rcut" in kwargs:
-        validate_unit(kwargs["cbmc_rcut"], dimensions.length)
 
 
 def _convert_kwarg_units(kwargs):
@@ -2080,13 +2048,6 @@ def _convert_kwarg_units(kwargs):
                 mu = mu.to("kJ/mol")
             new_mu.append(mu)
         kwargs["chemical_potentials"] = new_mu
-    if "cbmc_rcut" in kwargs:
-        if isinstance(kwargs["cbmc_rcut"], u.unyt_array):
-            kwargs["cbmc_rcut"] = kwargs["cbmc_rcut"].to("angstrom")
-        else:
-            kwargs["cbmc_rcut"] = [
-                i.to("angstrom") for i in kwargs["cbmc_rcut"]
-            ]
 
     return kwargs
 
@@ -2133,5 +2094,12 @@ def _convert_moveset_units(moveset):
         maxs = [i.to("degree") for i in maxs]
         new_max_rotate.append(maxs)
     moveset.max_rotate = new_max_rotate
+
+    # Convert cbmc_rcut
+    new_cbmc_rcut = list()
+    for rcut in moveset.cbmc_rcut:
+        new_rcut = rcut.to("angstrom")
+        new_cbmc_rcut.append(new_rcut)
+    moveset.cbmc_rcut = new_cbmc_rcut
 
     return moveset

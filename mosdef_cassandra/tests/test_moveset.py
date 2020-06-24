@@ -542,22 +542,22 @@ class TestMoveSet(BaseTest):
             moveset.cbmc_n_dihed = -2
         moveset.cbmc_n_dihed = 20
         assert moveset.cbmc_n_dihed == 20
-        with pytest.raises(TypeError, match=r"of type float"):
-            moveset.cbmc_rcut = [3.0, [3.0]]
+        with pytest.raises(TypeError, match=r"a unyt_array"):
+            moveset.cbmc_rcut = [3.0 * u.angstrom, [3.0 * u.angstrom]]
         with pytest.raises(ValueError, match=r"less than zero"):
-            moveset.cbmc_rcut = [3.0, -3.0]
-        moveset.cbmc_rcut = [4.0, 8.0]
+            moveset.cbmc_rcut = [3.0 * u.angstrom, -3.0 * u.angstrom]
+        moveset.cbmc_rcut = [0.4 * u.nm, 8.0 * u.angstrom]
         assert len(moveset.cbmc_rcut) == 2
-        assert moveset.cbmc_rcut[0] == 4.0
-        assert moveset.cbmc_rcut[1] == 8.0
-        moveset.cbmc_rcut = 5.0
+        assert moveset.cbmc_rcut[0].to_value("angstrom") == 4.0
+        assert moveset.cbmc_rcut[1].to_value("angstrom") == 8.0
+        moveset.cbmc_rcut = 5.0 * u.angstrom
         assert len(moveset.cbmc_rcut) == 2
-        assert moveset.cbmc_rcut[0] == 5.0
-        assert moveset.cbmc_rcut[1] == 5.0
+        assert moveset.cbmc_rcut[0].to_value("angstrom") == 5.0
+        assert moveset.cbmc_rcut[1].to_value("angstrom") == 5.0
         moveset = mc.MoveSet("nvt", [methane_oplsaa])
-        moveset.cbmc_rcut = 7.0
+        moveset.cbmc_rcut = 7.0 * u.angstrom
         assert len(moveset.cbmc_rcut) == 1
-        assert moveset.cbmc_rcut[0] == 7.0
+        assert moveset.cbmc_rcut[0].to_value("angstrom") == 7.0
 
     def test_print_moveset(self, methane_oplsaa):
         """Simple test to make sure moveset object is printed"""

@@ -552,7 +552,7 @@ class TestInpFunctions(BaseTest):
         )
 
         assert (
-            "# Molecule_Files\nspecies1.mcf 1\nspecies2.mcf 510\n" in inp_data
+            "# Molecule_Files\nspecies1.mcf 1\nspecies2.mcf 2010\n" in inp_data
         )
 
         (system, moveset) = twocomp_system
@@ -1509,7 +1509,7 @@ class TestInpFunctions(BaseTest):
         )
 
         (system, moveset) = onecomp_system
-        moveset.cbmc_rcut = [4.5]
+        moveset.cbmc_rcut = [0.45 * u.nm]
         moveset.cbmc_n_insert = 2
         moveset.cbmc_n_dihed = 5
         inp_data = generate_input(
@@ -1518,9 +1518,6 @@ class TestInpFunctions(BaseTest):
             run_type="equilibration",
             run_length=500,
             temperature=300.0 * u.K,
-            cbmc_kappa_ins=2,
-            cbmc_kappa_dih=5,
-            cbmc_rcut=4.5 * u.angstrom,
         )
         print(inp_data)
 
@@ -1528,42 +1525,6 @@ class TestInpFunctions(BaseTest):
             "# CBMC_Info\nkappa_ins 2\nkappa_dih 5\nrcut_cbmc 4.5\n"
             in inp_data
         )
-
-        with pytest.raises(TypeError, match=r"must be an integer"):
-            inp_data = generate_input(
-                system=system,
-                moveset=moveset,
-                run_type="equilibration",
-                run_length=500,
-                temperature=300.0 * u.K,
-                cbmc_kappa_ins=2.5,
-                cbmc_kappa_dih=5,
-                cbmc_rcut=4.5 * u.angstrom,
-            )
-
-        with pytest.raises(TypeError, match=r"must be an integer"):
-            inp_data = generate_input(
-                system=system,
-                moveset=moveset,
-                run_type="equilibration",
-                run_length=500,
-                temperature=300.0 * u.K,
-                cbmc_kappa_ins=2,
-                cbmc_kappa_dih=5.5,
-                cbmc_rcut=4.5 * u.angstrom,
-            )
-
-        with pytest.raises(TypeError, match=r"must be a unyt_array"):
-            inp_data = generate_input(
-                system=system,
-                moveset=moveset,
-                run_type="equilibration",
-                run_length=500,
-                temperature=300.0 * u.K,
-                cbmc_kappa_ins=2,
-                cbmc_kappa_dih=5,
-                cbmc_rcut=[],
-            )
 
     @pytest.mark.parametrize(
         "typ,value",

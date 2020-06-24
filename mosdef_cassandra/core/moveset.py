@@ -131,7 +131,7 @@ class MoveSet(object):
         # Set the default CBMC options
         self.cbmc_n_insert = 10
         self.cbmc_n_dihed = 10
-        self.cbmc_rcut = 6.0
+        self.cbmc_rcut = 6.0 * u.angstrom
 
         # Remaining options are per-species
         self.max_dihedral = [0.0 * u.degree] * self._n_species
@@ -748,27 +748,26 @@ class MoveSet(object):
 
     @cbmc_rcut.setter
     def cbmc_rcut(self, cbmc_rcut):
-        if type(cbmc_rcut) not in (list, float, int):
+        if not isinstance(cbmc_rcut, (list, u.unyt_array)):
             raise TypeError(
-                "cbmc_rcut must be a float, or, optionally, "
+                "cbmc_rcut must be a unyt array, or, optionally, "
                 "a list with length (number of boxes)"
             )
         if type(cbmc_rcut) == list:
             if len(cbmc_rcut) != self._n_boxes:
                 raise TypeError(
-                    "cbmc_rcut must be a float or a list with length "
+                    "cbmc_rcut must be a unyt array or a list with length "
                     "(number of boxes)"
                 )
         else:
             cbmc_rcut = [cbmc_rcut] * self._n_boxes
 
         for rcut in cbmc_rcut:
-            if type(rcut) not in (float, int):
-                raise TypeError("cbmc_rcut values must be of type float")
-            if rcut < 0.0:
+            validate_unit(rcut, dimensions.length)
+            if rcut.to_value() < 0.0:
                 raise ValueError("cbmc_rcut cannot be less than zero.")
 
-        self._cbmc_rcut = [float(rcut) for rcut in cbmc_rcut]
+        self._cbmc_rcut = [rcut for rcut in cbmc_rcut]
 
     def print(self):
         """Print the current contents of the MoveSet"""

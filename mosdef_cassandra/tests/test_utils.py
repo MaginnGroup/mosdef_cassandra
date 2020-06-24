@@ -4,7 +4,7 @@ import unyt as u
 
 from mosdef_cassandra.tests.base_test import BaseTest
 from mosdef_cassandra.utils.convert_box import convert_to_boxmatrix
-from mosdef_cassandra.utils.units import validate_unit
+from mosdef_cassandra.utils.units import validate_unit, validate_unit_list
 from unyt import dimensions
 
 
@@ -73,21 +73,42 @@ class TestConvertBox(BaseTest):
             box_matrix = convert_to_boxmatrix(box)
 
     @pytest.mark.parametrize(
-        "unit,dimension",
+        "unit,dimension,name",
         [
-            (u.nm, dimensions.length),
-            (u.bar, dimensions.pressure),
-            (u.K, dimensions.temperature),
-            ((u.kJ / u.mol), dimensions.energy),
+            (u.nm, dimensions.length, "length"),
+            (u.bar, dimensions.pressure, "pressure"),
+            (u.K, dimensions.temperature, "temperature"),
+            ((u.kJ / u.mol), dimensions.energy, "energy"),
         ],
     )
-    def test_validate_unit(self, unit, dimension):
-        validate_unit(1 * unit, dimension)
+    def test_validate_unit(self, unit, dimension, name):
+        validate_unit(1 * unit, dimension, argument_name=name)
 
     def test_validate_unit_int_error(self):
         with pytest.raises(TypeError):
             validate_unit(1, dimensions.length)
 
     def test_invalid_dimension(self):
-        with pytest.raises(TypeError, match="does not match"):
+        with pytest.raises(TypeError, match="with dimensions of"):
             validate_unit(1 * u.nm, dimensions.temperature)
+
+    @pytest.mark.parametrize(
+        "unit_list, shape, dimension",
+        [
+            ([1.0 * u.nm], (1,), dimensions.length),
+            ([[1.0 * u.nm]], (1, 1), dimensions.length),
+            ([[1.0 * u.nm, 1.0 * u.nm]], (1, 2), dimensions.length),
+            ([[1.0, 1.0] * u.nm], (1, 2), dimensions.length),
+            ([[1.0, 1.0]] * u.nm, (1, 2), dimensions.length),
+            ([[1.0 * u.nm], [1.0 * u.nm]], (2, 1), dimensions.length),
+            ([[1.0] * u.nm, [1.0] * u.nm], (2, 1), dimensions.length),
+            ([[1.0], [1.0]] * u.nm, (2, 1), dimensions.length),
+            (
+                [[1.0, 1.0] * u.nm, [1.0 * u.nm, 1.0 * u.nm]],
+                (2, 2),
+                dimensions.length,
+            ),
+        ],
+    )
+    def test_validate_unit_list(self, unit_list, shape, dimension):
+        validate_unit_list(unit_list, shape, dimension)

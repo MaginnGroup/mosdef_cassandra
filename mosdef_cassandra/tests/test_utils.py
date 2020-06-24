@@ -6,6 +6,7 @@ from mosdef_cassandra.tests.base_test import BaseTest
 from mosdef_cassandra.utils.convert_box import convert_to_boxmatrix
 from mosdef_cassandra.utils.units import validate_unit, validate_unit_list
 from unyt import dimensions
+from unyt.exceptions import IterableUnitCoercionError
 
 
 class TestConvertBox(BaseTest):
@@ -92,6 +93,10 @@ class TestConvertBox(BaseTest):
         with pytest.raises(TypeError, match="with dimensions of"):
             validate_unit(1 * u.nm, dimensions.temperature)
 
+    def test_unit_err_msg(self):
+        with pytest.raises(TypeError, match="test must be a"):
+            validate_unit(1 * u.nm, dimensions.temperature, argument_name="test")
+
     @pytest.mark.parametrize(
         "unit_list, shape, dimension",
         [
@@ -111,4 +116,32 @@ class TestConvertBox(BaseTest):
         ],
     )
     def test_validate_unit_list(self, unit_list, shape, dimension):
-        validate_unit_list(unit_list, shape, dimension)
+        unit_list = validate_unit_list(unit_list, shape, dimension)
+        assert type(unit_list) == u.unyt_array
+        assert unit_list.units.dimensions == dimension
+        assert unit_list.shape == shape
+
+    @pytest.mark.parametrize(
+        "unit_list, shape, dimension",
+        [
+            ([1.0 * u.nm], (), dimensions.length),
+            ([[1.0 * u.nm]], (2, 1), dimensions.length),
+            ([[1.0 * u.nm, 1.0 * u.nm]], (2, 1), dimensions.length),
+            ([[1.0, 1.0] * u.nm], (1, 2), dimensions.pressure),
+            ([[1.0, 1.0 * u.nm]], (2, 1), dimensions.length),
+        ],
+    )
+    def test_invalid_unit_list(self, unit_list, shape, dimension):
+        with pytest.raises(TypeError, match="argument must be a list"):
+            validate_unit_list(unit_list, shape, dimension)
+
+    @pytest.mark.parametrize(
+        "unit_list, shape, dimension",
+        [
+            ([[1.0 * u.angstrom, 1.0 * u.nm]], (2, 1), dimensions.length),
+            ([[1.0 * u.nm, 1.0 * u.nm], [1.0 * u.angstrom, 1.0 * u.angstrom]], (2, 2), dimensions.length),
+        ]
+    )
+    def test_mismatch_unit_list(self, unit_list, shape, dimension):
+        with pytest.raises(IterableUnitCoercionError):
+            validate_unit_list(unit_list, shape, dimension)

@@ -1950,6 +1950,7 @@ def _get_possible_kwargs(desc=False):
         "cbmc_rcut": "unyt_array or unyt_quantity with `length` units, cutoff for CBMC",
         "restart": "boolean, restart from checkpoint file",
         "restart_name": "name of checkpoint file to restart from",
+        "angle_style": "list of str, angle style for each species",
     }
     if desc:
         return valid_kwargs

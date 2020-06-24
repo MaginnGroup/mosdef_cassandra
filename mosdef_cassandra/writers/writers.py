@@ -6,7 +6,10 @@ import mosdef_cassandra
 from mosdef_cassandra.writers.inp_functions import generate_input
 
 
-def write_mcfs(system):
+def write_mcfs(system, angle_style="harmonic"):
+
+    if angle_style == "harmonic":
+        angle_style = [angle_style] * len(system.species_topologies)
 
     if not isinstance(system, mosdef_cassandra.System):
         raise TypeError('"system" must be of type ' "mosdef_cassandra.System")
@@ -36,7 +39,7 @@ def write_mcfs(system):
         write_mcf(
             species,
             mcf_name,
-            angle_style="harmonic",
+            angle_style=angle_style[species_count],
             dihedral_style=dihedral_style,
         )
 

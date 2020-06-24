@@ -1591,13 +1591,15 @@ class TestInpFunctions(BaseTest):
         if typ == "interface":
             assert (
                 "\nrestricted_insertion {} {:0.1f} {:0.1f}\n".format(
-                    typ, value[0], value[1]
+                    typ, value[0].to_value(), value[1].to_value()
                 )
                 in inp_data
             )
         else:
             assert (
-                "\nrestricted_insertion {} {:0.1f}\n".format(typ, value)
+                "\nrestricted_insertion {} {:0.1f}\n".format(
+                    typ, value.to_value()
+                )
                 in inp_data
             )
 
@@ -1654,13 +1656,15 @@ class TestInpFunctions(BaseTest):
         if typ == "interface":
             assert (
                 "\nrestricted_insertion {} {:0.1f} {:0.1f}\n".format(
-                    typ, value[0], value[1]
+                    typ, value[0].to_value(), value[1].to_value()
                 )
                 in inp_data
             )
         else:
             assert (
-                "\nrestricted_insertion {} {:0.1f}\n".format(typ, value)
+                "\nrestricted_insertion {} {:0.1f}\n".format(
+                    typ, value.to_value()
+                )
                 in inp_data
             )
 

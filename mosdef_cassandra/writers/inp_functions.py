@@ -393,7 +393,7 @@ def generate_input(
     inp_data += get_cbmc_info(
         moveset.cbmc_n_insert,
         moveset.cbmc_n_dihed,
-        [i.to_value() for i in moveset.cbmc_rcut]
+        [i.to_value() for i in moveset.cbmc_rcut],
     )
 
     # Start type info

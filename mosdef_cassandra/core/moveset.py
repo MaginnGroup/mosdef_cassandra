@@ -1,6 +1,6 @@
 from copy import deepcopy
 from unyt import dimensions
-from mosdef_cassandra.utils.units import validate_unit
+from mosdef_cassandra.utils.units import validate_unit, validate_unit_list
 
 import parmed
 import warnings
@@ -472,30 +472,41 @@ class MoveSet(object):
 
     @max_translate.setter
     def max_translate(self, max_translate):
-
-        if (
-            not isinstance(max_translate, list)
-            or len(max_translate) != self._n_boxes
-        ):
-            raise ValueError(
-                "max_translate must be a list with shape "
-                "(number of boxes, number of species)"
-            )
-        for max_translate_box in max_translate:
-            if (
-                not isinstance(max_translate_box, list)
-                or len(max_translate_box) != self._n_species
-            ):
+        max_translate = validate_unit_list(
+            max_translate,
+            (self._n_boxes, self._n_species),
+            dimensions.length,
+            "max_translate",
+        )
+        for max_val in max_translate.flatten():
+            if max_val.to_value() < 0.0:
                 raise ValueError(
-                    "max_translate must be a list with "
-                    "shape (number of boxes, number of species)"
+                    "Max translation values cannot " "be less than zero"
                 )
-            for max_val in max_translate_box:
-                validate_unit(max_val, dimensions.length)
-                if max_val.to_value() < 0.0:
-                    raise ValueError(
-                        "Max translation values cannot " "be less than zero"
-                    )
+
+        #        if (
+        #            not isinstance(max_translate, list)
+        #            or len(max_translate) != self._n_boxes
+        #        ):
+        #            raise ValueError(
+        #                "max_translate must be a list with shape "
+        #                "(number of boxes, number of species)"
+        #            )
+        #        for max_translate_box in max_translate:
+        #            if (
+        #                not isinstance(max_translate_box, list)
+        #                or len(max_translate_box) != self._n_species
+        #            ):
+        #                raise ValueError(
+        #                    "max_translate must be a list with "
+        #                    "shape (number of boxes, number of species)"
+        #                )
+        #            for max_val in max_translate_box:
+        #                validate_unit(max_val, dimensions.length)
+        #                if max_val.to_value() < 0.0:
+        #                    raise ValueError(
+        #                        "Max translation values cannot " "be less than zero"
+        #                    )
 
         self._max_translate = max_translate
 

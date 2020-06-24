@@ -4,10 +4,10 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_nvt(custom_args={}):
+def run_nvt(smiles="C", custom_args={}):
 
     # Use mbuild to create molecules
-    methane = mbuild.load("C", smiles=True)
+    molecule = mbuild.load(smiles, smiles=True)
 
     # Create an empty mbuild.Box
     box = mbuild.Box(lengths=[3.0, 3.0, 3.0])
@@ -16,11 +16,11 @@ def run_nvt(custom_args={}):
     oplsaa = foyer.forcefields.load_OPLSAA()
 
     # Use foyer to apply forcefields
-    methane_ff = oplsaa.apply(methane)
+    molecule_ff = oplsaa.apply(molecule)
 
     # Create box and species list
     box_list = [box]
-    species_list = [methane_ff]
+    species_list = [molecule_ff]
 
     # Use Cassandra to insert some initial number of species
     mols_to_add = [[50]]

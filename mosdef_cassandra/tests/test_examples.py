@@ -11,10 +11,11 @@ from mosdef_cassandra.tests.base_test import BaseTest
 
 
 class TestExamples(BaseTest):
-    def test_run_nvt(self):
+    @pytest.mark.parametrize("smiles", ["C"])
+    def test_run_nvt(self, smiles):
         with temporary_directory() as tmp_dir:
             with temporary_cd(tmp_dir):
-                ex.run_nvt()
+                ex.run_nvt(smiles=smiles)
                 log_files = sorted(
                     glob.glob("./mosdef_cassandra*.log"), key=os.path.getmtime
                 )
@@ -41,7 +42,7 @@ class TestExamples(BaseTest):
                 with pytest.raises(
                     CassandraRuntimeError, match=r"Cassandra exited with"
                 ):
-                    ex.run_nvt(kwargs)
+                    ex.run_nvt(custom_args=kwargs)
 
     def test_run_npt(self):
         with temporary_directory() as tmp_dir:

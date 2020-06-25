@@ -95,7 +95,9 @@ class TestConvertBox(BaseTest):
 
     def test_unit_err_msg(self):
         with pytest.raises(TypeError, match="test must be a"):
-            validate_unit(1 * u.nm, dimensions.temperature, argument_name="test")
+            validate_unit(
+                1 * u.nm, dimensions.temperature, argument_name="test"
+            )
 
     @pytest.mark.parametrize(
         "unit_list, shape, dimension",
@@ -139,8 +141,15 @@ class TestConvertBox(BaseTest):
         "unit_list, shape, dimension",
         [
             ([[1.0 * u.angstrom, 1.0 * u.nm]], (2, 1), dimensions.length),
-            ([[1.0 * u.nm, 1.0 * u.nm], [1.0 * u.angstrom, 1.0 * u.angstrom]], (2, 2), dimensions.length),
-        ]
+            (
+                [
+                    [1.0 * u.nm, 1.0 * u.nm],
+                    [1.0 * u.angstrom, 1.0 * u.angstrom],
+                ],
+                (2, 2),
+                dimensions.length,
+            ),
+        ],
     )
     def test_mismatch_unit_list(self, unit_list, shape, dimension):
         with pytest.raises(IterableUnitCoercionError):

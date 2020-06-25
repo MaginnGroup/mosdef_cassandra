@@ -6,6 +6,7 @@ import mosdef_cassandra as mc
 from mosdef_cassandra.tests.base_test import BaseTest
 from unyt.exceptions import IterableUnitCoercionError
 
+
 class TestMoveSet(BaseTest):
     def test_invalid_ensemble(self, methane_oplsaa):
         with pytest.raises(ValueError, match=r"Invalid ensemble"):
@@ -477,8 +478,8 @@ class TestMoveSet(BaseTest):
         moveset = mc.MoveSet("gemc_npt", [methane_oplsaa])
         moveset.max_volume = 1.0 * (u.angstrom ** 3)
         assert len(moveset.max_volume) == 2
-        assert moveset.max_volume[0] == 1.0 * u.angstrom**3
-        assert moveset.max_volume[1] == 1.0 * u.angstrom**3
+        assert moveset.max_volume[0] == 1.0 * u.angstrom ** 3
+        assert moveset.max_volume[1] == 1.0 * u.angstrom ** 3
         with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_volume = [
                 1.0 * (u.angstrom ** 3),

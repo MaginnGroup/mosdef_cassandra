@@ -270,7 +270,7 @@ def generate_input(
 
         box_matrix = convert_box.convert_to_boxmatrix(box_dims)
         box_matrix = u.unyt_array(box_matrix, "nm")
-        #box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]
+        # box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]
         boxes.append(box_matrix)
     inp_data += get_box_info(
         boxes, moveset._restricted_type, moveset._restricted_value
@@ -343,10 +343,7 @@ def generate_input(
     if moveset.prob_dihedral > 0.0:
         move_prob_dict["dihedral"] = [
             moveset.prob_dihedral,
-            *[
-                [val.to_value() for val in box]
-                for box in moveset.max_dihedral
-            ],
+            *[[val.to_value() for val in box] for box in moveset.max_dihedral],
         ]
     if moveset.prob_regrow > 0.0:
         move_prob_dict["regrow"] = [
@@ -874,10 +871,10 @@ def get_box_info(boxes, restricted_type, restricted_value):
     for box in boxes:
         # unyt array doesn't seem to support 3D arrays right now
         # so the shape has to be checked in a more roundabout way
-        assert box.shape == (3,3)
+        assert box.shape == (3, 3)
         box.convert_to_units("angstrom")
-        #assert len(box) == 3
-        #for dims in box:
+        # assert len(box) == 3
+        # for dims in box:
         #    assert dims.shape == (3,)
         #    dims.convert_to_units("angstrom")
 
@@ -889,7 +886,12 @@ def get_box_info(boxes, restricted_type, restricted_value):
 
     box_types = []
     for box in boxes:
-        if np.count_nonzero(box.to_value() - np.diag(np.diagonal(box.to_value()))) == 0:
+        if (
+            np.count_nonzero(
+                box.to_value() - np.diag(np.diagonal(box.to_value()))
+            )
+            == 0
+        ):
             if np.all(np.diagonal(box.to_value()) == box[0][0].to_value()):
                 box_types.append("cubic")
             else:
@@ -1966,12 +1968,13 @@ def _check_kwarg_units(kwargs):
     _check_kwarg_units_helper(kwargs, "pressure", dimensions.pressure)
     _check_kwarg_units_helper(kwargs, "pressure_box1", dimensions.pressure)
     _check_kwarg_units_helper(kwargs, "pressure_box2", dimensions.pressure)
-    
+
     # Handle chemical potentials here because quirky
     if "chemical_potentials" in kwargs:
         for mu in kwargs["chemical_potentials"]:
             if not isinstance(mu, str):
                 validate_unit(mu, dimensions.energy)
+
 
 def _check_kwarg_units_helper(kwargs, kwarg_name, dimension, list_length=0):
     if kwarg_name not in kwargs:
@@ -1981,22 +1984,17 @@ def _check_kwarg_units_helper(kwargs, kwarg_name, dimension, list_length=0):
         # Make sure length is *actually* 1
         if type(kwargs[kwarg_name]) == u.unyt_array:
             if kwargs[kwarg_name].size > 1:
-                raise TypeError(
-                    f"Invalid format for argument {kwarg_name}"
-                )
+                raise TypeError(f"Invalid format for argument {kwarg_name}")
     else:
         # Logic checks if we have an array/list vs. single item array/quantity
         if (
-            isinstance(kwargs[kwarg_name], (u.unyt_quantity)) or
-            len(kwargs[kwarg_name]) == 1
+            isinstance(kwargs[kwarg_name], (u.unyt_quantity))
+            or len(kwargs[kwarg_name]) == 1
         ):
             validate_unit(kwargs[kwarg_name], dimension)
         else:
             kwargs[kwarg_name] = validate_unit_list(
-                kwargs[kwarg_name],
-                (list_length,),
-                dimension,
-                kwarg_name,
+                kwargs[kwarg_name], (list_length,), dimension, kwarg_name,
             )
 
 

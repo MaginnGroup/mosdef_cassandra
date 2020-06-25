@@ -42,7 +42,7 @@ def validate_unit_list(
             f"of {valid_dimension}"
         )
 
-    if type(list_) == list:
+    if type(list_) in (list, tuple):
         new_list = []
         for item in list_:
             try:

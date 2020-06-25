@@ -6,7 +6,7 @@ import unyt as u
 import mosdef_cassandra.utils.convert_box as convert_box
 
 from unyt import dimensions
-from mosdef_cassandra.utils.units import validate_unit
+from mosdef_cassandra.utils.units import validate_unit, validate_unit_list
 
 
 def generate_input(
@@ -51,13 +51,16 @@ def generate_input(
                 "Allowable options include {}".format(arg, valid_args)
             )
 
-    # Check temperature
+    # Check/convert temperature
     validate_unit(temperature, dimensions.temperature)
+    temperature = temperature.to("kelvin")
 
-    # Check kwargs
+    # Convert moveset units (the "checking" is handled by the setters)
+    moveset = _convert_moveset_units(moveset)
+
+    # Check/convert kwargs units
     _check_kwarg_units(kwargs)
-
-    # Convert units on kwargs
+    _convert_kwarg_units(kwargs)
 
     # Construct an input file section by section
 
@@ -107,10 +110,7 @@ def generate_input(
         cutoff_style = "cut_tail"
 
     if "vdw_cutoff" in kwargs:
-        if isinstance(kwargs["vdw_cutoff"], u.unyt_array):
-            vdw_cutoff = kwargs["vdw_cutoff"].to_value()
-        else:
-            vdw_cutoff = [i.to_value() for i in kwargs["vdw_cutoff"]]
+        vdw_cutoff = kwargs["vdw_cutoff"].to_value()
     else:
         vdw_cutoff = 12.0
 
@@ -122,18 +122,10 @@ def generate_input(
     vdw_cutoffs = [vdw_cutoff] * nbr_boxes
     # Support for per-box cutoffs
     if "vdw_cutoff_box1" in kwargs:
-        if isinstance(kwargs["vdw_cutoff_box1"], u.unyt_array):
-            vdw_cutoffs[0] = kwargs["vdw_cutoff_box1"].to_value()
-        else:
-            vdw_cutoffs[0] = [i.to_value() for i in kwargs["vdw_cutoff_box1"]]
+        vdw_cutoffs[0] = kwargs["vdw_cutoff_box1"].to_value()
     if "vdw_cutoff_box2" in kwargs:
         if nbr_boxes == 2:
-            if isinstance(kwargs["vdw_cutoff_box2"], u.unyt_array):
-                vdw_cutoffs[1] = kwargs["vdw_cutoff_box2"].to_value()
-            else:
-                vdw_cutoffs[1] = [
-                    i.to_value() for i in kwargs["vdw_cutoff_box2"]
-                ]
+            vdw_cutoffs[1] = kwargs["vdw_cutoff_box2"].to_value()
         else:
             raise ValueError(
                 "Only one box in System but "
@@ -277,19 +269,15 @@ def generate_input(
             box_dims = np.hstack((box.lengths, box.angles))
 
         box_matrix = convert_box.convert_to_boxmatrix(box_dims)
-        box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]
+        box_matrix = u.unyt_array(box_matrix, "nm")
+        #box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]
         boxes.append(box_matrix)
     inp_data += get_box_info(
         boxes, moveset._restricted_type, moveset._restricted_value
     )
 
-    # convert temperature to Kelvin
-    temperature = temperature.to("kelvin")
     temperatures = [temperature.to_value()] * nbr_boxes
     inp_data += get_temperature_info(temperatures)
-
-    # convert units in kwargs
-    _convert_kwarg_units(kwargs)
 
     if moveset.ensemble == "npt" or moveset.ensemble == "gemc_npt":
         if "pressure" in kwargs:
@@ -335,8 +323,6 @@ def generate_input(
         inp_data += get_chemical_potential_info(chemical_potentials)
 
     # Move probability info
-    # Check moves units
-    moveset = _convert_moveset_units(moveset)
     move_prob_dict = {}
     if moveset.prob_translate > 0.0:
         move_prob_dict["translate"] = [
@@ -359,7 +345,7 @@ def generate_input(
             moveset.prob_dihedral,
             *[
                 [val.to_value() for val in box]
-                for box in moveset.max_dihedrals
+                for box in moveset.max_dihedral
             ],
         ]
     if moveset.prob_regrow > 0.0:
@@ -640,8 +626,7 @@ def get_vdw_style(vdw_styles, cut_styles, cutoffs):
 
     for cut_style, cutoff in zip(cut_styles, cutoffs):
         if cut_style == "cut_switch":
-            raise_error = False
-            if not isinstance(cutoff, list) or len(cutoff) != 2:
+            if not isinstance(cutoff, np.ndarray) or len(cutoff) != 2:
                 raise ValueError(
                     'Style "cut_switch" requires an inner '
                     "and outer cutoff. Use the "
@@ -889,10 +874,12 @@ def get_box_info(boxes, restricted_type, restricted_value):
     for box in boxes:
         # unyt array doesn't seem to support 3D arrays right now
         # so the shape has to be checked in a more roundabout way
-        assert len(box) == 3
-        for dims in box:
-            assert dims.shape == (3,)
-            dims.convert_to_units("angstrom")
+        assert box.shape == (3,3)
+        box.convert_to_units("angstrom")
+        #assert len(box) == 3
+        #for dims in box:
+        #    assert dims.shape == (3,)
+        #    dims.convert_to_units("angstrom")
 
     inp_data = """
 # Box_Info
@@ -902,8 +889,8 @@ def get_box_info(boxes, restricted_type, restricted_value):
 
     box_types = []
     for box in boxes:
-        if np.count_nonzero(box - np.diag(np.diagonal(box))) == 0:
-            if np.all(np.diagonal(box) == box[0][0]):
+        if np.count_nonzero(box.to_value() - np.diag(np.diagonal(box.to_value()))) == 0:
+            if np.all(np.diagonal(box.to_value()) == box[0][0].to_value()):
                 box_types.append("cubic")
             else:
                 box_types.append("orthogonal")
@@ -955,19 +942,16 @@ def get_box_info(boxes, restricted_type, restricted_value):
             for typ, value in zip(restrict_types, restrict_vals):
                 _check_restricted_insertions(box, typ, value)
                 if typ == "interface":
-                    # value[0] = value[0].to("angstrom")
-                    # value[1] = value[1].to("angstrom")
                     inp_data += """restricted_insertion {} {} {}
                     """.format(
                         typ,
-                        value[0].to("angstrom").to_value(),
-                        value[1].to("angstrom").to_value(),
+                        value[0].to_value("angstrom"),
+                        value[1].to_value("angstrom"),
                     )
                 elif typ:
-                    # value = value.to("angstrom")
                     inp_data += """restricted_insertion {} {}
                     """.format(
-                        typ, value.to("angstrom").to_value()
+                        typ, value.to_value("angstrom")
                     )
 
     else:
@@ -1966,81 +1950,71 @@ def _check_restricted_insertions(box, restriction_type, restriction_value):
 def _check_kwarg_units(kwargs):
     """Check the units of kwargs
     """
-    if "vdw_cutoff" in kwargs:
-        if isinstance(kwargs["vdw_cutoff"], (list, tuple)):
-            [validate_unit(i, dimensions.length) for i in kwargs["vdw_cutoff"]]
-        else:
-            validate_unit(kwargs["vdw_cutoff"], dimensions.length)
-    if "vdw_cutoff_box1" in kwargs:
-        if isinstance(kwargs["vdw_cutoff_box1"], (list, tuple)):
-            [
-                validate_unit(i, dimensions.length)
-                for i in kwargs["vdw_cutoff_box1"]
-            ]
-        else:
-            validate_unit(kwargs["vdw_cutoff_box1"], dimensions.length)
-    if "vdw_cutoff_box2" in kwargs:
-        if isinstance(kwargs["vdw_cutoff_box2"], (list, tuple)):
-            [
-                validate_unit(i, dimensions.length)
-                for i in kwargs["vdw_cutoff_box2"]
-            ]
-        else:
-            validate_unit(kwargs["vdw_cutoff_box2"], dimensions.length)
-    if "charge_cutoff" in kwargs:
-        validate_unit(kwargs["charge_cutoff"], dimensions.length)
-    if "rcut_min" in kwargs:
-        validate_unit(kwargs["rcut_min"], dimensions.length)
-    if "pressure" in kwargs:
-        validate_unit(kwargs["pressure"], dimensions.pressure)
-    if "pressure_box1" in kwargs:
-        validate_unit(kwargs["pressure_box1"], dimensions.pressure)
-    if "pressure_box1" in kwargs:
-        validate_unit(kwargs["pressure_box2"], dimensions.pressure)
+    _check_kwarg_units_helper(
+        kwargs, "vdw_cutoff", dimensions.length, list_length=2
+    )
+    _check_kwarg_units_helper(
+        kwargs, "vdw_cutoff_box1", dimensions.length, list_length=2
+    )
+    _check_kwarg_units_helper(
+        kwargs, "vdw_cutoff_box2", dimensions.length, list_length=2
+    )
+    _check_kwarg_units_helper(kwargs, "charge_cutoff", dimensions.length)
+    _check_kwarg_units_helper(kwargs, "charge_cutoff_box1", dimensions.length)
+    _check_kwarg_units_helper(kwargs, "charge_cutoff_box2", dimensions.length)
+    _check_kwarg_units_helper(kwargs, "rcut_min", dimensions.length)
+    _check_kwarg_units_helper(kwargs, "pressure", dimensions.pressure)
+    _check_kwarg_units_helper(kwargs, "pressure_box1", dimensions.pressure)
+    _check_kwarg_units_helper(kwargs, "pressure_box2", dimensions.pressure)
+    
+    # Handle chemical potentials here because quirky
     if "chemical_potentials" in kwargs:
         for mu in kwargs["chemical_potentials"]:
             if not isinstance(mu, str):
                 validate_unit(mu, dimensions.energy)
 
+def _check_kwarg_units_helper(kwargs, kwarg_name, dimension, list_length=0):
+    if kwarg_name not in kwargs:
+        return
+    if list_length == 0:
+        validate_unit(kwargs[kwarg_name], dimension)
+        # Make sure length is *actually* 1
+        if type(kwargs[kwarg_name]) == u.unyt_array:
+            if kwargs[kwarg_name].size > 1:
+                raise TypeError(
+                    f"Invalid format for argument {kwarg_name}"
+                )
+    else:
+        # Logic checks if we have an array/list vs. single item array/quantity
+        if (
+            isinstance(kwargs[kwarg_name], (u.unyt_quantity)) or
+            len(kwargs[kwarg_name]) == 1
+        ):
+            validate_unit(kwargs[kwarg_name], dimension)
+        else:
+            kwargs[kwarg_name] = validate_unit_list(
+                kwargs[kwarg_name],
+                (list_length,),
+                dimension,
+                kwarg_name,
+            )
+
 
 def _convert_kwarg_units(kwargs):
     """Convert kwargs that are unyt units
     """
-    if "vdw_cutoff" in kwargs:
-        if isinstance(kwargs["vdw_cutoff"], u.unyt_array):
-            kwargs["vdw_cutoff"] = kwargs["vdw_cutoff"].to("angstrom")
-        else:
-            kwargs["vdw_cutoff"] = [
-                i.to("angstrom") for i in kwargs["vdw_cutoff"]
-            ]
-    if "vdw_cutoff_box1" in kwargs:
-        if isinstance(kwargs["vdw_cutoff_box1"], u.unyt_array):
-            kwargs["vdw_cutoff_box1"] = kwargs["vdw_cutoff_box1"].to(
-                "angstrom"
-            )
-        else:
-            kwargs["vdw_cutoff_box1"] = [
-                i.to("angstrom") for i in kwargs["vdw_cutoff_box1"]
-            ]
-    if "vdw_cutoff_box2" in kwargs:
-        if isinstance(kwargs["vdw_cutoff_box2"], u.unyt_array):
-            kwargs["vdw_cutoff_box2"] = kwargs["vdw_cutoff_box2"].to(
-                "angstrom"
-            )
-        else:
-            kwargs["vdw_cutoff_box2"] = [
-                i.to("angstrom") for i in kwargs["vdw_cutoff_box2"]
-            ]
-    if "charge_cutoff" in kwargs:
-        kwargs["charge_cutoff"] = kwargs["charge_cutoff"].to("angstrom")
-    if "rcut_min" in kwargs:
-        kwargs["rcut_min"] = kwargs["rcut_min"].to("angstrom")
-    if "pressure" in kwargs:
-        kwargs["pressure"] = kwargs["pressure"].to("bar")
-    if "pressure_box1" in kwargs:
-        kwargs["pressure_box1"] = kwargs["pressure_box1"].to("bar")
-    if "pressure_box2" in kwargs:
-        kwargs["pressure_box2"] = kwargs["pressure_box2"].to("bar")
+    _convert_kwarg_units_helper(kwargs, "vdw_cutoff", "angstrom")
+    _convert_kwarg_units_helper(kwargs, "vdw_cutoff_box1", "angstrom")
+    _convert_kwarg_units_helper(kwargs, "vdw_cutoff_box2", "angstrom")
+    _convert_kwarg_units_helper(kwargs, "charge_cutoff", "angstrom")
+    _convert_kwarg_units_helper(kwargs, "charge_cutoff_box1", "angstrom")
+    _convert_kwarg_units_helper(kwargs, "charge_cutoff_box2", "angstrom")
+    _convert_kwarg_units_helper(kwargs, "rcut_min", "angstrom")
+    _convert_kwarg_units_helper(kwargs, "pressure", "bar")
+    _convert_kwarg_units_helper(kwargs, "pressure_box1", "bar")
+    _convert_kwarg_units_helper(kwargs, "pressure_box2", "bar")
+
+    # Handle chemical potentials here because quirky
     if "chemical_potentials" in kwargs:
         new_mu = list()
         for mu in kwargs["chemical_potentials"]:
@@ -2049,57 +2023,39 @@ def _convert_kwarg_units(kwargs):
             new_mu.append(mu)
         kwargs["chemical_potentials"] = new_mu
 
-    return kwargs
+
+def _convert_kwarg_units_helper(kwargs, kwarg_name, unit_name):
+    if kwarg_name in kwargs:
+        if not isinstance(kwargs[kwarg_name], u.unyt_array):
+            raise TypeError(
+                f"Something went wrong in converting the units for the "
+                f"keyword argument {kwarg_name}. Please check your the format "
+                f"of this argument."
+            )
+        # Convert units (everything should already be a u.unyt_array)
+        kwargs[kwarg_name] = kwargs[kwarg_name].to(unit_name)
 
 
 def _convert_moveset_units(moveset):
-    # Convert max volume
-    new_max_volume = list()
-    for max_vol in moveset.max_volume:
-        max_vol = max_vol.to("angstrom**3")
-        new_max_volume.append(max_vol)
-    moveset.max_volume = new_max_volume
-
     # Convert restricted insertion
     new_restricted_value = list()
     if moveset._restricted_value:
         for box in moveset._restricted_value:
+            new_boxvals = list()
             for val in box:
                 if val:
                     if isinstance(val, list):
                         val = [i.to("angstrom") for i in val]
                     else:
                         val = val.to("angstrom")
-                new_restricted_value.append(val)
+                new_boxvals.append(val)
+            new_restricted_value.append(new_boxvals)
     moveset._restricted_value = new_restricted_value
 
-    # Convert max translate
-    new_max_translate = list()
-    for maxs in moveset.max_translate:
-        maxs = [i.to("angstrom") for i in maxs]
-        new_max_translate.append(maxs)
-    moveset.max_translate = new_max_translate
-
-    # Convert max dihedrals
-    new_max_dihedrals = list()
-    if moveset.prob_dihedral > 0.0:
-        for maxs in moveset.max_dihedrals:
-            maxs = [i.to("degree") for i in maxs]
-            new_max_dihedrals.append(maxs)
-        moveset.max_dihedrals = new_max_dihedrals
-
-    # Convert max rotate
-    new_max_rotate = list()
-    for maxs in moveset.max_rotate:
-        maxs = [i.to("degree") for i in maxs]
-        new_max_rotate.append(maxs)
-    moveset.max_rotate = new_max_rotate
-
-    # Convert cbmc_rcut
-    new_cbmc_rcut = list()
-    for rcut in moveset.cbmc_rcut:
-        new_rcut = rcut.to("angstrom")
-        new_cbmc_rcut.append(new_rcut)
-    moveset.cbmc_rcut = new_cbmc_rcut
+    moveset.max_translate = moveset.max_translate.to("angstrom")
+    moveset.max_rotate = moveset.max_rotate.to("degree")
+    moveset.max_dihedral = moveset.max_dihedral.to("degree")
+    moveset.max_volume = moveset.max_volume.to("angstrom**3")
+    moveset.cbmc_rcut = moveset.cbmc_rcut.to("angstrom")
 
     return moveset

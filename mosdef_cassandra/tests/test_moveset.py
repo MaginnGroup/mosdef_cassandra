@@ -1,9 +1,10 @@
 import pytest
-
-import mosdef_cassandra as mc
-import unyt as u
 import warnings
+import unyt as u
+import mosdef_cassandra as mc
+
 from mosdef_cassandra.tests.base_test import BaseTest
+from unyt.exceptions import IterableUnitCoercionError
 
 
 class TestMoveSet(BaseTest):
@@ -331,42 +332,42 @@ class TestMoveSet(BaseTest):
             moveset.prob_translate = []
         with pytest.raises(TypeError, match=r"prob_translate must"):
             moveset.prob_translate = True
-        with pytest.raises(ValueError, match=r"Probability must"):
+        with pytest.raises(ValueError, match=r"be between 0.0 and 1.0"):
             moveset.prob_translate = -0.2
 
         with pytest.raises(TypeError, match=r"prob_rotate must"):
             moveset.prob_rotate = []
         with pytest.raises(TypeError, match=r"prob_rotate must"):
             moveset.prob_rotate = True
-        with pytest.raises(ValueError, match=r"Probability must"):
+        with pytest.raises(ValueError, match=r"be between 0.0 and 1.0"):
             moveset.prob_rotate = -0.2
 
         with pytest.raises(TypeError, match=r"prob_angle must"):
             moveset.prob_angle = []
         with pytest.raises(TypeError, match=r"prob_angle must"):
             moveset.prob_angle = True
-        with pytest.raises(ValueError, match=r"Probability must"):
+        with pytest.raises(ValueError, match=r"be between 0.0 and 1.0"):
             moveset.prob_angle = -0.2
 
         with pytest.raises(TypeError, match=r"prob_dihedral must"):
             moveset.prob_dihedral = []
         with pytest.raises(TypeError, match=r"prob_dihedral must"):
             moveset.prob_dihedral = True
-        with pytest.raises(ValueError, match=r"Probability must"):
+        with pytest.raises(ValueError, match=r"be between 0.0 and 1.0"):
             moveset.prob_dihedral = -0.2
 
         with pytest.raises(TypeError, match=r"prob_regrow must"):
             moveset.prob_regrow = []
         with pytest.raises(TypeError, match=r"prob_regrow must"):
             moveset.prob_regrow = True
-        with pytest.raises(ValueError, match=r"Probability must"):
+        with pytest.raises(ValueError, match=r"be between 0.0 and 1.0"):
             moveset.prob_regrow = -0.2
 
         with pytest.raises(TypeError, match=r"prob_volume must"):
             moveset.prob_volume = []
         with pytest.raises(TypeError, match=r"prob_volume must"):
             moveset.prob_volume = True
-        with pytest.raises(ValueError, match=r"Probability must"):
+        with pytest.raises(ValueError, match=r"be between 0.0 and 1.0"):
             moveset.prob_volume = -0.2
         with pytest.raises(ValueError, match=r"Ensemble is nvt."):
             moveset.prob_volume = 0.02
@@ -380,7 +381,7 @@ class TestMoveSet(BaseTest):
             moveset.prob_insert = []
         with pytest.raises(TypeError, match=r"prob_insert must"):
             moveset.prob_insert = True
-        with pytest.raises(ValueError, match=r"Probability must"):
+        with pytest.raises(ValueError, match=r"be between 0.0 and 1.0"):
             moveset.prob_insert = -0.2
         with pytest.raises(ValueError, match=r"Ensemble is nvt."):
             moveset.prob_insert = 0.2
@@ -393,7 +394,7 @@ class TestMoveSet(BaseTest):
             moveset.prob_swap = []
         with pytest.raises(TypeError, match=r"prob_swap must"):
             moveset.prob_swap = True
-        with pytest.raises(ValueError, match=r"Probability must"):
+        with pytest.raises(ValueError, match=r"be between 0.0 and 1.0"):
             moveset.prob_swap = -0.2
         with pytest.raises(ValueError, match=r"Ensemble is nvt."):
             moveset.prob_swap = 0.2
@@ -403,9 +404,9 @@ class TestMoveSet(BaseTest):
 
     def test_maxval_setters(self, methane_oplsaa):
         moveset = mc.MoveSet("gemc", [methane_oplsaa])
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_translate = 1.0 * u.angstrom
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_translate = [
                 [1.0 * u.angstrom, 1.0 * u.angstrom],
                 [1.0 * u.angstrom],
@@ -417,52 +418,52 @@ class TestMoveSet(BaseTest):
         moveset.max_translate = [[1.0 * u.angstrom], [1 * u.angstrom]]
         assert moveset.max_translate[1][0] == 1.0 * u.angstrom
 
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_rotate = 1.0 * u.degree
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_rotate = [
                 [1.0 * u.degree, 1.0 * u.degree],
                 [1.0 * u.degree],
             ]
         with pytest.raises(TypeError, match=r"unyt_array"):
             moveset.max_rotate = [[1.0], [True]]
-        with pytest.raises(ValueError, match=r"cannot be less than zero"):
+        with pytest.raises(ValueError, match=r"must be between"):
             moveset.max_rotate = [[1.0 * u.degree], [-1.0 * u.degree]]
         moveset.max_rotate = [[1.0 * u.degree], [1 * u.degree]]
         assert moveset.max_rotate[1][0] == 1.0 * u.degree
 
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_dihedral = 1.0 * u.degree
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_dihedral = [
                 1.0 * u.degree,
                 1.0 * u.degree,
                 1.0 * u.degree,
             ]
-        with pytest.raises(TypeError, match=r"unyt array"):
+        with pytest.raises(TypeError, match=r"unyt_array"):
             moveset.max_dihedral = [True]
-        with pytest.raises(ValueError, match=r"cannot be less than zero"):
+        with pytest.raises(ValueError, match=r"must be between"):
             moveset.max_dihedral = [-1.0 * u.degree]
-        with pytest.raises(ValueError, match=r"greater than 360"):
+        with pytest.raises(ValueError, match=r"must be between"):
             moveset.max_dihedral = [370.0 * u.degree]
         moveset.max_dihedral = [1.0 * u.degree]
         assert moveset.max_dihedral[0] == 1.0 * u.degree
 
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.prob_swap_from_box = 1.0
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.prob_swap_from_box = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
             moveset.prob_swap_from_box = [0.5, True]
-        with pytest.raises(ValueError, match=r"cannot be less than zero"):
+        with pytest.raises(ValueError, match=r"must be between"):
             moveset.prob_swap_from_box = [0.5, -0.5]
         moveset.prob_swap_from_box = [0.5, 0.5]
         assert moveset.prob_swap_from_box[0] == 0.5
 
         moveset = mc.MoveSet("gemc", [methane_oplsaa])
-        with pytest.raises(TypeError, match=r"list with length"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_volume = 1.0
-        with pytest.raises(TypeError, match=r"list with length"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_volume = [
                 1.0 * (u.angstrom ** 3),
                 1.0 * (u.angstrom ** 3),
@@ -475,9 +476,11 @@ class TestMoveSet(BaseTest):
         moveset.max_volume = [5000.0 * (u.angstrom ** 3)]
         assert moveset.max_volume[0] == 5000.0 * (u.angstrom ** 3)
         moveset = mc.MoveSet("gemc_npt", [methane_oplsaa])
-        with pytest.raises(TypeError, match=r"list with length"):
-            moveset.max_volume = 1.0 * (u.angstrom ** 3)
-        with pytest.raises(TypeError, match=r"list with length"):
+        moveset.max_volume = 1.0 * (u.angstrom ** 3)
+        assert len(moveset.max_volume) == 2
+        assert moveset.max_volume[0] == 1.0 * u.angstrom ** 3
+        assert moveset.max_volume[1] == 1.0 * u.angstrom ** 3
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_volume = [
                 1.0 * (u.angstrom ** 3),
                 1.0 * (u.angstrom ** 3),
@@ -497,33 +500,33 @@ class TestMoveSet(BaseTest):
         assert moveset.max_volume[1] == 50000.0 * (u.angstrom ** 3)
 
         moveset = mc.MoveSet("gemc", [methane_oplsaa])
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.insertable = 1.0
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.insertable = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"as a boolean type"):
             moveset.insertable = [2.0]
         moveset.insertable = [True]
         assert moveset.insertable[0] == True
 
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.prob_swap_species = 1.0
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.prob_swap_species = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
             moveset.prob_swap_species = [True]
-        with pytest.raises(ValueError, match=r"cannot be less than zero"):
+        with pytest.raises(ValueError, match=r"must be between"):
             moveset.prob_swap_species = [-1.0]
         moveset.prob_swap_species = [1.0]
         assert moveset.prob_swap_species[0] == 1.0
 
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.prob_regrow_species = 1.0
-        with pytest.raises(ValueError, match=r"must be a list"):
+        with pytest.raises(TypeError, match=r"must be a list"):
             moveset.prob_regrow_species = [1.0, 1.0, 1.0]
         with pytest.raises(TypeError, match=r"of type float"):
             moveset.prob_regrow_species = [True]
-        with pytest.raises(ValueError, match=r"cannot be less than zero"):
+        with pytest.raises(ValueError, match=r"must be between"):
             moveset.prob_regrow_species = [-1.0]
         moveset.prob_regrow_species = [1.0]
         assert moveset.prob_regrow_species[0] == 1.0
@@ -542,22 +545,22 @@ class TestMoveSet(BaseTest):
             moveset.cbmc_n_dihed = -2
         moveset.cbmc_n_dihed = 20
         assert moveset.cbmc_n_dihed == 20
-        with pytest.raises(TypeError, match=r"of type float"):
-            moveset.cbmc_rcut = [3.0, [3.0]]
+        with pytest.raises(TypeError, match=r"unyt_array"):
+            moveset.cbmc_rcut = [3.0 * u.angstrom]
+        with pytest.raises(TypeError, match=r"unyt_array"):
+            moveset.cbmc_rcut = 3.0
         with pytest.raises(ValueError, match=r"less than zero"):
-            moveset.cbmc_rcut = [3.0, -3.0]
-        moveset.cbmc_rcut = [4.0, 8.0]
+            moveset.cbmc_rcut = [3.0 * u.angstrom, -3.0 * u.angstrom]
+        with pytest.raises(IterableUnitCoercionError):
+            moveset.cbmc_rcut = [0.4 * u.nm, 8.0 * u.angstrom]
+        moveset.cbmc_rcut = 5.0 * u.angstrom
         assert len(moveset.cbmc_rcut) == 2
-        assert moveset.cbmc_rcut[0] == 4.0
-        assert moveset.cbmc_rcut[1] == 8.0
-        moveset.cbmc_rcut = 5.0
-        assert len(moveset.cbmc_rcut) == 2
-        assert moveset.cbmc_rcut[0] == 5.0
-        assert moveset.cbmc_rcut[1] == 5.0
+        assert moveset.cbmc_rcut[0].to_value("angstrom") == 5.0
+        assert moveset.cbmc_rcut[1].to_value("angstrom") == 5.0
         moveset = mc.MoveSet("nvt", [methane_oplsaa])
-        moveset.cbmc_rcut = 7.0
+        moveset.cbmc_rcut = 7.0 * u.angstrom
         assert len(moveset.cbmc_rcut) == 1
-        assert moveset.cbmc_rcut[0] == 7.0
+        assert moveset.cbmc_rcut[0].to_value("angstrom") == 7.0
 
     def test_print_moveset(self, methane_oplsaa):
         """Simple test to make sure moveset object is printed"""

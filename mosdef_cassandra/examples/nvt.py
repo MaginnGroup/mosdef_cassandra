@@ -4,30 +4,11 @@ import numpy as np
 import mosdef_cassandra as mc
 import unyt as u
 from scipy.spatial.transform import Rotation
-from mosdef_cassandra.utils.get_ff import get_ff_path
+from mosdef_cassandra.utils.get_files import get_ff_path, get_mol2_path
 
 
 def run_nvt(custom_args={}):
-
-    # Use mbuild to create molecules
-    molecule = mbuild.load("O", smiles=True)
-    bond_length = 0.1 * u.nm
-    angle = 109.5 * u.degree
-
-    molecule = mbuild.Compound(name="SOL")
-    pos = np.asarray([0.5, 0.0, 0.0])
-    o = mbuild.Compound(name="O", pos=pos)
-    molecule.add(o)
-
-    pos = np.asarray([0.5 + bond_length.to_value(), 0.0, 0.0])
-    h1 = mbuild.Compound(name="H", pos=pos)
-    molecule.add(h1)
-    molecule.add_bond([o, h1])
-
-    pos = o.pos - bond_length.to_value() * rotate2d(o.pos, angle.to_value())
-    h2 = mbuild.Compound(name="H", pos=pos)
-    molecule.add(h2)
-    molecule.add_bond([o, h2])
+    molecule = mbuild.load(get_mol2_path("spce"))
 
     # Create an empty mbuild.Box
     box = mbuild.Box(lengths=[3.0, 3.0, 3.0])
@@ -59,20 +40,6 @@ def run_nvt(custom_args={}):
         temperature=300.0 * u.K,
         **custom_args,
     )
-
-
-def rotate2d(vec, angle):
-    """Rotate a vector `vec` anticlockwise by angle `angle` degrees"""
-
-    angle = np.radians(180.0 - angle)
-
-    xx = np.cos(angle) * vec[0] - np.sin(angle) * vec[1]
-    yy = np.sin(angle) * vec[0] + np.cos(angle) * vec[1]
-
-    vec = np.asarray([xx, yy, 0.0])
-    vec /= np.linalg.norm(vec)
-
-    return vec
 
 
 if __name__ == "__main__":

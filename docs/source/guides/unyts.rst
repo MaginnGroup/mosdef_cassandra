@@ -7,7 +7,7 @@ In MoSDeF Cassandra, all quantities that have physical units
 associated with them must be specified as a ``unyt_quantity``.
 This approach yields several benefits. Users can specify
 quantities in any (dimensionally valid) units they desire,
-and thus do not need to dig through the reference the manual
+and thus do not need to dig through the reference manual
 to determine the correct units for each quantity.
 Possible errors in unit conversions are mitigated, and
 we remove any possible ambiguity with regards to the

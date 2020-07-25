@@ -1,8 +1,8 @@
 numpy
 parmed
 networkx
-foyer >= 0.7.5
-mbuild >= 0.10.6
+foyer >= 0.7.6
+mbuild >= 0.10.8
 openbabel
 black
 sphinx

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 #####################################
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 ISRELEASED = False
 if ISRELEASED:
     __version__ = VERSION
@@ -13,7 +13,7 @@ requirements = [
     "numpy",
     "parmed",
     "networkx",
-    "mbuild >=0.10.6",
+    "mbuild >=0.10.8",
 ]
 
 setup(

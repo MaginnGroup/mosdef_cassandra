@@ -102,7 +102,7 @@ jobs:
     - bash: |
         source activate bleeding-test-environment
         git clone https://github.com/mosdef-hub/foyer.git
-        git clone https://github.com/rsdefever/mbuild.git
+        git clone https://github.com/mosdef-hub/mbuild.git
         cd foyer
         conda install --yes python=$(python.version) --file requirements-dev.txt
         python -m pip install --user .

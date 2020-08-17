@@ -1,0 +1,16 @@
+<ForceField>
+ <AtomTypes>
+  <Type name="spce_o" class="OW" element="O" mass="15.999" def="O" desc="SPC/E oxygen" doi="10.1021/j100308a038"/>
+  <Type name="spce_h" class="HW" element="H" mass="1.008" def="H" desc="SPC/E hydrogen" doi="10.1021/j100308a038"/>
+ </AtomTypes>
+ <HarmonicBondForce>
+  <Bond class1="OW" class2="HW" length="0.1" k="502416.0"/>
+ </HarmonicBondForce>
+ <HarmonicAngleForce>
+  <Angle class1="HW" class2="OW" class3="HW" angle="1.91061193" k="383.0"/>
+ </HarmonicAngleForce>
+ <NonbondedForce coulomb14scale="0.5" lj14scale="0.5">
+  <Atom type="spce_o" charge="-0.8476" sigma="0.316557" epsilon="0.650194"/>
+  <Atom type="spce_h" charge="0.4238" sigma="0.0" epsilon="0.0"/>
+ </NonbondedForce>
+</ForceField>

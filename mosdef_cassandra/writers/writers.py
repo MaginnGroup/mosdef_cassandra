@@ -6,7 +6,23 @@ import mosdef_cassandra
 from mosdef_cassandra.writers.inp_functions import generate_input
 
 
-def write_mcfs(system):
+def write_mcfs(system, angle_style="harmonic"):
+    """ Write a MCF file for a given mosdef_cassandra.System
+    Parameters
+    ----------
+    system : mosdef_cassandra.System
+        System to simulate in Cassandra
+    angle_style : str, default="harmonic"
+        Angle style for the system, valid arguments: "harmonic", "fixed"
+    """
+    if type(angle_style) == str:
+        angle_style = [angle_style] * len(system.species_topologies)
+
+    for astyle in angle_style:
+        if astyle not in ["harmonic", "fixed"]:
+            raise ValueError(
+                'Invalid "angle_style" {} given.'.format(angle_style)
+            )
 
     if not isinstance(system, mosdef_cassandra.System):
         raise TypeError('"system" must be of type ' "mosdef_cassandra.System")
@@ -36,7 +52,7 @@ def write_mcfs(system):
         write_mcf(
             species,
             mcf_name,
-            angle_style="harmonic",
+            angle_style=angle_style[species_count],
             dihedral_style=dihedral_style,
         )
 

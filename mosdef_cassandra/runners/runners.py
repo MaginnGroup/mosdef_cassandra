@@ -48,7 +48,10 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
     _check_system(system, moveset)
 
     # Write MCF files
-    write_mcfs(system)
+    if "angle_style" in kwargs:
+        write_mcfs(system, angle_style=kwargs["angle_style"])
+    else:
+        write_mcfs(system)
 
     # Write starting configs (if needed)
     write_configs(system)

@@ -1906,6 +1906,7 @@ def _get_possible_kwargs(desc=False):
         ),
         "restart": "boolean, restart from checkpoint file",
         "restart_name": "name of checkpoint file to restart from",
+        "angle_style": "list of str, angle style for each species",
     }
     if desc:
         return valid_kwargs

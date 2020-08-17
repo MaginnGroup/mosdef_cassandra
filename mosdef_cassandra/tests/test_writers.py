@@ -5,6 +5,8 @@ import mosdef_cassandra as mc
 import unyt as u
 from mosdef_cassandra.tests.base_test import BaseTest
 from mosdef_cassandra.writers.inp_functions import generate_input
+from mosdef_cassandra.writers.writers import write_mcfs
+from mosdef_cassandra.utils.tempdir import *
 
 
 class TestInpFunctions(BaseTest):
@@ -1654,3 +1656,24 @@ class TestInpFunctions(BaseTest):
                 temperature=300.0 * u.K,
                 pressure=1 * u.bar,
             )
+
+    @pytest.mark.parametrize(
+        "angle_style", [["fixed"], ["harmonic"], "fixed", "harmonic"]
+    )
+    def test_onecomp_angle_style(self, onecomp_system, angle_style):
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                (system, moveset) = onecomp_system
+                write_mcfs(system, angle_style=angle_style)
+
+    @pytest.mark.parametrize("angle_style", ["fixed", "harmonic"])
+    def test_twocomp_angle_style(self, twocomp_system, angle_style):
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                (system, moveset) = twocomp_system
+                write_mcfs(system, angle_style=[angle_style, angle_style])
+
+    def test_angle_style_error(self, onecomp_system):
+        (system, moveset) = onecomp_system
+        with pytest.raises(ValueError, match="Invalid"):
+            write_mcfs(system, angle_style=["charmm"])

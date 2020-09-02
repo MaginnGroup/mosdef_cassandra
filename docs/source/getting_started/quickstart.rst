@@ -15,6 +15,7 @@ simulation. We begin with the required imports:
 
     import mbuild
     import foyer
+    import unyt as u
     import mosdef_cassandra as mc
 
 Next, we create an all-atom methane molecule from a `SMILES
@@ -65,9 +66,12 @@ lengths specified in nanometers:
     box = mbuild.Box([3.0, 3.0, 3.0])
 
 .. warning::
-    Even though the default units of Cassandra are Angstroms, the
-    ``mbuild.Box`` object should be specified in nanometers. This is
-    to maintain consistency with the units of mbuild and foyer.
+    Even though most quantities in MoSDeF Cassandra must be
+    :doc:`specified with the unyt package <../guides/unyts>`,
+    the ``mbuild.Box`` object is specified
+    in nanometers without using ``unyt``. This is because
+    ``mbuild`` does not currently support ``unyt``.
+
 
 Next, we create the ``System`` object. It has two required arguments and
 two optional arguments, depending on your system. The ``box_list`` and
@@ -130,7 +134,9 @@ view the current selections, use ``moveset.print()``.
 The final step is to run the simulation. The ``run`` function requires
 five arguments: the ``System``, ``MoveSet`` object, a selection of
 ``"equilibration"`` or ``"production"`` (``run_type``), the simulation length
-(``run_length``), and the desired temperature.
+(``run_length``), and the desired temperature. Note that since the temperature
+is a physical quantity it must be specified with
+:doc:`units attached <../guides/unyts>`.
 
 .. code-block:: python
 
@@ -139,7 +145,7 @@ five arguments: the ``System``, ``MoveSet`` object, a selection of
         moveset=moveset,
         run_type="equilibration",
         run_length=10000,
-        temperature=300.0
+        temperature=300.0 * u.K
     )
 
 A large number of additional keyword arguments can be provided inline or as part

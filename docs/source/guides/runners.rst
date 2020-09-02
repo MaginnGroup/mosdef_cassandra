@@ -10,7 +10,7 @@ To run a Monte Carlo simulation, use:
     moveset=moveset,
     run_type="equilibration",
     run_length=1000,
-    temperature=300.0
+    temperature=300.0 * u.K
   )
 
 The ``run`` function has five required arguments: a ``System``,
@@ -27,8 +27,8 @@ following:
     moveset=moveset,
     run_type="equilibration",
     run_length=1000,
-    temperature=300.0,
-    pressure=1.0
+    temperature=300.0 * u.K,
+    pressure=1.0 * u.bar
   )
 
 or, if we wished to use a dictionary:
@@ -36,7 +36,7 @@ or, if we wished to use a dictionary:
 .. code-block:: python
 
   custom_args = {
-    'pressure' : 1.0
+    'pressure' : 1.0 * u.bar
   }
 
   mc.run(
@@ -44,7 +44,7 @@ or, if we wished to use a dictionary:
     moveset=moveset,
     run_type="equilibration",
     run_length=1000,
-    temperature=300.0,
+    temperature=300.0 * u.K,
     **custom_args
   )
 
@@ -54,9 +54,9 @@ specifying a larger number of custom options. For example:
 .. code-block:: python
 
   custom_args = {
-    'pressure' : 1.0,
+    'pressure' : 1.0 * u.bar,
     'cutoff_style' : 'cut_shift',
-    'vdw_cutoff' : 14.0,
+    'vdw_cutoff' : 14.0 * u.angstrom,
     'units' : 'sweeps',
     'prop_freq' : 10,
     'coord_freq' : 100
@@ -67,7 +67,7 @@ specifying a larger number of custom options. For example:
     moveset=moveset,
     run_type="equilibration",
     run_length=1000,
-    temperature=300.0,
+    temperature=300.0 * u.K,
     **custom_args
   )
 
@@ -90,7 +90,7 @@ The procedure follows:
     moveset=moveset,
     run_type="equilibration",
     run_length=1000,
-    temperature=300.0,
+    temperature=300.0 * u.K,
     run_name="equil"
   )
 
@@ -99,7 +99,7 @@ The procedure follows:
     moveset=moveset,
     run_type="production",
     run_length=1000,
-    temperature=300.0,
+    temperature=300.0 * u.K,
     restart_name="equil",
     run_name="prod"
   )

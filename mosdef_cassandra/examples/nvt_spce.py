@@ -2,7 +2,10 @@ import mbuild
 import foyer
 import mosdef_cassandra as mc
 import unyt as u
-from mosdef_cassandra.utils.get_files import get_example_ff_path, get_example_mol2_path
+from mosdef_cassandra.utils.get_files import (
+    get_example_ff_path,
+    get_example_mol2_path,
+)
 
 
 def run_nvt_spce(custom_args=None):

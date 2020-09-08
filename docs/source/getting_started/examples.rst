@@ -8,7 +8,7 @@ MoSDeF Cassandra.
 NVT simulation of methane
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../../mosdef_cassandra/examples/nvt.py
+.. literalinclude:: ../../../mosdef_cassandra/examples/nvt_methane.py
   :language: python
 
 NPT simulation of methane
@@ -21,6 +21,12 @@ NVT simulation of methane and propane mixture
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../../../mosdef_cassandra/examples/nvt_mixture.py
+  :language: python
+
+NVT simulation of SPC/E water
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../../../mosdef_cassandra/examples/nvt_water.py
   :language: python
 
 GEMC simulation of methane

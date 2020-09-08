@@ -1,4 +1,5 @@
-from .nvt import run_nvt
+from .nvt_water import run_water_nvt
+from .nvt_methane import run_methane_nvt
 from .npt import run_npt
 from .gcmc import run_gcmc
 from .gemc import run_gemc

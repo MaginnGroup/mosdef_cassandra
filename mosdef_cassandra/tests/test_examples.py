@@ -36,7 +36,7 @@ class TestExamples(BaseTest):
     def test_run_nvt_spce(self, custom_args):
         with temporary_directory() as tmp_dir:
             with temporary_cd(tmp_dir):
-                ex.run_nvt_spce(custom_args=custom_args)
+                ex.run_nvt_spce(**custom_args)
                 log_files = sorted(
                     glob.glob("./mosdef_cassandra*.log"), key=os.path.getmtime
                 )
@@ -57,13 +57,13 @@ class TestExamples(BaseTest):
                 assert completed
 
     def test_run_failure(self):
-        kwargs = {"vdw_cutoff": 17.0 * u.angstrom}
+        custom_args = {"vdw_cutoff": 17.0 * u.angstrom}
         with temporary_directory() as tmp_dir:
             with temporary_cd(tmp_dir):
                 with pytest.raises(
                     CassandraRuntimeError, match=r"Cassandra exited with"
                 ):
-                    ex.run_nvt(custom_args=kwargs)
+                    ex.run_nvt(**custom_args)
 
     def test_run_npt(self):
         with temporary_directory() as tmp_dir:

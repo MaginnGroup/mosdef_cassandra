@@ -4,10 +4,7 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_gemc(custom_args=None):
-    # If no custom args are passed, assign empty dictionary
-    if custom_args is None:
-        custom_args = {}
+def run_gemc(**custom_args):
 
     # Use mbuild to create molecules
     methane = mbuild.Compound(name="_CH4")

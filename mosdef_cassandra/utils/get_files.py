@@ -2,7 +2,7 @@ import os
 from pkg_resources import resource_filename
 
 
-def get_ff_path(ff_name):
+def get_example_ff_path(ff_name):
     """Get the path to a force field xml file in the examples
     directory"""
     ff_path = resource_filename(
@@ -12,7 +12,7 @@ def get_ff_path(ff_name):
     return ff_path
 
 
-def get_mol2_path(molecule_name):
+def get_example_mol2_path(molecule_name):
     """Get the path to a mol2 file in the examples
     directory"""
     mol2_path = resource_filename(

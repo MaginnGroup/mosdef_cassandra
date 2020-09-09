@@ -5,7 +5,7 @@ import unyt as u
 from mosdef_cassandra.examples.structures import carbon_lattice
 
 
-def run_gcmc_adsorption(custom_args={}):
+def run_gcmc_adsorption(**custom_args):
 
     # Use mbuild to create molecules
     lattice = carbon_lattice()

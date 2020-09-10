@@ -4,7 +4,8 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_nvt_mixture(custom_args={}):
+def run_nvt_mixture(**custom_args):
+
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)
     propane = mbuild.load("CCC", smiles=True)

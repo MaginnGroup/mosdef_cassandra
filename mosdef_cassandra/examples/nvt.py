@@ -1,37 +1,36 @@
 import mbuild
 import foyer
-import numpy as np
 import mosdef_cassandra as mc
 import unyt as u
-from scipy.spatial.transform import Rotation
-from mosdef_cassandra.utils.get_files import get_ff_path, get_mol2_path
 
 
-def run_nvt(custom_args={}):
-    molecule = mbuild.load(get_mol2_path("spce"))
+def run_nvt(**custom_args):
+
+    # Use mBuild to create a methane molecule
+    methane = mbuild.load("C", smiles=True)
 
     # Create an empty mbuild.Box
     box = mbuild.Box(lengths=[3.0, 3.0, 3.0])
 
-    # Load forcefields
-    spce = foyer.Forcefield(get_ff_path("spce"))
+    # Load force field
+    oplsaa = foyer.forcefields.load_OPLSAA()
 
-    # Use foyer to apply forcefields
-    molecule_ff = spce.apply(molecule)
+    # Use foyer to apply force field to methane
+    methane_ff = oplsaa.apply(methane)
 
     # Create box and species list
     box_list = [box]
-    species_list = [molecule_ff]
+    species_list = [methane_ff]
 
-    # Use Cassandra to insert some initial number of species
+    # Use Cassandra to insert some initial number of methane molecules
     mols_to_add = [[50]]
 
-    # Define the system object
+    # Define the System
     system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
-    # Get the move probabilities
+    # Define the MoveSet
     moveset = mc.MoveSet("nvt", species_list)
 
-    # Run a simulation with at 300 K with 10000 MC moveset
+    # Run a simulation at 300 K for 10000 MC moves
     mc.run(
         system=system,
         moveset=moveset,

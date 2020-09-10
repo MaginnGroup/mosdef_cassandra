@@ -4,7 +4,7 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_gcmc(custom_args={}):
+def run_gcmc(**custom_args):
 
     # Use mbuild to create molecules
     methane = mbuild.load("C", smiles=True)

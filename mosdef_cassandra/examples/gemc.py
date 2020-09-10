@@ -4,7 +4,7 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_gemc(custom_args={}):
+def run_gemc(**custom_args):
 
     # Use mbuild to create molecules
     methane = mbuild.Compound(name="_CH4")
@@ -64,10 +64,6 @@ def run_gemc(custom_args={}):
         temperature=151.0 * u.K,
         **custom_args,
     )
-
-    # Set max translate and volume for production
-    moveset.max_translate = [[0.5 * u.angstrom], [14.0 * u.angstrom]]
-    moveset.max_volume = [700.0 * (u.angstrom ** 3)]
 
     # Update run_name and restart_name
     custom_args["run_name"] = "prod"

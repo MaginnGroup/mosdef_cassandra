@@ -577,7 +577,11 @@ class TestMoveSet(BaseTest):
 
     @pytest.mark.parametrize(
         "typ,value",
-        [("slitpore", [[1], [2]]), ("cylinder", [[None]]), (None, [[1]]),],
+        [
+            ("slitpore", [[1], [2]]),
+            ("cylinder", [[None]]),
+            (None, [[1]]),
+        ],
     )
     def test_value_error_restricted_type_and_value(
         self, methane_oplsaa, typ, value

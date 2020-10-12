@@ -20,7 +20,7 @@ class MoveSet(object):
         Depending upon the specifics of your system, these guesses may
         be very reasonable or downright terrible. Use the same
         ``species_topologies`` for your call to ``mosdef_cassandra.System()``
-        and ``mosdef_cassandra.MoveSet()``. 
+        and ``mosdef_cassandra.MoveSet()``.
 
         Parameters
         ----------
@@ -319,7 +319,8 @@ class MoveSet(object):
     @prob_translate.setter
     def prob_translate(self, prob_translate):
         prob_translate = self._validate_probability(
-            prob_translate, "prob_translate",
+            prob_translate,
+            "prob_translate",
         )
         self._prob_translate = prob_translate
 
@@ -329,7 +330,10 @@ class MoveSet(object):
 
     @prob_rotate.setter
     def prob_rotate(self, prob_rotate):
-        prob_rotate = self._validate_probability(prob_rotate, "prob_rotate",)
+        prob_rotate = self._validate_probability(
+            prob_rotate,
+            "prob_rotate",
+        )
         self._prob_rotate = prob_rotate
 
     @property
@@ -338,7 +342,10 @@ class MoveSet(object):
 
     @prob_angle.setter
     def prob_angle(self, prob_angle):
-        prob_angle = self._validate_probability(prob_angle, "prob_angle",)
+        prob_angle = self._validate_probability(
+            prob_angle,
+            "prob_angle",
+        )
         self._prob_angle = prob_angle
 
     @property
@@ -348,7 +355,8 @@ class MoveSet(object):
     @prob_dihedral.setter
     def prob_dihedral(self, prob_dihedral):
         prob_dihedral = self._validate_probability(
-            prob_dihedral, "prob_dihedral",
+            prob_dihedral,
+            "prob_dihedral",
         )
         self._prob_dihedral = prob_dihedral
 
@@ -358,7 +366,10 @@ class MoveSet(object):
 
     @prob_regrow.setter
     def prob_regrow(self, prob_regrow):
-        prob_regrow = self._validate_probability(prob_regrow, "prob_regrow",)
+        prob_regrow = self._validate_probability(
+            prob_regrow,
+            "prob_regrow",
+        )
         self._prob_regrow = prob_regrow
 
     @property
@@ -367,7 +378,10 @@ class MoveSet(object):
 
     @prob_volume.setter
     def prob_volume(self, prob_volume):
-        prob_volume = self._validate_probability(prob_volume, "prob_volume",)
+        prob_volume = self._validate_probability(
+            prob_volume,
+            "prob_volume",
+        )
         if prob_volume > 0.0:
             if self.ensemble == "nvt" or self.ensemble == "gcmc":
                 raise ValueError(
@@ -395,7 +409,10 @@ class MoveSet(object):
 
     @prob_insert.setter
     def prob_insert(self, prob_insert):
-        prob_insert = self._validate_probability(prob_insert, "prob_insert",)
+        prob_insert = self._validate_probability(
+            prob_insert,
+            "prob_insert",
+        )
         if self.ensemble != "gcmc" and prob_insert != 0.0:
             raise ValueError(
                 "Ensemble is {}. Insertion probability "
@@ -414,7 +431,10 @@ class MoveSet(object):
 
     @prob_swap.setter
     def prob_swap(self, prob_swap):
-        prob_swap = self._validate_probability(prob_swap, "prob_swap",)
+        prob_swap = self._validate_probability(
+            prob_swap,
+            "prob_swap",
+        )
         if self.ensemble != "gemc" and self.ensemble != "gemc_npt":
             if prob_swap != 0.0:
                 raise ValueError(
@@ -478,7 +498,10 @@ class MoveSet(object):
     @max_dihedral.setter
     def max_dihedral(self, max_dihedral):
         max_dihedral = validate_unit_list(
-            max_dihedral, (self._n_species,), dimensions.angle, "max_dihedral",
+            max_dihedral,
+            (self._n_species,),
+            dimensions.angle,
+            "max_dihedral",
         )
         for max_val in max_dihedral:
             if (
@@ -508,7 +531,8 @@ class MoveSet(object):
         validated_prob_swap_from_box = []
         for prob_swap in prob_swap_from_box:
             prob_swap = self._validate_probability(
-                prob_swap, "prob_swap_from_box",
+                prob_swap,
+                "prob_swap_from_box",
             )
             validated_prob_swap_from_box.append(prob_swap)
         self._prob_swap_from_box = validated_prob_swap_from_box
@@ -531,7 +555,10 @@ class MoveSet(object):
             shape = (1,)
 
         max_volume = validate_unit_list(
-            max_volume, shape, dimensions.length ** 3, "max_volume",
+            max_volume,
+            shape,
+            dimensions.length ** 3,
+            "max_volume",
         )
         for max_vol in max_volume.flatten():
             if max_vol < 0.0:
@@ -579,7 +606,8 @@ class MoveSet(object):
         validated_prob_swap_species = []
         for prob_swap in prob_swap_species:
             prob_swap = self._validate_probability(
-                prob_swap, "prob_swap_species",
+                prob_swap,
+                "prob_swap_species",
             )
             validated_prob_swap_species.append(prob_swap)
         self._prob_swap_species = validated_prob_swap_species
@@ -639,7 +667,10 @@ class MoveSet(object):
         if type(cbmc_rcut) not in (list, u.unyt_array):
             cbmc_rcut = [cbmc_rcut] * self._n_boxes
         cbmc_rcut = validate_unit_list(
-            cbmc_rcut, (self._n_boxes,), dimensions.length, "cbmc_rcut",
+            cbmc_rcut,
+            (self._n_boxes,),
+            dimensions.length,
+            "cbmc_rcut",
         )
 
         for rcut in cbmc_rcut.flatten():
@@ -685,7 +716,8 @@ CBMC selections:
     Number of trial dihedral angles: {n_dihed}
     CBMC cutoff(s): 
 """.format(
-            n_insert=self.cbmc_n_insert, n_dihed=self.cbmc_n_dihed,
+            n_insert=self.cbmc_n_insert,
+            n_dihed=self.cbmc_n_dihed,
         )
 
         for idx, value in enumerate(self.cbmc_rcut):
@@ -773,8 +805,10 @@ CBMC selections:
                             z_max=value[1],
                         )
                     else:
-                        contents += "Box {box}, Species {species}: None\n".format(
-                            box=box + 1, species=species + 1
+                        contents += (
+                            "Box {box}, Species {species}: None\n".format(
+                                box=box + 1, species=species + 1
+                            )
                         )
 
         print(contents)

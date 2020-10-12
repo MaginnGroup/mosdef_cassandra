@@ -8,7 +8,7 @@ class ThermoProps:
 
     def __init__(self, filename):
         """Create ThermoProps from a .prp file
-        
+
         Parameters
         ----------
         filename : string

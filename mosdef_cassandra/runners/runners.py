@@ -209,9 +209,7 @@ def _run_fraglib_setup(
 
 
 def _run_cassandra(cassandra, inp_file, log_file):
-    """Calls Cassandra
-
-    """
+    """Calls Cassandra"""
     cassandra_cmd = "{cassandra} {inp_file}".format(
         cassandra=cassandra, inp_file=inp_file
     )
@@ -247,9 +245,7 @@ def _run_cassandra(cassandra, inp_file, log_file):
 
 
 def _check_system(system, moveset):
-    """Run a series of sanity checks on the System and MoveSet
-
-    """
+    """Run a series of sanity checks on the System and MoveSet"""
 
     if moveset.ensemble == "gemc" or moveset.ensemble == "gemc_npt":
         if len(system.boxes) != 2:

@@ -9,9 +9,6 @@ from mosdef_cassandra.utils.get_files import (
 
 
 def run_nvt_spce(**custom_args):
-    # If no custom args are passed, assign empty dictionary
-    #if custom_args is None:
-    #    custom_args = {}
 
     # Load water with SPC/E geometry from mol2 file
     molecule = mbuild.load(get_example_mol2_path("spce"))

@@ -7,7 +7,7 @@ from mosdef_cassandra.writers.inp_functions import generate_input
 
 
 def write_mcfs(system, angle_style="harmonic"):
-    """ Write a MCF file for a given mosdef_cassandra.System
+    """Write a MCF file for a given mosdef_cassandra.System
     Parameters
     ----------
     system : mosdef_cassandra.System

@@ -761,8 +761,7 @@ def get_mixing_rule(mixing_rule, custom_mixing_dict=None):
 
     if mixing_rule == "custom":
         for pair, parms in custom_mixing_dict.items():
-            inp_data += """
-{pair} {parms}
+            inp_data += """{pair} {parms}
 """.format(
                 pair=pair, parms=parms
             )

@@ -755,7 +755,8 @@ def get_mixing_rule(mixing_rule, custom_mixing_dict=None):
 
     inp_data = """
 # Mixing_Rule
-{mixing_rule}""".format(
+{mixing_rule}
+""".format(
         mixing_rule=mixing_rule
     )
 

@@ -34,9 +34,10 @@ class TestExamples(BaseTest):
 
     def test_run_nvt_custom_mixing(self):
         mixing_dict = {"opls_138_s1 opls_140_s1": "1.0 1.0"}
-        custom_args = {"mixing_rule": "custom",
-                       "custom_mixing_dict": mixing_dict,
-                      }
+        custom_args = {
+            "mixing_rule": "custom",
+            "custom_mixing_dict": mixing_dict,
+        }
         with temporary_directory() as tmp_dir:
             with temporary_cd(tmp_dir):
                 ex.run_nvt(**custom_args)

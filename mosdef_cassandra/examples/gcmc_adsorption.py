@@ -2,26 +2,35 @@ import mbuild
 import foyer
 import mosdef_cassandra as mc
 import unyt as u
-from mosdef_cassandra.examples.structures import carbon_lattice
+
+
+from mosdef_cassandra.utils.get_files import get_example_ff_path, get_example_cif_path
 
 
 def run_gcmc_adsorption(**custom_args):
 
-    # Use mbuild to create molecules
-    lattice = carbon_lattice()
-    methane = mbuild.load("C", smiles=True)
+    # Use mbuild to create a zeolite supercell from CIF
+    lattice = mbuild.lattice.load_cif(get_example_cif_path("TON"))
+    compound_dict = {
+        "Si": mbuild.Compound(name="Si"),
+        "O": mbuild.Compound(name="O")
+    }
+    ton = lattice.populate(compound_dict, 3, 3, 6)
+
+    # Create a coarse-grained methane
+    methane = mbuild.Compound(name="_CH4")
 
     # Load forcefields
+    trappe_zeo = foyer.Forcefield(get_example_ff_path("trappe_zeo"))
     trappe = foyer.forcefields.load_TRAPPE_UA()
-    oplsaa = foyer.forcefields.load_OPLSAA()
 
     # Use foyer to apply forcefields
-    typed_lattice = trappe.apply(lattice)
-    methane_ff = oplsaa.apply(methane)
+    ton_ff = trappe_zeo.apply(ton)
+    methane_ff = trappe.apply(methane)
 
     # Create box and species list
-    box_list = [lattice]
-    species_list = [typed_lattice, methane_ff]
+    box_list = [ton]
+    species_list = [ton_ff, methane_ff]
 
     # Since we have an occupied box we need to specify
     # the number of each species present in the intial config

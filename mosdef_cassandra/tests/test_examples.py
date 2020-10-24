@@ -188,7 +188,8 @@ class TestExamples(BaseTest):
     def test_run_gcmc_adsorption(self):
         with temporary_directory() as tmp_dir:
             with temporary_cd(tmp_dir):
-                ex.run_gcmc_adsorption()
+                # For speed; plus the example uses UA methane
+                ex.run_gcmc_adsorption(charge_style="none")
                 log_files = sorted(
                     glob.glob("./mosdef_cassandra*.log"), key=os.path.getmtime
                 )

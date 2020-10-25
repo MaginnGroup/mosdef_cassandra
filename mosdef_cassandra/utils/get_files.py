@@ -7,7 +7,7 @@ def get_example_ff_path(ff_name):
     directory"""
     ff_path = resource_filename(
         "mosdef_cassandra",
-        os.path.join("examples/resources/ff_files", ff_name + ".xml")
+        os.path.join("examples/resources/ff_files", ff_name + ".xml"),
     )
 
     return ff_path
@@ -18,9 +18,7 @@ def get_example_mol2_path(molecule_name):
     directory"""
     mol2_path = resource_filename(
         "mosdef_cassandra",
-        os.path.join(
-            "examples/resources/mol2_files", molecule_name + ".mol2"
-        ),
+        os.path.join("examples/resources/mol2_files", molecule_name + ".mol2"),
     )
 
     return mol2_path
@@ -30,7 +28,7 @@ def get_example_cif_path(cif_name):
     """Get the path to a CIF file in the examples directory"""
     cif_path = resource_filename(
         "mosdef_cassandra",
-        os.path.join("examples/resources/cif_files", cif_name + ".cif")
+        os.path.join("examples/resources/cif_files", cif_name + ".cif"),
     )
 
     return cif_path

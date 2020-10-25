@@ -4,7 +4,10 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-from mosdef_cassandra.utils.get_files import get_example_ff_path, get_example_cif_path
+from mosdef_cassandra.utils.get_files import (
+    get_example_ff_path,
+    get_example_cif_path,
+)
 
 
 def run_gcmc_adsorption(**custom_args):
@@ -13,7 +16,7 @@ def run_gcmc_adsorption(**custom_args):
     lattice = mbuild.lattice.load_cif(get_example_cif_path("TON"))
     compound_dict = {
         "Si": mbuild.Compound(name="Si"),
-        "O": mbuild.Compound(name="O")
+        "O": mbuild.Compound(name="O"),
     }
     ton = lattice.populate(compound_dict, 3, 3, 6)
 

@@ -8,12 +8,12 @@ import parmed
 
 class System(object):
     def __init__(
-            self,
-            boxes,
-            species_topologies,
-            mols_in_boxes=None,
-            mols_to_add=None,
-            fix_bonds=True,
+        self,
+        boxes,
+        species_topologies,
+        mols_in_boxes=None,
+        mols_to_add=None,
+        fix_bonds=True,
     ):
         """A class to contain the system to simulate in Cassandra
 
@@ -77,7 +77,6 @@ class System(object):
         if fix_bonds:
             self.fix_bonds()
 
-
     # TODO: one possibility is to return list(self._boxes)
     # rather than self._boxes --> this prevents list items from
     # being edited ¯\_(ツ)_/¯
@@ -139,8 +138,9 @@ class System(object):
                 else:
                     self._constrained_species.append(None)
 
-            self._species_topologies = [parmed.structure.copy(s)
-                                        for s in species_topologies]
+            self._species_topologies = [
+                parmed.structure.copy(s) for s in species_topologies
+            ]
         else:
             raise AttributeError(
                 "species_topologies cannot be "
@@ -309,8 +309,7 @@ class System(object):
                     )
 
     def fix_bonds(self):
-        """Apply the bond length constraints to each molecule in the system
-        """
+        """Apply the bond length constraints to each molecule in the system"""
         for ibox, box in enumerate(self.boxes):
             if isinstance(box, mbuild.Box):
                 continue
@@ -327,9 +326,9 @@ class System(object):
                 if constrain is None:
                     start_idx = idx_offset
                     end_idx = idx_offset + n_mols * n_atoms
-                    constrained_coordinates[start_idx:end_idx] = (
-                        unconstrained_coordinates[start_idx:end_idx]
-                    )
+                    constrained_coordinates[
+                        start_idx:end_idx
+                    ] = unconstrained_coordinates[start_idx:end_idx]
                 # Else we apply the constraints one molecule
                 # at a time
                 else:
@@ -340,8 +339,8 @@ class System(object):
                             unconstrained_coordinates[start_idx:end_idx]
                         )
                         constrain.solve()
-                        constrained_coordinates[start_idx:end_idx] = (
-                            constrain.xyz
-                        )
+                        constrained_coordinates[
+                            start_idx:end_idx
+                        ] = constrain.xyz
                 # Now we're done with isp; update idx_offset
                 idx_offset += n_mols * n_atoms

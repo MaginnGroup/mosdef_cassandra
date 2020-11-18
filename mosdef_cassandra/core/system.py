@@ -336,12 +336,13 @@ class System(object):
                         start_idx = idx_offset + imol * n_atoms
                         end_idx = idx_offset + (imol + 1) * n_atoms
                         constrain.update_xyz(
-                            unconstrained_coordinates[start_idx:end_idx] * 10.0  # nm to Angstrom
+                            unconstrained_coordinates[start_idx:end_idx]
+                            * 10.0  # nm to Angstrom
                         )
                         constrain.solve()
-                        constrained_coordinates[
-                            start_idx:end_idx
-                        ] = constrain.xyz / 10.0  # Angstrom to nm
+                        constrained_coordinates[start_idx:end_idx] = (
+                            constrain.xyz / 10.0
+                        )  # Angstrom to nm
                 # Now we're done with isp; update idx_offset
                 idx_offset += n_mols * n_atoms
 

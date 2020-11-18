@@ -2,51 +2,49 @@ import mbuild
 import foyer
 import mosdef_cassandra as mc
 import unyt as u
-from mosdef_cassandra.utils.get_files import (
-    get_example_ff_path,
-    get_example_mol2_path,
-)
 
 
-def run_nvt_spce(**custom_args):
+def run_nvt_mbuild(fix_bonds, **custom_args):
 
-    # Load water with SPC/E geometry from mol2 file
-    molecule = mbuild.load(get_example_mol2_path("spce"))
+    dme = mbuild.load("COC", smiles=True)
+    dee = mbuild.load("CCOCC", smiles=True)
 
     # Create an empty mbuild.Box
     box = mbuild.Box(lengths=[3.0, 3.0, 3.0])
 
+    # fill box
+    box = mbuild.fill_box([dme, dee], n_compounds=[10, 10], box=box)
+
     # Load forcefields
-    spce = foyer.Forcefield(get_example_ff_path("spce"))
+    ff = foyer.forcefields.load_OPLSAA()
 
     # Use foyer to apply forcefields
-    molecule_ff = spce.apply(molecule)
+    dme_ff = ff.apply(dme)
+    dee_ff = ff.apply(dee)
 
     # Create box and species list
     box_list = [box]
-    species_list = [molecule_ff]
+    species_list = [dme_ff, dee_ff]
 
     # Use Cassandra to insert some initial number of species
-    mols_to_add = [[50]]
+    mols_in_boxes = [[10, 10]]
 
     # Define the system object
-    system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
+    system = mc.System(
+        box_list,
+        species_list,
+        mols_in_boxes=mols_in_boxes,
+        fix_bonds=fix_bonds,
+    )
     # Get the move probabilities
     moveset = mc.MoveSet("nvt", species_list)
-
-    default_args = {
-        "angle_style": ["fixed"],
-    }
-
-    # Combine default/custom args and override default
-    custom_args = {**default_args, **custom_args}
 
     # Run a simulation with at 300 K with 10000 MC moves
     mc.run(
         system=system,
         moveset=moveset,
         run_type="equilibration",
-        run_length=10000,
+        run_length=100,
         temperature=300.0 * u.K,
         **custom_args,
     )

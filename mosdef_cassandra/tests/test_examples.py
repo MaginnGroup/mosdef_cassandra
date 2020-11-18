@@ -9,10 +9,11 @@ from mosdef_cassandra.tests.base_test import BaseTest
 
 
 class TestExamples(BaseTest):
-    def test_run_nvt(self):
+    @pytest.mark.parametrize("restart", [False, True])
+    def test_run_nvt(self, restart):
         with temporary_directory() as tmp_dir:
             with temporary_cd(tmp_dir):
-                ex.run_nvt()
+                ex.run_nvt(restart=restart)
                 log_files = sorted(
                     glob.glob("./mosdef_cassandra*.log"), key=os.path.getmtime
                 )

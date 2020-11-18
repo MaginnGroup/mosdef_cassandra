@@ -4,7 +4,7 @@ import mosdef_cassandra as mc
 import unyt as u
 
 
-def run_nvt(**custom_args):
+def run_nvt(restart=False, **custom_args):
 
     # Use mBuild to create a methane molecule
     methane = mbuild.load("C", smiles=True)
@@ -39,6 +39,17 @@ def run_nvt(**custom_args):
         temperature=300.0 * u.K,
         **custom_args,
     )
+
+    if restart:
+        # Restart a simulation at 300 K for an additional 10000 MC moves
+        mc.restart(
+            system=system,
+            moveset=moveset,
+            run_type="equilibration",
+            run_length=20000,
+            temperature=300.0 * u.K,
+            **custom_args,
+        )
 
 
 if __name__ == "__main__":

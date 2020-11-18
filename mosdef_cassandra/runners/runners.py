@@ -105,7 +105,7 @@ def restart(system, moveset, run_type, run_length, temperature, **kwargs):
     keyword argument "restart_name" should specify the old "run_name",
     i.e., the "run_name" that you are restarting from. If the "restart_name"
     is not provided or if the "run_name" is the same as "restart_name",
-    "-rst" will be appended to the "run_name".
+    "_rst" will be appended to the "run_name".
 
     Parameters
     ----------

@@ -88,7 +88,7 @@ def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
         if "restart_name" not in kwargs:
             kwargs["restart_name"] = kwargs["run_name"]
         if kwargs["restart_name"] == kwargs["run_name"]:
-            kwargs["run_name"] = kwargs["run_name"] + "-rst"
+            kwargs["run_name"] = kwargs["run_name"] + "_rst"
 
     inp_data = generate_input(
         system=system,
@@ -142,7 +142,7 @@ def print_inputfile(
         if "restart_name" not in kwargs:
             kwargs["restart_name"] = kwargs["run_name"]
         if kwargs["restart_name"] == kwargs["run_name"]:
-            kwargs["run_name"] = kwargs["run_name"] + "-rst"
+            kwargs["run_name"] = kwargs["run_name"] + "_rst"
 
     inp_data = generate_input(
         system=system,

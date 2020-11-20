@@ -28,7 +28,7 @@ def check_system(system, moveset):
 
     for box in system.boxes:
         if not isinstance(box, mbuild.Box) and not isinstance(
-                box, mbuild.Compound
+            box, mbuild.Compound
         ):
             raise TypeError(
                 "Not all System.boxes are mbuild.Box "
@@ -78,12 +78,16 @@ def get_restart_name(restart_from, run_name):
                 match = re.search(r"(.*)\.inp$", inp_files[0])
             base_name = match.group(1)
             if all([base_name in inp_file for inp_file in inp_files]):
-                match = re.search(r"(.*)(\.rst\.)(\d{3})\.inp$", sorted(inp_files)[-1])
+                match = re.search(
+                    r"(.*)(\.rst\.)(\d{3})\.inp$", sorted(inp_files)[-1]
+                )
                 if match is None:
                     match = re.search(r"(.*)\.inp$", sorted(inp_files)[-1])
                     restart_from = match.group(1)
                 else:
-                    restart_from = match.group(1) + match.group(2) + match.group(3)
+                    restart_from = (
+                        match.group(1) + match.group(2) + match.group(3)
+                    )
             else:
                 raise ValueError(
                     f"Multiple inp files: {inp_files} in working directory. "
@@ -97,7 +101,9 @@ def get_restart_name(restart_from, run_name):
             base_name = match.group(1)
             restart_iter = int(match.group(3))
             if restart_iter >= 999:
-                raise ValueError("Maximum number of restart iterations exceeded.")
+                raise ValueError(
+                    "Maximum number of restart iterations exceeded."
+                )
             else:
                 run_name = base_name + f".rst.{restart_iter + 1:03d}"
         else:

@@ -70,11 +70,11 @@ class TestRunners(BaseTest):
 
     def test_restart_run_name_max_iterations(self):
         with pytest.raises(ValueError, match=r"Maximum number"):
-           get_restart_name("equil.rst.999", None)
+            get_restart_name("equil.rst.999", None)
 
     def test_restart_run_name_no_files(self):
         with pytest.raises(FileNotFoundError):
-           get_restart_name(None, None)
+            get_restart_name(None, None)
 
     def test_restart_run_name_single_file(self):
         with temporary_directory() as tmp_dir:
@@ -111,5 +111,4 @@ class TestRunners(BaseTest):
                 Path("equil.rst.001.inp").touch()
                 Path("equil.rst.002.inp").touch()
                 with pytest.raises(ValueError, match=r"Multiple"):
-                   get_restart_name(None, None)
-
+                    get_restart_name(None, None)

@@ -85,19 +85,13 @@ def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
     if "run_name" not in kwargs:
         kwargs["run_name"] = moveset.ensemble
 
-    if "restart" in kwargs and kwargs["restart"]:
-        if "restart_name" not in kwargs:
-            kwargs["restart_name"] = kwargs["run_name"]
-        if kwargs["restart_name"] == kwargs["run_name"]:
-            kwargs["run_name"] = kwargs["run_name"] + "-rst"
-
     inp_data = generate_input(
         system=system,
         moveset=moveset,
         run_type=run_type,
         run_length=run_length,
         temperature=temperature,
-        **kwargs
+        **kwargs,
     )
 
     inp_name = kwargs["run_name"] + ".inp"
@@ -110,7 +104,9 @@ def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
 
 def write_restart_input(restart_from, run_name, run_type, run_length):
     """Write an input file for a restart run"""
-    input_contents = _generate_restart_inp(restart_from, run_name, run_type, run_length)
+    input_contents = _generate_restart_inp(
+        restart_from, run_name, run_type, run_length
+    )
     with open(run_name + ".inp", "w") as f:
         f.write(input_contents)
 
@@ -120,7 +116,9 @@ def _generate_restart_inp(restart_from, run_name, run_type, run_length):
     # Extract contents of old input file
     old_inpfile_name = restart_from + ".inp"
     if not Path(old_inpfile_name).is_file():
-        raise FileNotFoundError(f"Input file {old_inpfile_name} does not exist.")
+        raise FileNotFoundError(
+            f"Input file {old_inpfile_name} does not exist."
+        )
 
     inp_contents = []
     with open(old_inpfile_name) as f:
@@ -130,19 +128,21 @@ def _generate_restart_inp(restart_from, run_name, run_type, run_length):
     # Edit sections run_name, run_type, run_length
     for idx, line in enumerate(inp_contents):
         if "# Run_Name" in line:
-            inp_contents[idx+1] = run_name + ".out"
+            inp_contents[idx + 1] = run_name + ".out"
         if "# Start_Type" in line:
-            inp_contents[idx+1] = "checkpoint " + restart_from + ".out.chk"
+            inp_contents[idx + 1] = "checkpoint " + restart_from + ".out.chk"
             # In case this is a two-box system
-            if inp_contents[idx+2][0] != "!":
-                inp_contents[idx+2] = ""
+            if inp_contents[idx + 2][0] != "!":
+                inp_contents[idx + 2] = ""
         if run_type is not None:
             if "# Run_Type" in line:
-                old_contents = inp_contents[idx+1].split()
-                inp_contents[idx+1] = run_type + " " + " ".join(old_contents[1:])
+                old_contents = inp_contents[idx + 1].split()
+                inp_contents[idx + 1] = (
+                    run_type + " " + " ".join(old_contents[1:])
+                )
         if run_length is not None:
             if "# Simulation_Length_Info" in line:
-                inp_contents[idx+4] = "run " + str(run_length)
+                inp_contents[idx + 4] = "run " + str(run_length)
 
     new_inp_contents = ""
     for line in inp_contents:
@@ -182,19 +182,13 @@ def print_inputfile(
     if "run_name" not in kwargs:
         kwargs["run_name"] = moveset.ensemble
 
-    if "restart" in kwargs and kwargs["restart"]:
-        if "restart_name" not in kwargs:
-            kwargs["restart_name"] = kwargs["run_name"]
-        if kwargs["restart_name"] == kwargs["run_name"]:
-            kwargs["run_name"] = kwargs["run_name"] + "-rst"
-
     inp_data = generate_input(
         system=system,
         moveset=moveset,
         run_type=run_type,
         run_length=run_length,
         temperature=temperature,
-        **kwargs
+        **kwargs,
     )
 
     print(inp_data)

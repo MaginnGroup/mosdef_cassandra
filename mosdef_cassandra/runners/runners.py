@@ -66,7 +66,7 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
         run_type=run_type,
         run_length=run_length,
         temperature=temperature,
-        **kwargs
+        **kwargs,
     )
 
     # Write pdb files (this step will be removed when frag generation
@@ -144,7 +144,10 @@ def restart(restart_from=None, run_name=None, run_length=None, run_type=None):
         if not isinstance(run_name, str):
             raise TypeError("`run_name` must be a string")
     if run_type is not None:
-        if not isinstance(run_type, str) or run_type.lower() not in valid_run_types:
+        if (
+            not isinstance(run_type, str)
+            or run_type.lower() not in valid_run_types
+        ):
             raise TypeError(f"`run_type` must be one of: {valid_run_types}")
         if run_type.lower() == "equil" or run_type.lower() == "equilibration":
             run_type = "equilibration"
@@ -154,7 +157,9 @@ def restart(restart_from=None, run_name=None, run_length=None, run_type=None):
     restart_from, run_name = get_restart_name(restart_from, run_name)
     checkpoint_name = restart_from + ".out.chk"
     if not os.path.isfile(checkpoint_name):
-        raise FileNotFoundError(f"Checkpoint file: {checkpoint_name} does not exist.")
+        raise FileNotFoundError(
+            f"Checkpoint file: {checkpoint_name} does not exist."
+        )
 
     write_restart_input(restart_from, run_name, run_type, run_length)
 

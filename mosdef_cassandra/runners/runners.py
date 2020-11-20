@@ -1,12 +1,15 @@
 import datetime
 import subprocess
-import mbuild
-import parmed
+import os
 
+
+from mosdef_cassandra.runners.utils import check_system
+from mosdef_cassandra.runners.utils import get_restart_name
 from mosdef_cassandra.writers.writers import write_mcfs
 from mosdef_cassandra.writers.writers import write_configs
 from mosdef_cassandra.writers.writers import write_input
 from mosdef_cassandra.writers.writers import write_pdb
+from mosdef_cassandra.writers.writers import write_restart_input
 from mosdef_cassandra.utils.detect import detect_cassandra_binaries
 from mosdef_cassandra.utils.exceptions import CassandraRuntimeError
 
@@ -45,7 +48,7 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
 
     # Sanity checks
     # TODO: Write more of these
-    _check_system(system, moveset)
+    check_system(system, moveset)
 
     # Write MCF files
     if "angle_style" in kwargs:
@@ -92,66 +95,75 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
     _run_cassandra(cassandra, inp_file, log_file)
 
 
-def restart(system, moveset, run_type, run_length, temperature, **kwargs):
-    """Restart a Monte Carlo simulation with Cassandra
+def restart(restart_from=None, run_name=None, run_length=None, run_type=None):
+    """Restart a Monte Carlo simulation from a checkpoint file with Cassandra
 
-    This function is used to restart a Cassandra simulation from a
-    checkpoint file. No new MCF files are written to disk; the function
-    assumes they already exist. No new fragment libraries are generated,
-    again, these should already exist from the original run. The maximum
-    translation, rotation, and volume move sizes are read from the checkpoint
-    file so the values specified in mc.Moves are **not** used. Similarly,
-    the starting structure is taken from the checkpoint file. The
-    keyword argument "restart_name" should specify the old "run_name",
-    i.e., the "run_name" that you are restarting from. If the "restart_name"
-    is not provided or if the "run_name" is the same as "restart_name",
-    "-rst" will be appended to the "run_name".
+    The function requires the following in the working directory. These items
+    would have all been generated for the original run:
+        * Cassandra input (.inp) file named {restart_from}.inp
+        * Cassandra checkpoint file (.chk) name {restart_from}.out.chk
+        * MCF files for each species
+        * Fragment libraries for each species
+
+    The maximum translation, rotation, and volume move sizes are read from
+    the checkpoint file. Similarly, the starting structure is taken from the
+    checkpoint file. If the "restart_name" is not provided or if the
+    "run_name" is the same as "restart_name", ".rst.N" will be appended to the
+    "run_name".
+
+    If you wish to extend a simulation you will need to specify the _total_
+    number of simulation steps desired with the run_length option. For example,
+    if your original run was 1e6 MC steps, but you wish to extend it by an
+    additional 1e6 steps, use run_length=2000000.
 
     Parameters
     ----------
-    system : mosdef_cassandra.System
-        the System to simulate
-    moveset : mosdef_cassandra.MoveSet
-        the MoveSet to simulate
-    run_type : "equilibration" or "production"
+    restart_from: str, optional, default=None
+        name of run to restart from; if None, searches current
+        directory for Cassandra inp files
+    run_length: int, optional, default=None
+        total length of the MC simulation; if None, use original simulation length
+    run_name: str, optional, default=None
+        name of this run; if None, appends "_rst" to run_name
+    run_type : str, "equilibration" or "production", default=None
         the type of run; in "equilibration" mode, Cassandra adaptively changes
         the maximum translation, rotation, and volume move sizes to achieve
-        an acceptance ratio of 0.5
-    run_length : int
-        length of the MC simulation
-    temperature : float
-        temperature at which to perform the MC simulation
-    **kwargs : keyword arguments
-        any other valid keyword arguments, see
-        ``mosdef_cassandra.print_valid_kwargs()`` for details
+        an acceptance ratio of 0.5. If None, use the same choice as the
+        previous run.
     """
-
+    valid_run_types = ["equilibration", "equil", "production", "prod"]
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
     py, fraglib_setup, cassandra = detect_cassandra_binaries()
 
-    kwargs["restart"] = True
+    # Parse the arguments
+    if run_length is not None:
+        if not isinstance(run_length, int):
+            raise TypeError("`run_length` must be an integer")
+    if run_name is not None:
+        if not isinstance(run_name, str):
+            raise TypeError("`run_name` must be a string")
+    if run_type is not None:
+        if not isinstance(run_type, str) or run_type.lower() not in valid_run_types:
+            raise TypeError(f"`run_type` must be one of: {valid_run_types}")
+        if run_type.lower() == "equil" or run_type.lower() == "equilibration":
+            run_type = "equilibration"
+        if run_type.lower() == "prod" or run_type.lower() == "production":
+            run_type = "production"
 
-    # Sanity checks
-    # TODO: Write more of these
-    _check_system(system, moveset)
+    restart_from, run_name = get_restart_name(restart_from, run_name)
+    checkpoint_name = restart_from + ".out.chk"
+    if not os.path.isfile(checkpoint_name):
+        raise FileNotFoundError(f"Checkpoint file: {checkpoint_name} does not exist.")
+
+    write_restart_input(restart_from, run_name, run_type, run_length)
 
     log_file = "mosdef_cassandra_{}.log".format(
         datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
     )
 
-    # Write input file
-    inp_file = write_input(
-        system=system,
-        moveset=moveset,
-        run_type=run_type,
-        run_length=run_length,
-        temperature=temperature,
-        **kwargs
-    )
-
     print("Running Cassandra...")
-    _run_cassandra(cassandra, inp_file, log_file)
+    _run_cassandra(cassandra, run_name + ".inp", log_file)
 
 
 def _run_fraglib_setup(
@@ -241,65 +253,4 @@ def _run_cassandra(cassandra, inp_file, log_file):
         raise CassandraRuntimeError(
             "Cassandra exited with an error, "
             "see {} for details.".format(log_file)
-        )
-
-
-def _check_system(system, moveset):
-    """Run a series of sanity checks on the System and MoveSet"""
-
-    if moveset.ensemble == "gemc" or moveset.ensemble == "gemc_npt":
-        if len(system.boxes) != 2:
-            raise ValueError(
-                "{} requested but {} simulation "
-                "boxes provided as part of system. {} requires "
-                "2 simulation boxes".format(
-                    moveset.ensemble, len(system.boxes), moveset.ensemble
-                )
-            )
-    else:
-        if len(system.boxes) != 1:
-            raise ValueError(
-                "{} requested but {} simulation "
-                "boxes provided as part of system. {} requires "
-                "1 simulation box".format(
-                    moveset.ensemble, len(system.boxes), moveset.ensemble
-                )
-            )
-
-    for box in system.boxes:
-        if not isinstance(box, mbuild.Box) and not isinstance(
-            box, mbuild.Compound
-        ):
-            raise TypeError(
-                "Not all System.boxes are mbuild.Box "
-                "or mbuild.Compound objects. It appears "
-                "your System object has been corrupted"
-            )
-
-    # TODO: Add check that species_topologies provided to the
-    # System and MoveSet are the same
-
-    if not isinstance(system.species_topologies, list):
-        raise TypeError(
-            "System.species_topologies should be a "
-            "list. It appears your System object "
-            "has been corrupted"
-        )
-
-    for species in system.species_topologies:
-        if not isinstance(species, parmed.Structure):
-            raise TypeError(
-                "Each species should be a parmed.Structure. "
-                "It appears your System object has been "
-                "corrupted"
-            )
-
-    try:
-        system.check_natoms()
-    except:
-        raise ValueError(
-            "The number of atoms in one or more boxes "
-            "does not match the number expected from "
-            "System.species_topologies and system.mols_in_boxes. "
-            "It appears your System object has been corrupted"
         )

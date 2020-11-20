@@ -5,6 +5,9 @@ import mosdef_cassandra as mc
 import unyt as u
 from mosdef_cassandra.tests.base_test import BaseTest
 from mosdef_cassandra.writers.inp_functions import generate_input
+from mosdef_cassandra.writers.writers import _generate_restart_inp
+from mosdef_cassandra.writers.writers import write_input
+from mosdef_cassandra.writers.writers import write_restart_input
 from mosdef_cassandra.writers.writers import write_mcfs
 from mosdef_cassandra.utils.tempdir import *
 
@@ -1677,3 +1680,30 @@ class TestInpFunctions(BaseTest):
         (system, moveset) = onecomp_system
         with pytest.raises(ValueError, match="Invalid"):
             write_mcfs(system, angle_style=["charmm"])
+
+    def test_rst_inp_not_exists(self):
+        with pytest.raises(FileNotFoundError):
+            _generate_restart_inp(
+                restart_from="equil",
+                run_name="equil.rst.001",
+                run_type=None,
+                run_length=None
+            )
+
+    def test_rst_inp(self, onecomp_system):
+        (system, moveset) = onecomp_system
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                write_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                )
+                _generate_restart_inp(
+                    restart_from="nvt",
+                    run_name="nvt.rst.001",
+                    run_type=None,
+                    run_length=None
+                )

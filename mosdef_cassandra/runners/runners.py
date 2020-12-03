@@ -124,7 +124,8 @@ def restart(restart_from=None, run_name=None, run_length=None, run_type=None):
     run_length: int, optional, default=None
         total length of the MC simulation; if None, use original simulation length
     run_name: str, optional, default=None
-        name of this run; if None, appends "_rst" to run_name
+        name of this run; if None, appends ".rst.NNN." to run_name,
+        where "NNN" is the restart iteration "001", "002", ...,
     run_type : str, "equilibration" or "production", default=None
         the type of run; in "equilibration" mode, Cassandra adaptively changes
         the maximum translation, rotation, and volume move sizes to achieve

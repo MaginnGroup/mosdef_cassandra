@@ -1708,7 +1708,7 @@ class TestInpFunctions(BaseTest):
                     run_type=None,
                     run_length=None,
                 )
-                assert Path("nvt.rst.001.inp").isfile()
+                assert Path("nvt.rst.001.inp").is_file()
 
     def test_rst_inp_switch_run_type(self, onecomp_system):
         (system, moveset) = onecomp_system

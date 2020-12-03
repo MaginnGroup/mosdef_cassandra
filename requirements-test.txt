@@ -3,7 +3,7 @@ parmed
 networkx
 foyer >= 0.7.6
 mbuild >= 0.10.8
-openbabel
+openbabel == 3.1.0
 pytest
 cassandra >= 1.2.2
 unyt >= 2.4

@@ -1,8 +1,10 @@
 import parmed
 import mbuild
 from mbuild.formats.cassandramcf import write_mcf
+from pathlib import Path
+from warnings import warn
 
-import mosdef_cassandra
+from mosdef_cassandra import System, MoveSet
 from mosdef_cassandra.writers.inp_functions import generate_input
 
 
@@ -24,7 +26,7 @@ def write_mcfs(system, angle_style="harmonic"):
                 'Invalid "angle_style" {} given.'.format(angle_style)
             )
 
-    if not isinstance(system, mosdef_cassandra.System):
+    if not isinstance(system, System):
         raise TypeError('"system" must be of type ' "mosdef_cassandra.System")
 
     for species_count, species in enumerate(system.species_topologies):
@@ -59,7 +61,7 @@ def write_mcfs(system, angle_style="harmonic"):
 
 def write_configs(system):
 
-    if not isinstance(system, mosdef_cassandra.System):
+    if not isinstance(system, System):
         raise TypeError('"system" must be of type ' "mosdef_cassandra.System")
 
     for box_count, box in enumerate(system.boxes):
@@ -69,7 +71,7 @@ def write_configs(system):
             raise TypeError(
                 'Your "system" object appears to have '
                 "been corrupted. Box {} is not a mbuild"
-                ".Compound object".format(species)
+                ".Compound or mbuild.Box object".format(box)
             )
 
         # Only save if box has particles inside
@@ -84,19 +86,13 @@ def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
     if "run_name" not in kwargs:
         kwargs["run_name"] = moveset.ensemble
 
-    if "restart" in kwargs and kwargs["restart"]:
-        if "restart_name" not in kwargs:
-            kwargs["restart_name"] = kwargs["run_name"]
-        if kwargs["restart_name"] == kwargs["run_name"]:
-            kwargs["run_name"] = kwargs["run_name"] + "-rst"
-
     inp_data = generate_input(
         system=system,
         moveset=moveset,
         run_type=run_type,
         run_length=run_length,
         temperature=temperature,
-        **kwargs
+        **kwargs,
     )
 
     inp_name = kwargs["run_name"] + ".inp"
@@ -105,6 +101,69 @@ def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
         inp.write(inp_data)
 
     return inp_name
+
+
+def write_restart_input(restart_from, run_name, run_type, run_length):
+    """Write an input file for a restart run"""
+    input_contents = _generate_restart_inp(
+        restart_from, run_name, run_type, run_length
+    )
+    with open(run_name + ".inp", "w") as f:
+        f.write(input_contents)
+
+
+def _generate_restart_inp(restart_from, run_name, run_type, run_length):
+    """Create the input file for a restart"""
+    # Extract contents of old input file
+    old_inpfile_name = restart_from + ".inp"
+    if not Path(old_inpfile_name).is_file():
+        raise FileNotFoundError(
+            f"Input file {old_inpfile_name} does not exist."
+        )
+
+    inp_contents = []
+    with open(old_inpfile_name) as f:
+        for line in f:
+            inp_contents.append(line.strip())
+
+    # Edit sections run_name, run_type, run_length
+    for idx, line in enumerate(inp_contents):
+        if "# Run_Name" in line:
+            inp_contents[idx + 1] = run_name + ".out"
+        if "# Start_Type" in line:
+            inp_contents[idx + 1] = "checkpoint " + restart_from + ".out.chk"
+            # In case this is a two-box system
+            if inp_contents[idx + 2][0] != "!":
+                inp_contents[idx + 2] = ""
+        if run_type is not None:
+            if "# Run_Type" in line:
+                old_contents = inp_contents[idx + 1].split()
+                inp_contents[idx + 1] = (
+                    run_type + " " + " ".join(old_contents[1:])
+                )
+        if run_length is not None:
+            if "# Simulation_Length_Info" in line:
+                # Verify new run length is >= original
+                if run_length < int(inp_contents[idx + 4].split()[1]):
+                    raise ValueError(
+                        "Total run length on restart cannot be less than "
+                        "the original run length. Please see the mc.restart "
+                        "documentation for more details."
+                    )
+                if run_length == int(inp_contents[idx + 4].split()[1]):
+                    warn(
+                        "Total run length on restart is equal to the "
+                        "original run length. This will not extend your "
+                        " simulation. Please see the mc.restart "
+                        "documentation for more details."
+                    )
+                inp_contents[idx + 4] = "run " + str(run_length)
+
+    new_inp_contents = ""
+    for line in inp_contents:
+        new_inp_contents += line + "\n"
+
+    return new_inp_contents
 
 
 def print_inputfile(
@@ -120,7 +179,7 @@ def print_inputfile(
     ----------
     system : mosdef_cassandra.System
         the System to simulate
-    moves : mosdef_cassandra.Moves
+    moveset : mosdef_cassandra.MoveSet
         the Move set to simulate
     run_type : "equilibration" or "production"
         the type of run; in "equilibration" mode, Cassandra adaptively changes
@@ -138,19 +197,13 @@ def print_inputfile(
     if "run_name" not in kwargs:
         kwargs["run_name"] = moveset.ensemble
 
-    if "restart" in kwargs and kwargs["restart"]:
-        if "restart_name" not in kwargs:
-            kwargs["restart_name"] = kwargs["run_name"]
-        if kwargs["restart_name"] == kwargs["run_name"]:
-            kwargs["run_name"] = kwargs["run_name"] + "-rst"
-
     inp_data = generate_input(
         system=system,
         moveset=moveset,
         run_type=run_type,
         run_length=run_length,
         temperature=temperature,
-        **kwargs
+        **kwargs,
     )
 
     print(inp_data)

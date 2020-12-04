@@ -1,7 +1,6 @@
 import pytest
 import mbuild
 import foyer
-import mosdef_cassandra as mc
 
 from os.path import join, split, abspath
 

@@ -1,10 +1,14 @@
 import pytest
 from copy import deepcopy
+from pathlib import Path
 
 import mosdef_cassandra as mc
 import unyt as u
 from mosdef_cassandra.tests.base_test import BaseTest
 from mosdef_cassandra.writers.inp_functions import generate_input
+from mosdef_cassandra.writers.writers import _generate_restart_inp
+from mosdef_cassandra.writers.writers import write_input
+from mosdef_cassandra.writers.writers import write_restart_input
 from mosdef_cassandra.writers.writers import write_mcfs
 from mosdef_cassandra.utils.tempdir import *
 
@@ -1677,3 +1681,119 @@ class TestInpFunctions(BaseTest):
         (system, moveset) = onecomp_system
         with pytest.raises(ValueError, match="Invalid"):
             write_mcfs(system, angle_style=["charmm"])
+
+    def test_rst_inp_not_exists(self):
+        with pytest.raises(FileNotFoundError):
+            _generate_restart_inp(
+                restart_from="equil",
+                run_name="equil.rst.001",
+                run_type=None,
+                run_length=None,
+            )
+
+    def test_rst_inp(self, onecomp_system):
+        (system, moveset) = onecomp_system
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                write_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                )
+                write_restart_input(
+                    restart_from="nvt",
+                    run_name="nvt.rst.001",
+                    run_type=None,
+                    run_length=None,
+                )
+                assert Path("nvt.rst.001.inp").is_file()
+
+    def test_rst_inp_invalid_run_length(self, onecomp_system):
+        (system, moveset) = onecomp_system
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                write_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                )
+                with pytest.raises(ValueError):
+                    write_restart_input(
+                        restart_from="nvt",
+                        run_name="nvt.rst.001",
+                        run_type=None,
+                        run_length=200,
+                    )
+                with pytest.warns(UserWarning):
+                    write_restart_input(
+                        restart_from="nvt",
+                        run_name="nvt.rst.001",
+                        run_type=None,
+                        run_length=500,
+                    )
+
+    def test_rst_inp_switch_run_type(self, onecomp_system):
+        (system, moveset) = onecomp_system
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                write_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                )
+                contents = _generate_restart_inp(
+                    restart_from="nvt",
+                    run_name="nvt.rst.001",
+                    run_type="production",
+                    run_length=1000,
+                )
+                assert "# Run_Type\nproduction" in contents
+                assert "run 1000" in contents
+                assert "# Start_Type\ncheckpoint nvt.out.chk" in contents
+                assert "# Run_Name\nnvt.rst.001.out" in contents
+                write_restart_input(
+                    restart_from="nvt",
+                    run_name="nvt.rst.001",
+                    run_type="production",
+                    run_length=1000,
+                )
+                contents = _generate_restart_inp(
+                    restart_from="nvt.rst.001",
+                    run_name="nvt.rst.002",
+                    run_type=None,
+                    run_length=None,
+                )
+                assert "# Run_Type\nproduction" in contents
+                assert "run 1000" in contents
+                assert (
+                    "# Start_Type\ncheckpoint nvt.rst.001.out.chk" in contents
+                )
+                assert "# Run_Name\nnvt.rst.002.out" in contents
+
+    def test_rst_twobox(self, twobox_system):
+        (system, moveset) = twobox_system
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                write_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                )
+                contents = _generate_restart_inp(
+                    restart_from="gemc",
+                    run_name="gemc.rst.001",
+                    run_type="production",
+                    run_length=1000,
+                )
+                assert "# Run_Type\nproduction" in contents
+                assert "run 1000" in contents
+                assert "# Start_Type\ncheckpoint gemc.out.chk\n\n!" in contents
+                assert "# Run_Name\ngemc.rst.001.out" in contents

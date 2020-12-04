@@ -65,17 +65,11 @@ def run_gemc(**custom_args):
         **custom_args,
     )
 
-    # Update run_name and restart_name
-    custom_args["run_name"] = "prod"
-    custom_args["restart_name"] = "equil"
-
     mc.restart(
-        system=system,
-        moveset=moveset,
+        restart_from="equil",
+        run_name="prod",
         run_type="production",
-        run_length=750,
-        temperature=151.0 * u.K,
-        **custom_args,
+        total_run_length=750,
     )
 
 

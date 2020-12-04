@@ -1,6 +1,7 @@
 import datetime
 import subprocess
 import os
+import re
 
 
 from mosdef_cassandra.runners.utils import check_system
@@ -95,7 +96,9 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
     _run_cassandra(cassandra, inp_file, log_file)
 
 
-def restart(restart_from=None, run_name=None, run_length=None, run_type=None):
+def restart(
+    total_run_length=None, restart_from=None, run_name=None, run_type=None
+):
     """Restart a Monte Carlo simulation from a checkpoint file with Cassandra
 
     The function requires the following in the working directory. These items
@@ -112,17 +115,17 @@ def restart(restart_from=None, run_name=None, run_length=None, run_type=None):
     "run_name".
 
     If you wish to extend a simulation you will need to specify the _total_
-    number of simulation steps desired with the run_length option. For example,
+    number of simulation steps desired with the total_run_length option. For example,
     if your original run was 1e6 MC steps, but you wish to extend it by an
-    additional 1e6 steps, use run_length=2000000.
+    additional 1e6 steps, use total_run_length=2000000.
 
     Parameters
     ----------
+    total_run_length: int, optional, default=None
+        total length of the MC simulation; if None, use original simulation length
     restart_from: str, optional, default=None
         name of run to restart from; if None, searches current
         directory for Cassandra inp files
-    run_length: int, optional, default=None
-        total length of the MC simulation; if None, use original simulation length
     run_name: str, optional, default=None
         name of this run; if None, appends ".rst.NNN." to run_name,
         where "NNN" is the restart iteration "001", "002", ...,
@@ -138,9 +141,9 @@ def restart(restart_from=None, run_name=None, run_length=None, run_type=None):
     py, fraglib_setup, cassandra = detect_cassandra_binaries()
 
     # Parse the arguments
-    if run_length is not None:
-        if not isinstance(run_length, int):
-            raise TypeError("`run_length` must be an integer")
+    if total_run_length is not None:
+        if not isinstance(total_run_length, int):
+            raise TypeError("`total_run_length` must be an integer")
     if run_name is not None:
         if not isinstance(run_name, str):
             raise TypeError("`run_name` must be a string")
@@ -162,7 +165,7 @@ def restart(restart_from=None, run_name=None, run_length=None, run_type=None):
             f"Checkpoint file: {checkpoint_name} does not exist."
         )
 
-    write_restart_input(restart_from, run_name, run_type, run_length)
+    write_restart_input(restart_from, run_name, run_type, total_run_length)
 
     log_file = "mosdef_cassandra_{}.log".format(
         datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
@@ -206,18 +209,19 @@ def _run_fraglib_setup(
 
     with open(log_file, "a") as log:
         header = (
-            "*************************************************\n"
+            "\n*************************************************\n"
             "******* CASSANDRA FRAGLIB STANDARD OUTPUT *******\n"
-            "*************************************************\n"
+            "*************************************************\n\n"
         )
         log.write(header)
-        log.write(out)
+        log.write(_clean_cassandra_log(out))
         header = (
-            "*************************************************\n"
+            "\n*************************************************\n"
             "******* CASSANDRA FRAGLIB STANDARD ERROR ********\n"
-            "*************************************************\n"
+            "*************************************************\n\n"
         )
-        log.write(err)
+        log.write(header)
+        log.write(_clean_cassandra_log(err))
 
     if p.returncode != 0 or "error" in err.lower() or "error" in out.lower():
         raise CassandraRuntimeError(
@@ -242,21 +246,29 @@ def _run_cassandra(cassandra, inp_file, log_file):
 
     with open(log_file, "a") as log:
         header = (
-            "*************************************************\n"
+            "\n*************************************************\n"
             "*********** CASSANDRA STANDARD OUTPUT ***********\n"
-            "*************************************************\n"
+            "*************************************************\n\n"
         )
         log.write(header)
-        log.write(out)
+        log.write(_clean_cassandra_log(out))
         header = (
-            "*************************************************\n"
+            "\n*************************************************\n"
             "*********** CASSANDRA STANDARD ERROR ************\n"
-            "*************************************************\n"
+            "*************************************************\n\n"
         )
-        log.write(err)
+        log.write(header)
+        log.write(_clean_cassandra_log(err))
 
     if p.returncode != 0 or "error" in err.lower() or "error" in out.lower():
         raise CassandraRuntimeError(
             "Cassandra exited with an error, "
             "see {} for details.".format(log_file)
         )
+
+
+def _clean_cassandra_log(string):
+    """Strip the text formatting from Cassandra output"""
+    string = re.sub(r"\^\[\[0m", "", string)
+    string = re.sub(r"\^\[\[1m", "", string)
+    return string

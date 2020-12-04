@@ -69,7 +69,7 @@ def run_gemc(**custom_args):
         restart_from="equil",
         run_name="prod",
         run_type="production",
-        run_length=750,
+        total_run_length=750,
     )
 
 

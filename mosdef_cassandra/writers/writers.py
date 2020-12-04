@@ -2,6 +2,7 @@ import parmed
 import mbuild
 from mbuild.formats.cassandramcf import write_mcf
 from pathlib import Path
+from warnings import warn
 
 from mosdef_cassandra import System, MoveSet
 from mosdef_cassandra.writers.inp_functions import generate_input
@@ -142,6 +143,20 @@ def _generate_restart_inp(restart_from, run_name, run_type, run_length):
                 )
         if run_length is not None:
             if "# Simulation_Length_Info" in line:
+                # Verify new run length is >= original
+                if run_length < int(inp_contents[idx + 4].split()[1]):
+                    raise ValueError(
+                        "Total run length on restart cannot be less than "
+                        "the original run length. Please see the mc.restart "
+                        "documentation for more details."
+                    )
+                if run_length == int(inp_contents[idx + 4].split()[1]):
+                    warn(
+                        "Total run length on restart is equal to the "
+                        "original run length. This will not extend your "
+                        " simulation. Please see the mc.restart "
+                        "documentation for more details."
+                    )
                 inp_contents[idx + 4] = "run " + str(run_length)
 
     new_inp_contents = ""

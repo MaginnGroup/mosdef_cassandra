@@ -1710,6 +1710,32 @@ class TestInpFunctions(BaseTest):
                 )
                 assert Path("nvt.rst.001.inp").is_file()
 
+    def test_rst_inp_invalid_run_length(self, onecomp_system):
+        (system, moveset) = onecomp_system
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                write_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                )
+                with pytest.raises(ValueError):
+                    write_restart_input(
+                        restart_from="nvt",
+                        run_name="nvt.rst.001",
+                        run_type=None,
+                        run_length=200,
+                    )
+                with pytest.warns(UserWarning):
+                    write_restart_input(
+                        restart_from="nvt",
+                        run_name="nvt.rst.001",
+                        run_type=None,
+                        run_length=500,
+                    )
+
     def test_rst_inp_switch_run_type(self, onecomp_system):
         (system, moveset) = onecomp_system
         with temporary_directory() as tmp_dir:

@@ -84,7 +84,7 @@ class TestInpFunctions(BaseTest):
             run_name="test name",
         )
 
-        assert "# Run_Name\ntest-name.out" in inp_data
+        assert "# Run_Name\ntest_name.out" in inp_data
 
         inp_data = generate_input(
             system=system,
@@ -108,13 +108,22 @@ class TestInpFunctions(BaseTest):
         assert "# Run_Name\nnvt.out" in inp_data
 
         with pytest.raises(TypeError, match=r"must be a string"):
-            inp_data = generate_input(
+            generate_input(
                 system=system,
                 moveset=moveset,
                 run_type="equilibration",
                 run_length=500,
                 temperature=300.0 * u.K,
                 run_name=1,
+            )
+        with pytest.raises(ValueError):
+            generate_input(
+                system=system,
+                moveset=moveset,
+                run_type="equilibration",
+                run_length=500,
+                temperature=300.0 * u.K,
+                run_name="test-fail",
             )
 
     def test_sim_type(self, onecomp_system):

@@ -527,7 +527,11 @@ def get_run_name(name):
     if not isinstance(name, str):
         raise TypeError("name: {} must be a string".format(name))
 
-    name = name.replace(" ", "-")
+    if "-" in name:
+        raise ValueError(
+            f"run_name: {name} may only contain '0-9', 'A-Z', 'a-z', '.', or '_' characters."
+        )
+    name = name.replace(" ", "_")
     inp_data = """
 # Run_Name
 {name}.out

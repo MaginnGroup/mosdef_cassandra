@@ -1,0 +1,3 @@
+include LICENSE.rst
+graft mosdef_cassandra/examples/resources
+graft mosdef_cassandra/tests/files

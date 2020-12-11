@@ -382,39 +382,32 @@ def generate_input(
 
     # Start type info
     start_types = []
-    if "restart" in kwargs and kwargs["restart"]:
-        start_types.append(
-            "checkpoint {}.out.chk".format(kwargs["restart_name"])
-        )
-    else:
-        for ibox, box in enumerate(system.boxes):
-            if isinstance(box, mbuild.Compound):
-                if sum(system.mols_to_add[ibox]) > 0:
-                    existing_mols = " ".join(
-                        [str(x) for x in system.mols_in_boxes[ibox]]
-                    )
-                    xyz_name = "box{}.in.xyz".format(ibox + 1)
-                    new_mols = " ".join(
-                        [str(x) for x in system.mols_to_add[ibox]]
-                    )
-                    start_type = "add_to_config "
-                    start_type += existing_mols + " "
-                    start_type += xyz_name + " "
-                    start_type += new_mols
-                    start_types.append(start_type)
-                else:
-                    existing_mols = " ".join(
-                        [str(x) for x in system.mols_in_boxes[ibox]]
-                    )
-                    xyz_name = "box{}.in.xyz".format(ibox + 1)
-                    start_type = "read_config "
-                    start_type += existing_mols + " "
-                    start_type += xyz_name
-                    start_types.append(start_type)
-            else:
+    for ibox, box in enumerate(system.boxes):
+        if isinstance(box, mbuild.Compound):
+            if sum(system.mols_to_add[ibox]) > 0:
+                existing_mols = " ".join(
+                    [str(x) for x in system.mols_in_boxes[ibox]]
+                )
+                xyz_name = "box{}.in.xyz".format(ibox + 1)
                 new_mols = " ".join([str(x) for x in system.mols_to_add[ibox]])
-                start_type = "make_config " + new_mols
+                start_type = "add_to_config "
+                start_type += existing_mols + " "
+                start_type += xyz_name + " "
+                start_type += new_mols
                 start_types.append(start_type)
+            else:
+                existing_mols = " ".join(
+                    [str(x) for x in system.mols_in_boxes[ibox]]
+                )
+                xyz_name = "box{}.in.xyz".format(ibox + 1)
+                start_type = "read_config "
+                start_type += existing_mols + " "
+                start_type += xyz_name
+                start_types.append(start_type)
+        else:
+            new_mols = " ".join([str(x) for x in system.mols_to_add[ibox]])
+            start_type = "make_config " + new_mols
+            start_types.append(start_type)
 
     inp_data += get_start_type(start_types)
 
@@ -534,7 +527,11 @@ def get_run_name(name):
     if not isinstance(name, str):
         raise TypeError("name: {} must be a string".format(name))
 
-    name = name.replace(" ", "-")
+    if "-" in name:
+        raise ValueError(
+            f"run_name: {name} may only contain '0-9', 'A-Z', 'a-z', '.', or '_' characters."
+        )
+    name = name.replace(" ", "_")
     inp_data = """
 # Run_Name
 {name}.out
@@ -1579,7 +1576,7 @@ def get_start_type(start_types):
 
     Parameters
     ----------
-    start_type : list
+    start_types : list
          list of start_type with one for each box
     """
 
@@ -1751,7 +1748,7 @@ def get_property_info(properties, nbr_boxes):
         "pressure",
         "pressure_xx",
         "pressure_yy",
-        "pressyre_zz",
+        "pressure_zz",
         "volume",
         "nmols",
         "density",
@@ -1869,8 +1866,6 @@ def print_valid_kwargs():
 def _get_possible_kwargs(desc=False):
     valid_kwargs = {
         "run_name": "str, name of output",
-        "restart": "boolean, restart from checkpoint file",
-        "restart_name": "name of checkpoint file to restart from",
         "verbose_log": "boolean, write verbose log file",
         "vdw_style": 'str, "lj" or "none"',
         "cutoff_style": 'str, "cut" or "cut_tail" or "cut_switch" or "cut_shift"',
@@ -1905,8 +1900,6 @@ def _get_possible_kwargs(desc=False):
             '"energy_total", "energy_lj", "energy_elec", "energy_intra", "enthalpy",'
             '"pressure", "volume", "nmols", "density", "mass_density"'
         ),
-        "restart": "boolean, restart from checkpoint file",
-        "restart_name": "name of checkpoint file to restart from",
         "angle_style": "list of str, angle style for each species",
     }
     if desc:

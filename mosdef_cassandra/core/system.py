@@ -1,4 +1,5 @@
 from copy import deepcopy
+from constrainmol import ConstrainedMolecule
 
 import numpy as np
 import mbuild
@@ -7,7 +8,12 @@ import parmed
 
 class System(object):
     def __init__(
-        self, boxes, species_topologies, mols_in_boxes=None, mols_to_add=None
+        self,
+        boxes,
+        species_topologies,
+        mols_in_boxes=None,
+        mols_to_add=None,
+        fix_bonds=True,
     ):
         """A class to contain the system to simulate in Cassandra
 
@@ -40,6 +46,10 @@ class System(object):
             one element per box. Each element is a list of length
             n_species, specifying the number of each species that
             should be added to each box
+        fix_bonds : boolean, optional, default=True
+            update the bond lengths in any initial structure
+            (i.e., boxes) to match the values specified in
+            the species_topologies
 
         Returns
         -------
@@ -62,6 +72,10 @@ class System(object):
         # vs. number from self.mols_in_boxes and
         # self.species_topologies
         self.check_natoms()
+
+        # Fix the coordinates if the user provides a starting structure
+        if fix_bonds:
+            self.fix_bonds()
 
     # TODO: one possibility is to return list(self._boxes)
     # rather than self._boxes --> this prevents list items from
@@ -102,6 +116,7 @@ class System(object):
 
     @species_topologies.setter
     def species_topologies(self, species_topologies):
+        self._constrained_species = []
         if self._species_topologies is None:
             if not isinstance(species_topologies, list):
                 raise TypeError(
@@ -113,7 +128,19 @@ class System(object):
                     raise TypeError(
                         "Each species should be a " "parmed.Structure"
                     )
-            self._species_topologies = deepcopy(species_topologies)
+                # If no bonds in topology don't try to apply constraints
+                # Store "None" in _constrained_species instead
+                if len(topology.bonds) > 0:
+                    constrain = ConstrainedMolecule(topology)
+                    constrain.solve()
+                    topology.coordinates = constrain.xyz
+                    self._constrained_species.append(constrain)
+                else:
+                    self._constrained_species.append(None)
+
+            self._species_topologies = [
+                parmed.structure.copy(s) for s in species_topologies
+            ]
         else:
             raise AttributeError(
                 "species_topologies cannot be "
@@ -280,3 +307,43 @@ class System(object):
                             ibox + 1, self.mols_in_boxes[ibox], ibox + 1
                         )
                     )
+
+    def fix_bonds(self):
+        """Apply the bond length constraints to each molecule in the system"""
+        for ibox, box in enumerate(self.boxes):
+            if isinstance(box, mbuild.Box):
+                continue
+            unconstrained_coordinates = box.xyz
+            constrained_coordinates = np.zeros(box.xyz.shape)
+            n_species = len(self.species_topologies)
+            idx_offset = 0
+            for isp in range(n_species):
+                constrain = self._constrained_species[isp]
+                n_mols = self.mols_in_boxes[ibox][isp]
+                n_atoms = self._species_topologies[isp].coordinates.shape[0]
+                # If no constrained molecule grab all the coordinates
+                # in one big block
+                if constrain is None:
+                    start_idx = idx_offset
+                    end_idx = idx_offset + n_mols * n_atoms
+                    constrained_coordinates[
+                        start_idx:end_idx
+                    ] = unconstrained_coordinates[start_idx:end_idx]
+                # Else we apply the constraints one molecule
+                # at a time
+                else:
+                    for imol in range(n_mols):
+                        start_idx = idx_offset + imol * n_atoms
+                        end_idx = idx_offset + (imol + 1) * n_atoms
+                        constrain.update_xyz(
+                            unconstrained_coordinates[start_idx:end_idx]
+                            * 10.0  # nm to Angstrom
+                        )
+                        constrain.solve()
+                        constrained_coordinates[start_idx:end_idx] = (
+                            constrain.xyz / 10.0
+                        )  # Angstrom to nm
+                # Now we're done with isp; update idx_offset
+                idx_offset += n_mols * n_atoms
+
+            box.xyz = constrained_coordinates

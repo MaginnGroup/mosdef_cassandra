@@ -10,3 +10,4 @@ unyt >= 2.4
 pandas >= 1.0
 garnett
 pycifrw
+constrainmol

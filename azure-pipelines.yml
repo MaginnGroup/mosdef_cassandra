@@ -39,7 +39,7 @@ jobs:
     - bash: echo "##vso[task.prependpath]$CONDA/bin"
       displayName: Add Conda to path
 
-    - bash : echo "##vso[task.prependpath]$(Build.SourcesDirectory)/Cassandra-1.2.2/bin"
+    - bash : echo "##vso[task.prependpath]$(Build.SourcesDirectory)/Cassandra-1.2.5/bin"
       displayName: Add Cassandra to path
 
     # On Hosted macOS, the agent user doesn't have ownership of Miniconda's installation directory/
@@ -128,10 +128,10 @@ jobs:
 - job: StandardMoSDeF
   strategy:
     matrix:
-      Python37Ubuntu:
+      Python39Ubuntu:
         imageName: 'ubuntu-18.04'
         python.version: 3.9
-      Python36Ubuntu:
+      Python38Ubuntu:
         imageName: 'ubuntu-18.04'
         python.version: 3.8
       Python37macOS:

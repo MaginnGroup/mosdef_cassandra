@@ -15,11 +15,11 @@ Cassandra with a single command:
 
 .. code-block:: bash
 
-    conda create --name mc mosdef_cassandra foyer -c conda-forge -c mosdef -c omnia
+    conda create --name mc mosdef_cassandra -c conda-forge
 
 The command creates a new conda environment (``mc``) and installs
-``mosdef_cassandra`` and ``foyer``. The ``-c`` flag specifies the conda channels
-that are searched, with channel priority decreasing from left to right. To use
+``mosdef_cassandra``. The ``-c`` flag specifies the conda channels
+that are searched. To use
 the environment, run ``conda activate mc``.
 
 You can test your installation by opening up a Python interpreter and typing:
@@ -57,7 +57,7 @@ installing from source we recommend the latter:
 
 .. code-block:: bash
 
-    conda install -c conda-forge -c mosdef -c omnia --file mosdef_cassandra/requirements-dev.txt
+    conda install -c conda-forge --file mosdef_cassandra/requirements-dev.txt
 
 Finally, run the following commands to complete the installation of
 MoSDeF Cassandra:
@@ -80,8 +80,8 @@ Once you have downloaded the tarball (available
 
 .. code-block:: bash
 
-    tar -xzvf Cassandra-1.2.2.gz
-    cd Cassandra-1.2.2/Src
+    tar -xzvf Cassandra-1.2.5.gz
+    cd Cassandra-1.2.5/Src
     make -f Makefile.gfortran
     cd ../
     mkdir bin/
@@ -97,11 +97,11 @@ Once you have downloaded the tarball (available
     variable, e.g., ``export OMP_NUM_THREADS=8``.
 
 
-Add ``Cassandra-1.2.2/bin`` to your ``PATH``:
+Add ``Cassandra-1.2.5/bin`` to your ``PATH``:
 
 .. code-block:: bash
 
-    export PATH=path_to_install/Cassandra-1.2.2/bin:${PATH}
+    export PATH=path_to_install/Cassandra-1.2.5/bin:${PATH}
 
 Unless you add the preceding line to your ``.bashrc`` you will need to
 run it every time you open a new terminal window.

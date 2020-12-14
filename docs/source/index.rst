@@ -44,7 +44,7 @@ A conda installation is available:
 
 .. code-block:: bash
 
-    conda create --name mc mosdef_cassandra foyer -c conda-forge -c mosdef -c omnia
+    conda create --name mc mosdef_cassandra -c conda-forge
 
 Example
 ~~~~~~~

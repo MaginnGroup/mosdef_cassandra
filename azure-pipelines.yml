@@ -19,18 +19,18 @@ jobs:
 - job: BleedingMoSDeF
   strategy:
     matrix:
-      Python37Ubuntu:
+      Python39Ubuntu:
         imageName: 'ubuntu-18.04'
-        python.version: 3.7
-      Python36Ubuntu:
+        python.version: 3.9
+      Python38Ubuntu:
         imageName: 'ubuntu-18.04'
-        python.version: 3.6
+        python.version: 3.8
       Python37macOS:
         imageName: 'macOS-10.14'
         python.version: 3.7
-      Python36macOS:
+      Python39macOS:
         imageName: 'macOS-latest'
-        python.version: 3.6
+        python.version: 3.9
 
   pool:
     vmImage: $(imageName)
@@ -39,7 +39,7 @@ jobs:
     - bash: echo "##vso[task.prependpath]$CONDA/bin"
       displayName: Add Conda to path
 
-    - bash : echo "##vso[task.prependpath]$(Build.SourcesDirectory)/Cassandra-1.2.2/bin"
+    - bash : echo "##vso[task.prependpath]$(Build.SourcesDirectory)/Cassandra-1.2.5/bin"
       displayName: Add Cassandra to path
 
     # On Hosted macOS, the agent user doesn't have ownership of Miniconda's installation directory/
@@ -63,9 +63,9 @@ jobs:
       condition: eq( variables['Agent.OS'], 'Darwin' )
 
     - bash: |
-        wget https://github.com/MaginnGroup/Cassandra/archive/v1.2.2.tar.gz
-        tar -xzvf v1.2.2.tar.gz
-        cd Cassandra-1.2.2/Src
+        wget https://github.com/MaginnGroup/Cassandra/archive/v1.2.5.tar.gz
+        tar -xzvf v1.2.5.tar.gz
+        cd Cassandra-1.2.5/Src
         make -f Makefile.gfortran
         mkdir ../bin
         cp cassandra_gfortran.exe ../bin/.
@@ -90,9 +90,6 @@ jobs:
 
     - bash: |
         conda config --set always_yes yes --set changeps1 no
-        conda config --add channels omnia
-        conda config --add channels janschulz
-        conda config --add channels mosdef
         conda config --add channels conda-forge
         conda update -c defaults conda
         conda update --all
@@ -131,18 +128,18 @@ jobs:
 - job: StandardMoSDeF
   strategy:
     matrix:
-      Python37Ubuntu:
+      Python39Ubuntu:
         imageName: 'ubuntu-18.04'
-        python.version: 3.7
-      Python36Ubuntu:
+        python.version: 3.9
+      Python38Ubuntu:
         imageName: 'ubuntu-18.04'
-        python.version: 3.6
+        python.version: 3.8
       Python37macOS:
         imageName: 'macOS-10.14'
         python.version: 3.7
-      Python36macOS:
+      Python39macOS:
         imageName: 'macOS-latest'
-        python.version: 3.6
+        python.version: 3.9
 
   pool:
     vmImage: $(imageName)
@@ -159,9 +156,6 @@ jobs:
 
     - bash: |
         conda config --set always_yes yes --set changeps1 no
-        conda config --add channels omnia
-        conda config --add channels janschulz
-        conda config --add channels mosdef
         conda config --add channels conda-forge
         conda update -c defaults conda
         conda update --all

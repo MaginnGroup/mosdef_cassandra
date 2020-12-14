@@ -28,9 +28,9 @@ jobs:
       Python37macOS:
         imageName: 'macOS-10.14'
         python.version: 3.7
-      Python36macOS:
+      Python39macOS:
         imageName: 'macOS-latest'
-        python.version: 3.6
+        python.version: 3.9
 
   pool:
     vmImage: $(imageName)
@@ -137,9 +137,9 @@ jobs:
       Python37macOS:
         imageName: 'macOS-10.14'
         python.version: 3.7
-      Python36macOS:
+      Python39macOS:
         imageName: 'macOS-latest'
-        python.version: 3.6
+        python.version: 3.9
 
   pool:
     vmImage: $(imageName)

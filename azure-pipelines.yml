@@ -49,20 +49,15 @@ jobs:
       condition: eq( variables['Agent.OS'], 'Darwin' )
 
     - bash: |
-        sudo apt-get update
-        sudo apt-get install gfortran
-        gfortran --version
-      displayName: Install gfortran Linux
-      condition: eq( variables['Agent.OS'], 'Linux' )
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda update -c defaults conda
+        conda update --all
+        conda create --yes -n bleeding-test-environment python=$(python.version) --file requirements-dev.txt
+      displayName: Create a new bleeding test environment
 
     - bash: |
-        brew install gcc
-        brew upgrade gcc
-        gfortran --version
-      displayName: Install gfortran macOS
-      condition: eq( variables['Agent.OS'], 'Darwin' )
-
-    - bash: |
+        source activate bleeding-test-environment
         wget https://github.com/MaginnGroup/Cassandra/archive/v1.2.5.tar.gz
         tar -xzvf v1.2.5.tar.gz
         cd Cassandra-1.2.5/Src
@@ -71,7 +66,7 @@ jobs:
         cp cassandra_gfortran.exe ../bin/.
         cp ../Scripts/Frag_Library_Setup/library_setup.py ../bin/.
         cd ../../
-      displayName: Build Cassandra Linux
+      displayName: Build Cassandra
 
     - bash: |
         echo Working directory:
@@ -87,14 +82,6 @@ jobs:
         echo LIBRARY_SETUP:
         which library_setup.py
       displayName: Check cassandra install
-
-    - bash: |
-        conda config --set always_yes yes --set changeps1 no
-        conda config --add channels conda-forge
-        conda update -c defaults conda
-        conda update --all
-        conda create --yes -n bleeding-test-environment python=$(python.version) --file requirements-dev.txt
-      displayName: Create a new bleeding test environment
 
     - bash: |
         source activate bleeding-test-environment
@@ -121,7 +108,7 @@ jobs:
     - bash: |
         source activate bleeding-test-environment
         coverage xml
-        bash <(curl -s https://codecov.io/bash) -t 412931ab-9984-4267-96b9-4d7c4de9defb
+        bash <(curl -s https://codecov.io/bash) -t 022e3719-0209-42d8-ae36-488daf8e4e61
       condition: and( eq( variables['Agent.OS'], 'Linux' ), eq( variables['python.version'], '3.7' ) )
       displayName: Upload coverage
 

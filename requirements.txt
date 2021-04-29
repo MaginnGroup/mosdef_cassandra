@@ -1,7 +1,7 @@
 numpy
 parmed
 networkx
-mbuild >= 0.10.8
+mbuild >= 0.10.8,<=0.10.13
 cassandra >= 1.2.2
 unyt >= 2.4
 constrainmol

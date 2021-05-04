@@ -21,10 +21,10 @@ jobs:
   strategy:
     matrix:
       Python39Ubuntu:
-        imageName: 'ubuntu-18.04'
+        imageName: 'ubuntu-20.04'
         python.version: 3.9
       Python38Ubuntu:
-        imageName: 'ubuntu-18.04'
+        imageName: 'ubuntu-20.04'
         python.version: 3.8
       Python37macOS:
         imageName: 'macOS-10.14'
@@ -118,10 +118,10 @@ jobs:
   strategy:
     matrix:
       Python39Ubuntu:
-        imageName: 'ubuntu-18.04'
+        imageName: 'ubuntu-20.04'
         python.version: 3.9
       Python38Ubuntu:
-        imageName: 'ubuntu-18.04'
+        imageName: 'ubuntu-20.04'
         python.version: 3.8
       Python37macOS:
         imageName: 'macOS-10.14'

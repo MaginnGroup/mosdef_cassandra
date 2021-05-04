@@ -13,7 +13,8 @@ schedules:
   displayName: Daily midnight build for master
   branches:
     include:
-      - master
+    - master
+  always: true
 
 jobs:
 - job: BleedingMoSDeF

@@ -103,7 +103,7 @@ jobs:
     - bash: |
         source activate bleeding-test-environment
         python -m pip install pytest-azurepipelines
-        python -m pytest -v --cov=mbuild --cov-report=html --pyargs
+        python -m pytest -v --cov=mosdef_cassandra --cov-report=html --pyargs
       displayName: Run Tests
 
     - bash: |

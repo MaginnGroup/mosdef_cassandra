@@ -473,6 +473,10 @@ def generate_input(
         block_avg_freq,
     )
 
+    # Widom_Insertion section
+    if "widom_insertions" in kwargs:
+        inp_data += get_widom_info(kwargs["widom_insertions"], nbr_species)
+
     # Properties section
     if "properties" in kwargs:
         properties = kwargs["properties"]
@@ -1853,6 +1857,59 @@ rcut_cbmc""".format(
 """
 
     return inp_data
+
+def get_widom_info(widom_insertions, nbr_species):
+    """Get the Widom_Insertion section of the input file.
+    Parameters
+    ----------
+    widom_insertions : list of dictionaries
+         One dictionary per box.  The dictionary keys are the 
+         species numbers of the Widom test particle species, and 
+         each dictionary entry is a list of two integers: 
+         [n_ins, widom_freq], where n_ins is the number of Widom insertions 
+         to be performed after every widom_freq MC steps (or MC sweeps if the 
+         simulation length units are sweeps).
+    nbr_species : integer
+         number of species in the simulation
+    """
+    inp_data = """
+    # Widom_Insertion
+    """
+    if not widom_insertions:
+        inp_data += "False"
+        inp_data += """
+!------------------------------------------------------------------------------
+"""
+        return inp_data
+    inp_data += "True\n"
+    for i in range(nbr_species):
+        for boxdict in widom_insertions:
+            if (i+1) in boxdict:
+                parpair = boxdict[i+1]
+                n_ins = parpair[0]
+                widom_freq = parpair[1]
+                # Verify that parameters are integers.  Should this allow numpy.int64?
+                if not isinstance(n_ins, int):
+                    raise TypeError(
+                            "Number of Widom insertions must be an integer"
+                            )
+                if not isinstance(widom_freq, int):
+                    raise TypeError(
+                            "Frequency of Widom insertions must be an integer"
+                            )
+                if n_ins < 0:
+                    raise ValueError("Number of Widom insertions must not be negative")
+                if widom_freq < 1:
+                    raise ValueError("Freqency of Widom insertions must be positive")
+                inp_data += "cbmc {} {} ".format(n_ins, widom_freq)
+            else:
+                inp_data += "none "
+        inp_data += "\n"
+    inp_data += """
+!------------------------------------------------------------------------------
+"""
+    return inp_data
+
 
 
 def print_valid_kwargs():

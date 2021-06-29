@@ -1958,6 +1958,7 @@ def _get_possible_kwargs(desc=False):
             '"pressure", "volume", "nmols", "density", "mass_density"'
         ),
         "angle_style": "list of str, angle style for each species",
+        "widom_insertions": "list of dicts, one dict per box, key=species number of test particle, value=list of two integer Widom insertion parameters"
     }
     if desc:
         return valid_kwargs

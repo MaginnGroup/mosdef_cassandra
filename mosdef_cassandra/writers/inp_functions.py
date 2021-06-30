@@ -7,7 +7,6 @@ import mosdef_cassandra
 
 from unyt import dimensions
 
-import mosdef_cassandra.utils.convert_box as convert_box
 from mosdef_cassandra.utils.units import validate_unit, validate_unit_list
 
 

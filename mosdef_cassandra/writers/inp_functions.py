@@ -265,11 +265,10 @@ def generate_input(
     boxes = []
     for box in system.boxes:
         if isinstance(box, mbuild.Compound):
-            box_dims = np.hstack((box.box.lengths, box.box.angles))
+            box_matrix = box.box.vectors.T
         else:
-            box_dims = np.hstack((box.lengths, box.angles))
+            box_matrix = box.vectors.T
 
-        box_matrix = convert_box.convert_to_boxmatrix(box_dims)
         box_matrix = u.unyt_array(box_matrix, "nm")
         # box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]
         boxes.append(box_matrix)

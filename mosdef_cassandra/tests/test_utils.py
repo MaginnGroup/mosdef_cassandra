@@ -12,7 +12,7 @@ from unyt.exceptions import IterableUnitCoercionError
 class TestConvertBox(BaseTest):
     def test_cubic(self):
         box = mbuild.Box([5.0, 5.0, 5.0], [90.0, 90.0, 90.0])
-        box_matrix = box.vectors.T
+        box_matrix = box.vectors
         assert box_matrix[0][0] == 5.0
         assert box_matrix[1][1] == 5.0
         assert box_matrix[2][2] == 5.0
@@ -25,7 +25,7 @@ class TestConvertBox(BaseTest):
 
     def test_rectangular(self):
         box = mbuild.Box([5.0, 10.0, 15.0], [90.0, 90.0, 90.0])
-        box_matrix = box.vectors.T
+        box_matrix = box.vectors
         assert box_matrix[0][0] == 5.0
         assert box_matrix[1][1] == 10.0
         assert box_matrix[2][2] == 15.0
@@ -38,7 +38,7 @@ class TestConvertBox(BaseTest):
 
     def test_triclinic(self):
         box = mbuild.Box([10.0, 10.0, 10.0], [30.0, 75.0, 80.0])
-        box_matrix = box.vectors.T
+        box_matrix = box.vectors
         assert box_matrix[0][0] == 10.0
         assert box_matrix[0][1] == 0.0
         assert box_matrix[0][2] == 0.0

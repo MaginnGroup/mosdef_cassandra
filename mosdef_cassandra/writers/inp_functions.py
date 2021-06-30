@@ -265,9 +265,9 @@ def generate_input(
     boxes = []
     for box in system.boxes:
         if isinstance(box, mbuild.Compound):
-            box_matrix = box.box.vectors.T
+            box_matrix = box.box.vectors
         else:
-            box_matrix = box.vectors.T
+            box_matrix = box.vectors
 
         box_matrix = u.unyt_array(box_matrix, "nm")
         # box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]

@@ -10,7 +10,6 @@ from unyt.exceptions import IterableUnitCoercionError
 
 
 class TestConvertBox(BaseTest):
-
     def test_cubic(self):
         box = mbuild.Box([5.0, 5.0, 5.0], [90.0, 90.0, 90.0])
         box_matrix = box.vectors.T
@@ -49,7 +48,6 @@ class TestConvertBox(BaseTest):
         assert np.isclose(box_matrix[1][0], 1.736482)
         assert np.isclose(box_matrix[2][0], 2.588191)
         assert np.isclose(box_matrix[2][1], 8.337484)
-
 
     @pytest.mark.parametrize(
         "unit,dimension,name",

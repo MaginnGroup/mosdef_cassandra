@@ -276,4 +276,10 @@ input file.
 | **Description:** list of properties to write to the ``.prp`` file. Valid options include: ``energy_total``, ``energy_intra``, ``energy_bond``, ``energy_angle``, ``energy_diheral``, ``energy_improper``, ``energy_intravdw``, ``energy_intraq``, ``energy_inter``, ``energy_intervdw``, ``energy_lrc``, ``energy_interq``, ``energy_recip``, ``energy_self``, ``enthalpy``, ``pressure``, ``pressure_xx``, ``pressure_yy``, ``pressure_zz``, ``volume``, ``nmols``, ``density``, ``mass_density``.
 | **Default:** ``["energy_total", "energy_intra", "energy_inter", "enthalpy", "pressure", "volume", "nmols", "mass_density"]``
 
+``widom_insertions``
+~~~~~~~~~~~~~~~~~~~~
+| **Type:** ``list`` of ``dicts``
+| **Description:** One ``dict`` per box.  The dictionary keys are the species numbers of the Widom test particle species, and each dictionary entry is a list of two ``ints``: ``[n_ins, widom_freq]``, where ``n_ins`` is the number of Widom insertions to be performed after every ``widom_freq`` MC steps (or MC ``sweeps`` if ``units="sweeps"``).
+| **Default:** ``None``
+| **Notes:** units of ``widom_freq`` cannot be time units, so they default to ``steps`` if ``units="minutes"``.
 

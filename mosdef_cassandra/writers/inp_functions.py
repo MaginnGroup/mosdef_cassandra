@@ -260,7 +260,6 @@ def generate_input(
     inp_data += get_molecule_files(max_molecules_dict)
 
     # Box Info
-    # TODO: FIX THIS HACK W.R.T. boxes and DOCUMENT
     boxes = []
     for box in system.boxes:
         if isinstance(box, mbuild.Compound):

@@ -66,13 +66,13 @@ class BaseTest:
     @pytest.fixture
     def wrongbox(self):
         box = mbuild.Compound()
-        box.boundingbox.lengths = [5.0, 5.0, 5.0]
+        box.box.lengths = [5.0, 5.0, 5.0]
         return box
 
     @pytest.fixture
     def methane_single(self):
         methane = mbuild.load("C", smiles=True)
-        methane.boundingbox.lengths = [5.0, 5.0, 5.0]
+        methane.box.lengths = [5.0, 5.0, 5.0]
         return methane
 
 

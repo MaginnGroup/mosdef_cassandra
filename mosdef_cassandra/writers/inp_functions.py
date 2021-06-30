@@ -265,7 +265,7 @@ def generate_input(
     boxes = []
     for box in system.boxes:
         if isinstance(box, mbuild.Compound):
-            box_dims = np.hstack((box.periodicity, box.boundingbox.angles))
+            box_dims = np.hstack((box.box.lengths, box.box.angles))
         else:
             box_dims = np.hstack((box.lengths, box.angles))
 

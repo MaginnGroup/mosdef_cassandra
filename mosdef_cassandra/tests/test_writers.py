@@ -1820,7 +1820,7 @@ class TestInpFunctions(BaseTest):
                     temperature=300 * u.K,
                     widom_insertions=widom_insertions,
                 )
-                assert "# Widom_Insertion\nTrue\ncbmc 100 10\n" in inp_data
+                assert "# Widom_Insertion\nTrue\ncbmc 100 10 \n" in inp_data
 
     def test_widom_twocomp(self, twocomp_system):
         (system, moveset) = twocomp_system
@@ -1870,7 +1870,7 @@ class TestInpFunctions(BaseTest):
                     widom_insertions=[{1: [10000000000, 100]}],
                 )
                 assert (
-                    "# Widom_Insertion\nTrue\ncbmc 10000000000 10 \nnone \n"
+                    "# Widom_Insertion\nTrue\ncbmc 10000000000 100 \nnone \n"
                     in inp_data
                 )
 
@@ -1884,6 +1884,7 @@ class TestInpFunctions(BaseTest):
                     run_type="equilibration",
                     run_length=500,
                     temperature=300 * u.K,
+                    pressure=1.0 * u.bar,
                     widom_insertions=[
                         {1: [100, 10], 2: [300, 5]},
                         {2: [35, 25], 1: [50, 15]},
@@ -1899,6 +1900,7 @@ class TestInpFunctions(BaseTest):
                     run_type="equilibration",
                     run_length=500,
                     temperature=300 * u.K,
+                    pressure=1.0 * u.bar,
                     widom_insertions=[{2: [300, 5]}, {1: [50, 15]}],
                 )
                 assert (

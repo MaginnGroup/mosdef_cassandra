@@ -1871,8 +1871,8 @@ def get_widom_info(widom_insertions, nbr_species):
          number of species in the simulation
     """
     inp_data = """
-    # Widom_Insertion
-    """
+# Widom_Insertion
+"""
     if not widom_insertions:
         inp_data += "False"
         inp_data += """

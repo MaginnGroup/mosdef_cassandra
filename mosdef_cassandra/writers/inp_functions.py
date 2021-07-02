@@ -7,7 +7,6 @@ import mosdef_cassandra
 
 from unyt import dimensions
 
-import mosdef_cassandra.utils.convert_box as convert_box
 from mosdef_cassandra.utils.units import validate_unit, validate_unit_list
 
 
@@ -261,15 +260,13 @@ def generate_input(
     inp_data += get_molecule_files(max_molecules_dict)
 
     # Box Info
-    # TODO: FIX THIS HACK W.R.T. boxes and DOCUMENT
     boxes = []
     for box in system.boxes:
         if isinstance(box, mbuild.Compound):
-            box_dims = np.hstack((box.periodicity, box.boundingbox.angles))
+            box_matrix = box.box.vectors
         else:
-            box_dims = np.hstack((box.lengths, box.angles))
+            box_matrix = box.vectors
 
-        box_matrix = convert_box.convert_to_boxmatrix(box_dims)
         box_matrix = u.unyt_array(box_matrix, "nm")
         # box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]
         boxes.append(box_matrix)

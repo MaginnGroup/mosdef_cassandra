@@ -32,12 +32,6 @@ with each particle, and the bonds that describe the particle
 connectivity. However, there are no forcefield parameters
 associated with ``methane``.
 
-.. note::
-  Loading a molecule from a SMILES string requires the openbabel package.
-  Though openbabel is not a required dependency, we *strongly* recommend
-  that users install openbabel (``conda install -c conda-forge openbabel``)
-  to have this capability and follow many of our tutorials and examples.
-
 To add forcefield parameters to ``methane``, we first load the OPLS-AA
 forcefield from foyer. The OPLS-AA forcefield is distributed with foyer.
 Be aware that not all atomtypes are currently defined.

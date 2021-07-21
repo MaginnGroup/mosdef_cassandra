@@ -5,13 +5,6 @@ Examples
 Below we provide a few simple examples of short Monte Carlo simulations with
 MoSDeF Cassandra.
 
-.. note::
-  Many of these examples require the openbabel package to create molecules from a
-  SMILES string. Though openbabel is not a required dependency of
-  MoSDeF Casssandra, we strongly recommend that users install it
-  (``conda install -c conda-forge openbabel``) if they
-  would like that functionality.
-
 NVT simulation of methane
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -63,6 +63,16 @@ the following four categories.
 * ``max_translate`` - maximum translation distance
 * ``max_rotate`` - maximum rotation angle
 
+Methods
+++++++++++
+
+The purpose of methods in the ``MoveSet`` class is to add optional
+attributes.  Currently ``MoveSet`` contains the following method:
+
+* ``add_restricted_insertions`` - Adds restricted insertions
+  per-box-per-species which restricts monte carlo particle insertions to a
+  specific region
+
 
 Printing the contents of the MoveSet
 ++++++++++++++++++++++++++++++++++++

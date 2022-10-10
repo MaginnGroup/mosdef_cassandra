@@ -3,6 +3,7 @@ import datetime
 import numpy as np
 import unyt as u
 import mosdef_cassandra
+import copy
 
 
 from unyt import dimensions
@@ -261,11 +262,12 @@ def generate_input(
 
     # Box Info
     boxes = []
+
     for box in system.boxes:
         if isinstance(box, mbuild.Compound):
-            box_matrix = box.box.vectors
+            box_matrix = copy.deepcopy(box.box.vectors)
         else:
-            box_matrix = box.vectors
+            box_matrix = copy.deepcopy(box.vectors)
 
         box_matrix = u.unyt_array(box_matrix, "nm")
         # box_matrix = [u.unyt_array(i, "nm") for i in box_matrix]

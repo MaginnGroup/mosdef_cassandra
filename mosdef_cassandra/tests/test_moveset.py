@@ -551,8 +551,8 @@ class TestMoveSet(BaseTest):
             moveset.cbmc_rcut = 3.0
         with pytest.raises(ValueError, match=r"less than zero"):
             moveset.cbmc_rcut = [3.0 * u.angstrom, -3.0 * u.angstrom]
-        with pytest.raises(IterableUnitCoercionError):
-            moveset.cbmc_rcut = [0.4 * u.nm, 8.0 * u.angstrom]
+        with pytest.raises(TypeError, match=r"cbmc_rcut must be a list"):
+            moveset.cbmc_rcut = [0.4 * u.nm, 8.0 * u.gram]
         moveset.cbmc_rcut = 5.0 * u.angstrom
         assert len(moveset.cbmc_rcut) == 2
         assert moveset.cbmc_rcut[0].to_value("angstrom") == 5.0

@@ -119,14 +119,14 @@ class MoveSet(object):
 
         # Default max deltas for volume moves
         if self.ensemble == "npt" or self.ensemble == "gemc":
-            self.max_volume = [500.0 * (u.angstrom ** 3)]
+            self.max_volume = [500.0 * (u.angstrom**3)]
         elif self.ensemble == "gemc_npt":
             self.max_volume = [
-                500.0 * (u.angstrom ** 3),
-                5000.0 * (u.angstrom ** 3),
+                500.0 * (u.angstrom**3),
+                5000.0 * (u.angstrom**3),
             ]
         else:
-            self.max_volume = [0.0 * (u.angstrom ** 3)]
+            self.max_volume = [0.0 * (u.angstrom**3)]
 
         # Set the default CBMC options
         self.cbmc_n_insert = 10
@@ -557,7 +557,7 @@ class MoveSet(object):
         max_volume = validate_unit_list(
             max_volume,
             shape,
-            dimensions.length ** 3,
+            dimensions.length**3,
             "max_volume",
         )
         for max_vol in max_volume.flatten():

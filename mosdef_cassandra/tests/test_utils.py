@@ -112,21 +112,3 @@ class TestConvertBox(BaseTest):
     def test_invalid_unit_list(self, unit_list, shape, dimension):
         with pytest.raises(TypeError, match="argument must be a list"):
             validate_unit_list(unit_list, shape, dimension)
-
-    @pytest.mark.parametrize(
-        "unit_list, shape, dimension",
-        [
-            ([[1.0 * u.angstrom, 1.0 * u.nm]], (2, 1), dimensions.length),
-            (
-                [
-                    [1.0 * u.nm, 1.0 * u.nm],
-                    [1.0 * u.angstrom, 1.0 * u.angstrom],
-                ],
-                (2, 2),
-                dimensions.length,
-            ),
-        ],
-    )
-    def test_mismatch_unit_list(self, unit_list, shape, dimension):
-        with pytest.raises(IterableUnitCoercionError):
-            validate_unit_list(unit_list, shape, dimension)

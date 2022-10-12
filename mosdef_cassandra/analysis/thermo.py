@@ -51,7 +51,7 @@ class ThermoProps:
             "(kJ/mol)-Ext": u.Unit("kJ/mol"),
             "(bar)": u.bar,
             "": u.dimensionless,
-            "(A^3)": u.angstrom ** 3,
+            "(A^3)": u.angstrom**3,
             "(kg/m^3)": u.Unit("kg/m**3"),
             "(molec/A^3)": u.Unit("count/angstrom**3"),
         }

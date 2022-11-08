@@ -43,7 +43,7 @@ class TestMoveSet(BaseTest):
         assert len(moveset.max_volume) == 1
         assert len(moveset.prob_swap_from_box) == 1
         assert moveset.prob_swap_from_box[0] == 1.0
-        assert moveset.max_volume[0] == 0.0 * (u.angstrom ** 3)
+        assert moveset.max_volume[0] == 0.0 * (u.angstrom**3)
         # Per species-per-box
         assert len(moveset.max_translate[0]) == 1
         assert len(moveset.max_rotate[0]) == 1
@@ -73,7 +73,7 @@ class TestMoveSet(BaseTest):
         assert len(moveset.max_volume) == 1
         assert len(moveset.prob_swap_from_box) == 1
         assert moveset.prob_swap_from_box[0] == 1.0
-        assert moveset.max_volume[0] == 500.0 * (u.angstrom ** 3)
+        assert moveset.max_volume[0] == 500.0 * (u.angstrom**3)
         # Per species-per-box
         assert len(moveset.max_translate[0]) == 1 * u.angstrom
         assert len(moveset.max_rotate[0]) == 1 * u.degree
@@ -103,7 +103,7 @@ class TestMoveSet(BaseTest):
         assert len(moveset.max_volume) == 1
         assert len(moveset.prob_swap_from_box) == 1
         assert moveset.prob_swap_from_box[0] == 1.0
-        assert moveset.max_volume[0] == 0.0 * (u.angstrom ** 3)
+        assert moveset.max_volume[0] == 0.0 * (u.angstrom**3)
         # Per species-per-box
         assert len(moveset.max_translate[0]) == 1
         assert len(moveset.max_rotate[0]) == 1
@@ -150,7 +150,7 @@ class TestMoveSet(BaseTest):
         assert moveset.prob_swap_from_box[0] == 0.5
         assert moveset.prob_swap_from_box[1] == 0.5
         assert len(moveset.max_volume) == 1
-        assert moveset.max_volume[0] == 500.0 * (u.angstrom ** 3)
+        assert moveset.max_volume[0] == 500.0 * (u.angstrom**3)
         # Per species-per-box
         assert len(moveset.max_translate[0]) == 1
         assert len(moveset.max_rotate[0]) == 1
@@ -201,8 +201,8 @@ class TestMoveSet(BaseTest):
         assert moveset.prob_swap_from_box[0] == 0.5
         assert moveset.prob_swap_from_box[1] == 0.5
         assert len(moveset.max_volume) == 2
-        assert moveset.max_volume[0] == 500.0 * (u.angstrom ** 3)
-        assert moveset.max_volume[1] == 5000.0 * (u.angstrom ** 3)
+        assert moveset.max_volume[0] == 500.0 * (u.angstrom**3)
+        assert moveset.max_volume[1] == 5000.0 * (u.angstrom**3)
         # Per species-per-box
         assert len(moveset.max_translate[0]) == 1
         assert len(moveset.max_rotate[0]) == 1
@@ -465,39 +465,39 @@ class TestMoveSet(BaseTest):
             moveset.max_volume = 1.0
         with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_volume = [
-                1.0 * (u.angstrom ** 3),
-                1.0 * (u.angstrom ** 3),
-                1.0 * (u.angstrom ** 3),
+                1.0 * (u.angstrom**3),
+                1.0 * (u.angstrom**3),
+                1.0 * (u.angstrom**3),
             ]
         with pytest.raises(TypeError, match=r"unyt_array"):
             moveset.max_volume = [True]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
-            moveset.max_volume = [-100 * (u.angstrom ** 3)]
-        moveset.max_volume = [5000.0 * (u.angstrom ** 3)]
-        assert moveset.max_volume[0] == 5000.0 * (u.angstrom ** 3)
+            moveset.max_volume = [-100 * (u.angstrom**3)]
+        moveset.max_volume = [5000.0 * (u.angstrom**3)]
+        assert moveset.max_volume[0] == 5000.0 * (u.angstrom**3)
         moveset = mc.MoveSet("gemc_npt", [methane_oplsaa])
-        moveset.max_volume = 1.0 * (u.angstrom ** 3)
+        moveset.max_volume = 1.0 * (u.angstrom**3)
         assert len(moveset.max_volume) == 2
-        assert moveset.max_volume[0] == 1.0 * u.angstrom ** 3
-        assert moveset.max_volume[1] == 1.0 * u.angstrom ** 3
+        assert moveset.max_volume[0] == 1.0 * u.angstrom**3
+        assert moveset.max_volume[1] == 1.0 * u.angstrom**3
         with pytest.raises(TypeError, match=r"must be a list"):
             moveset.max_volume = [
-                1.0 * (u.angstrom ** 3),
-                1.0 * (u.angstrom ** 3),
-                1.0 * (u.angstrom ** 3),
+                1.0 * (u.angstrom**3),
+                1.0 * (u.angstrom**3),
+                1.0 * (u.angstrom**3),
             ]
         with pytest.raises(TypeError, match=r"unyt_array"):
             moveset.max_volume = [True, 50000.0]
         with pytest.raises(ValueError, match=r"cannot be less than zero"):
             moveset.max_volume = [
-                -100 * (u.angstrom ** 3),
-                100.0 * (u.angstrom ** 3),
+                -100 * (u.angstrom**3),
+                100.0 * (u.angstrom**3),
             ]
         moveset.max_volume = [
-            5000.0 * (u.angstrom ** 3),
-            50000.0 * (u.angstrom ** 3),
+            5000.0 * (u.angstrom**3),
+            50000.0 * (u.angstrom**3),
         ]
-        assert moveset.max_volume[1] == 50000.0 * (u.angstrom ** 3)
+        assert moveset.max_volume[1] == 50000.0 * (u.angstrom**3)
 
         moveset = mc.MoveSet("gemc", [methane_oplsaa])
         with pytest.raises(TypeError, match=r"must be a list"):
@@ -551,8 +551,8 @@ class TestMoveSet(BaseTest):
             moveset.cbmc_rcut = 3.0
         with pytest.raises(ValueError, match=r"less than zero"):
             moveset.cbmc_rcut = [3.0 * u.angstrom, -3.0 * u.angstrom]
-        with pytest.raises(IterableUnitCoercionError):
-            moveset.cbmc_rcut = [0.4 * u.nm, 8.0 * u.angstrom]
+        with pytest.raises(TypeError, match=r"cbmc_rcut must be a list"):
+            moveset.cbmc_rcut = [0.4 * u.nm, 8.0 * u.gram]
         moveset.cbmc_rcut = 5.0 * u.angstrom
         assert len(moveset.cbmc_rcut) == 2
         assert moveset.cbmc_rcut[0].to_value("angstrom") == 5.0

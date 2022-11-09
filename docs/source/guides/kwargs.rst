@@ -289,3 +289,10 @@ input file.
 | **Type:** ``bool`` or ``str``
 | **Description:** ``True`` if cell list overlap detection is to be used for Widom insertions.
 | **Default:** ``False``
+
+``adaptive_rmin``
+~~~~~~~~~~~~~~~~~~~~
+| **Type:** ``bool``, ``int``, or ``float``
+| **Description:** Maximum desired intermolecular nonbonded atom pair energy, normalized by kBT.  Setting as ``True`` sets no value in the input file, leaving it as the Cassandra's default value (708.0).
+| **Default:** ``False``
+

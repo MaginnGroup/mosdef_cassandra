@@ -1897,8 +1897,9 @@ def get_widom_info(widom_insertions, nbr_species):
 !------------------------------------------------------------------------------
 """
         return inp_data
-    inp_data += "True\n"
+    inp_data += "True"
     for i in range(nbr_species):
+        inp_data += "\n"
         for boxdict in widom_insertions:
             if (i + 1) in boxdict:
                 parlist = boxdict[i + 1]
@@ -1949,6 +1950,7 @@ def get_cell_list_info(cell_list):
 {}""".format(
         cell_list
     )
+    return inp_data
 
 
 def print_valid_kwargs():
@@ -1998,6 +2000,8 @@ def _get_possible_kwargs(desc=False):
         ),
         "angle_style": "list of str, angle style for each species",
         "widom_insertions": "list of dicts, one dict per box, key=species number of test particle, value=list of two integer Widom insertion parameters",
+        "cell_list": "boolean, true if using cell list overlap detection",
+        "adaptive_rmin": "float, maximum desired intermolecular nonbonded single atom pair energy for Widom insertions",
     }
     if desc:
         return valid_kwargs

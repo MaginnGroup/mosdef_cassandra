@@ -279,7 +279,13 @@ input file.
 ``widom_insertions``
 ~~~~~~~~~~~~~~~~~~~~
 | **Type:** ``list`` of ``dicts``
-| **Description:** One ``dict`` per box.  The dictionary keys are the species numbers of the Widom test particle species, and each dictionary entry is a list of two ``ints``: ``[n_ins, widom_freq]``, where ``n_ins`` is the number of Widom insertions to be performed after every ``widom_freq`` MC steps (or MC ``sweeps`` if ``units="sweeps"``).
+| **Description:** One ``dict`` per box.  The dictionary keys are the species numbers of the Widom test particle species, and each dictionary entry is a list of two ``ints``: ``[n_ins, widom_freq, n_subgroups]``, where ``n_ins`` is the number of Widom insertions to be performed after every ``widom_freq`` MC steps (or MC ``sweeps`` if ``units="sweeps"``) and ``n_subgroups`` is the number of Widom insertion subgroups per Widom insertion frame.
 | **Default:** ``None``
 | **Notes:** units of ``widom_freq`` cannot be time units, so they default to ``steps`` if ``units="minutes"``.
 
+
+``cell_list``
+~~~~~~~~~~~~~~~~~~~~
+| **Type:** ``bool`` or ``str``
+| **Description:** ``True`` if cell list overlap detection is to be used for Widom insertions.
+| **Default:** ``False``

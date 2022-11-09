@@ -1819,8 +1819,12 @@ class TestInpFunctions(BaseTest):
                     run_length=500,
                     temperature=300 * u.K,
                     widom_insertions=widom_insertions,
+                    cell_list=True,
+                    adaptive_rmin=100,
                 )
                 assert "# Widom_Insertion\nTrue\ncbmc 100 10 \n" in inp_data
+                assert "# Cell_List_Overlap\nTrue\n" in inp_data
+                assert "# Rcutoff_Low\n1.0\nadaptive 100\n" in inp_data
 
     def test_widom_twocomp(self, twocomp_system):
         (system, moveset) = twocomp_system

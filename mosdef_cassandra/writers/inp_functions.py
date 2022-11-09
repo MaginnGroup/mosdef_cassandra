@@ -215,7 +215,11 @@ def generate_input(
         rcut_min = kwargs["rcut_min"].to_value()
     else:
         rcut_min = 1.0
-    inp_data += get_minimum_cutoff(rcut_min)
+    if "adaptive_rmin" in kwargs:
+        adaptive_rmin = kwargs["adaptive_rmin"]
+    else:
+        adaptive_rmin = False
+    inp_data += get_minimum_cutoff(rcut_min, adaptive_rmin)
 
     # Pair Energy
     if "pair_energy" in kwargs:
@@ -475,6 +479,8 @@ def generate_input(
     # Widom_Insertion section
     if "widom_insertions" in kwargs:
         inp_data += get_widom_info(kwargs["widom_insertions"], nbr_species)
+    if "cell_list" in kwargs:
+        inp_data += get_cell_list_info(kwargs["cell_list"])
 
     # Properties section
     if "properties" in kwargs:
@@ -796,16 +802,21 @@ def get_seed_info(seed1=None, seed2=None):
     return inp_data
 
 
-def get_minimum_cutoff(cutoff):
+def get_minimum_cutoff(cutoff, adaptive_rmin):
     if not isinstance(cutoff, (float, int)):
         raise TypeError("rcut_min should be of type float")
+    if not isinstance(adaptive_rmin, (bool, float, int, np.int_)):
+        raise TypeError("adaptive_rmin should be of type bool, int, or float")
 
     inp_data = """
 # Rcutoff_Low
 {cutoff}""".format(
         cutoff=cutoff
     )
-
+    if not (adaptive_rmin is False):
+        inp_data += "\nadaptive "
+        if not (adaptive_rmin is True):
+            inp_data += str(adaptive_rmin)
     inp_data += """
 !------------------------------------------------------------------------------
 """
@@ -1922,11 +1933,22 @@ def get_widom_info(widom_insertions, nbr_species):
                     inp_data += "{} ".format(j_el)
             else:
                 inp_data += "none "
-        inp_data += "\n"
     inp_data += """
 !------------------------------------------------------------------------------
 """
     return inp_data
+
+
+def get_cell_list_info(cell_list):
+    """Add the cell list section of the input file."""
+
+    if not isinstance(cell_list, (bool, str)):
+        raise TypeError("cell_list must be of type bool or str")
+    inp_data = """
+# Cell_List_Overlap
+{}""".format(
+        cell_list
+    )
 
 
 def print_valid_kwargs():

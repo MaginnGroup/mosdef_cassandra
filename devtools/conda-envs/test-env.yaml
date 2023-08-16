@@ -1,0 +1,25 @@
+name: mc-test
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+    # Base depends
+  - python
+  - pip
+  - numpy
+  - matplotlib
+  - parmed
+  - networkx
+  - foyer >= 0.7.6
+  - pytest
+  - pytest-cov
+  - codecov
+  - mbuild >= 0.11.0
+  - openbabel
+  - pytest
+  - cassandra >= 1.2.2
+  - unyt >= 2.4
+  - pandas >= 1.0
+  - garnett
+  - pycifrw
+  - constrainmol

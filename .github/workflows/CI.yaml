@@ -45,6 +45,7 @@ jobs:
           python -m pip install . --no-deps
 
       - name: Run tests
+        shell: bash -l {0}
         run: |
           pytest -v --cov=mosdef_cassandra --cov-report=xml --color=yes mosdef_cassandra/tests/
 

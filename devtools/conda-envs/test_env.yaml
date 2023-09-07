@@ -15,7 +15,7 @@ dependencies:
   - codecov
   - mbuild >= 0.11.0
   - openbabel
-  - cassandra >= 1.2.2
+  - cassandra >= 1.2.5
   - unyt >= 2.4
   - pandas >= 1.0
   - garnett

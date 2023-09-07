@@ -21,3 +21,4 @@ dependencies:
   - garnett
   - pycifrw
   - constrainmol
+  - gmso >= 0.11.1

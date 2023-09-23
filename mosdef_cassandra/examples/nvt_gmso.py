@@ -1,5 +1,4 @@
 import mbuild
-import foyer
 import mosdef_cassandra as mc
 import unyt as u
 from gmso.core.forcefield import ForceField
@@ -16,7 +15,6 @@ def run_nvt(**custom_args):
    # Create an empty mbuild.Box
     box = mbuild.Box(lengths=[3.0, 3.0, 3.0])
     packed_system = mbuild.fill_box(compound=methane, n_compounds=10, box=box)
-
     methane_top = from_mbuild(packed_system)
     methane_top.identify_connections()
     ff = ffutils.FoyerFFs().load("oplsaa").to_gmso_ff()
@@ -24,14 +22,14 @@ def run_nvt(**custom_args):
     methane_top.save("methane.mcf", overwrite=True)
 
     # Create box and species list
-    box_list = [box]
+    box_list = [packed_system]
     species_list = [methane_top]
     print(type(methane_top))
     # Use Cassandra to insert some initial number of methane molecules
     mols_to_add = [[50]]
 
     # Define the System
-    system = mc.System(box_list, species_list, mols_to_add=mols_to_add)
+    system = mc.System(box_list, species_list, mols_in_boxes=[[10]])
     # Define the MoveSet
     moveset = mc.MoveSet("nvt", species_list)
 #
@@ -42,6 +40,8 @@ def run_nvt(**custom_args):
        run_type="equilibration",
        run_length=10000,
        temperature=300.0 * u.K,
+       seeds=[12345, 12345],
+       run_name="nvt_gmso",
        **custom_args,
     )
 #

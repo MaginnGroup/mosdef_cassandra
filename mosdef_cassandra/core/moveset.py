@@ -1,7 +1,7 @@
 from copy import deepcopy
 from unyt import dimensions
 from mosdef_cassandra.utils.units import validate_unit, validate_unit_list
-
+import gmso
 import parmed
 import warnings
 import unyt as u
@@ -42,9 +42,14 @@ class MoveSet(object):
                 "species_topologies should be a " "list of species"
             )
         for species in species_topologies:
-            if not isinstance(species, parmed.Structure):
+            if not (isinstance(species, parmed.Structure) or isinstance(species, gmso.Topology)):
                 raise TypeError("each species should be a " "parmed.Structure")
+                self.original_topology = parmed.Structure 
+                if isinstance(species, gmso.Topology):
+                    species = to_parmed(topology)
+                    self.original_topology = gmso.Topology
         # Extract self._n_species
+
         self._n_species = len(species_topologies)
 
         # Set the ensemble

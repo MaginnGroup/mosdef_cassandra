@@ -1,6 +1,7 @@
 from copy import deepcopy
 from constrainmol import ConstrainedMolecule
-
+from gmso.external.convert_parmed import to_parmed
+import gmso
 import numpy as np
 import mbuild
 import parmed
@@ -37,7 +38,7 @@ class System(object):
             one element per box. Each element should be a
             mbuild.Compound or mbuild.Box
         species_topologies : list
-            list of parmed.Structures, with one species per element
+            list of parmed.Structures or gmso.Topology, with one species per element
         mols_in_boxes: list, optional
             one element per box. Each element is a list of length
             n_species, specifying the number of each species that
@@ -59,6 +60,7 @@ class System(object):
         self._species_topologies = None
         self._mols_in_boxes = None
         self._mols_to_add = None
+        self.original_topology = None
 
         # @setter decorators used to protect boxes, species
         # topologies, and mols_in_boxes from modification.
@@ -111,6 +113,14 @@ class System(object):
             )
 
     @property
+    def original_topology(self):
+        return self._original_topology
+
+    @original_topology.setter
+    def original_topology(self, original_topology):
+        self._original_topology = original_topology
+
+    @property
     def species_topologies(self):
         return self._species_topologies
 
@@ -124,10 +134,15 @@ class System(object):
                     "See help(mosdef_Cassandra.System) for details."
                 )
             for topology in species_topologies:
-                if not isinstance(topology, parmed.Structure):
+                if not (isinstance(topology, parmed.Structure) or isinstance(topology, gmso.Topology)):
                     raise TypeError(
-                        "Each species should be a " "parmed.Structure"
+                        "Each species should be a " "parmed.Structure or gmso.Topology"
                     )
+
+                self.original_topology = parmed.Structure 
+                if isinstance(topology, gmso.Topology):
+                    topology = to_parmed(topology)
+                    self.original_topology = gmso.Topology
                 # If no bonds in topology don't try to apply constraints
                 # Store "None" in _constrained_species instead
                 if len(topology.bonds) > 0:

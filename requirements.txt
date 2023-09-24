@@ -5,3 +5,4 @@ mbuild >= 0.11.0
 cassandra >= 1.2.2
 unyt >= 2.4
 constrainmol
+gmso >= 0.11.1

@@ -35,6 +35,7 @@ def run_nvt(**custom_args):
         system=system,
         moveset=moveset,
         run_type="equilibration",
+        run_name="nvt_parmed",
         run_length=10000,
         temperature=300.0 * u.K,
         **custom_args,

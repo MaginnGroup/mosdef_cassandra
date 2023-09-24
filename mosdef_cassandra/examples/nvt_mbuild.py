@@ -51,4 +51,4 @@ def run_nvt_mbuild(fix_bonds, **custom_args):
 
 
 if __name__ == "__main__":
-    run_nvt_spce()
+    run_nvt_mbuild(fix_bonds=True)

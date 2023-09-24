@@ -11,29 +11,26 @@ def run_nvt(**custom_args):
 
     # Use mBuild to create a methane molecule
     methane = mbuild.load("C", smiles=True)
-
-   # Create an empty mbuild.Box
-    box = mbuild.Box(lengths=[3.0, 3.0, 3.0])
-    packed_system = mbuild.fill_box(compound=methane, n_compounds=10, box=box)
-    methane_top = from_mbuild(packed_system)
+    methane_top = from_mbuild(methane)
     methane_top.identify_connections()
     ff = ffutils.FoyerFFs().load("oplsaa").to_gmso_ff()
     methane_top = apply(methane_top, ff, remove_untyped=True)
     methane_top.save("methane.mcf", overwrite=True)
 
+    # Create an empty mbuild.Box
+    box = mbuild.Box(lengths=[3.0, 3.0, 3.0])
+    packed_system = mbuild.fill_box(compound=methane, n_compounds=10, box=box)
+
     # Create box and species list
     box_list = [packed_system]
     species_list = [methane_top]
-    print(type(methane_top))
-    # Use Cassandra to insert some initial number of methane molecules
-    mols_to_add = [[50]]
 
     # Define the System
     system = mc.System(box_list, species_list, mols_in_boxes=[[10]])
     # Define the MoveSet
     moveset = mc.MoveSet("nvt", species_list)
-#
-#    # Run a simulation at 300 K for 10000 MC moves
+
+    # Run a simulation at 300 K for 10000 MC moves
     mc.run(
        system=system,
        moveset=moveset,

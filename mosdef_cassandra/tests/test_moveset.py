@@ -21,7 +21,8 @@ class TestMoveSet(BaseTest):
 
     def test_invalid_species_type(self):
         with pytest.raises(
-            TypeError, match=r"each species should be " "a parmed.Structure"
+            TypeError, match=r"Each species should be a " "parmed.Structure or gmso.Topology"
+                "and must be of the same type"
         ):
             moveset = mc.MoveSet("nvt", [1])
 

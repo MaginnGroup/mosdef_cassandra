@@ -1,7 +1,8 @@
 from copy import deepcopy
 from unyt import dimensions
 from mosdef_cassandra.utils.units import validate_unit, validate_unit_list
-
+from gmso.external.convert_parmed import to_parmed
+import gmso
 import parmed
 import warnings
 import unyt as u
@@ -41,10 +42,17 @@ class MoveSet(object):
             raise TypeError(
                 "species_topologies should be a " "list of species"
             )
-        for species in species_topologies:
-            if not isinstance(species, parmed.Structure):
-                raise TypeError("each species should be a " "parmed.Structure")
+
+        if not (all(isinstance(top, gmso.Topology) for top in species_topologies) or all(
+            isinstance(top, parmed.Structure) for top in species_topologies)):
+
+            raise TypeError(
+                "Each species should be a " "parmed.Structure or gmso.Topology"
+                "and must be of the same type"
+            )
+
         # Extract self._n_species
+
         self._n_species = len(species_topologies)
 
         # Set the ensemble
@@ -147,6 +155,10 @@ class MoveSet(object):
 
         # Here we handle species-wise exceptions
         for ispec, species in enumerate(species_topologies):
+
+            if isinstance(species, gmso.Topology):
+                species = to_parmed(species)
+
             if len(species.atoms) == 1:
                 for ibox in range(self._n_boxes):
                     self.max_rotate[ibox][ispec] = 0.0 * u.degree

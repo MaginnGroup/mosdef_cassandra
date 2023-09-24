@@ -1,5 +1,7 @@
 import parmed
 import mbuild
+import gmso
+from gmso.formats.mcf import write_mcf as gmso_write_mcf
 from mbuild.formats.cassandramcf import write_mcf
 from pathlib import Path
 from warnings import warn
@@ -51,12 +53,16 @@ def write_mcfs(system, angle_style="harmonic"):
             dihedral_style = "none"
 
         mcf_name = "species{}.mcf".format(species_count + 1)
-        write_mcf(
-            species,
-            mcf_name,
-            angle_style=angle_style[species_count],
-            dihedral_style=dihedral_style,
-        )
+
+        if all(isinstance(top, parmed.Structure) for top in system.original_tops):
+            write_mcf(
+                species,
+                mcf_name,
+                angle_style=angle_style[species_count],
+                dihedral_style=dihedral_style,
+            )
+        elif all(isinstance(top, gmso.Topology) for top in system.original_tops):
+            gmso_write_mcf(system.original_tops[species_count], mcf_name)
 
 
 def write_configs(system):

@@ -1071,7 +1071,7 @@ def get_chemical_potential_info(chem_pots):
     """
 
     for chem_pot in chem_pots:
-        if chem_pot != "none":
+        if str(chem_pot) != "none":
             if not isinstance(chem_pot, u.unyt_array):
                 raise TypeError(
                     'Chemical potentials must "none" or '
@@ -1083,7 +1083,7 @@ def get_chemical_potential_info(chem_pots):
 """
 
     for chem_pot in chem_pots:
-        if chem_pot == "none":
+        if str(chem_pot) == "none":
             inp_data += """{chem_pot} """.format(chem_pot=chem_pot)
         else:
             inp_data += """{chem_pot} """.format(chem_pot=chem_pot.to_value())

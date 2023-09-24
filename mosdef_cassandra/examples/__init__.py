@@ -1,4 +1,5 @@
-from .nvt import run_nvt
+from .nvt_parmed import run_nvt
+from .nvt_gmso import run_nvt
 from .npt import run_npt
 from .gcmc import run_gcmc
 from .gemc import run_gemc

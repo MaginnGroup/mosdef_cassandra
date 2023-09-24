@@ -57,7 +57,7 @@ def validate_unit_list(
         list_ = new_list
     try:
         unyt_array = u.unyt_array(list_)
-    except AttributeError:
+    except ValueError:
         raise TypeError(err_msg)
     if unyt_array.shape != valid_shape:
         raise TypeError(err_msg)

@@ -215,7 +215,11 @@ def generate_input(
         rcut_min = kwargs["rcut_min"].to_value()
     else:
         rcut_min = 1.0
-    inp_data += get_minimum_cutoff(rcut_min)
+    if "adaptive_rmin" in kwargs:
+        adaptive_rmin = kwargs["adaptive_rmin"]
+    else:
+        adaptive_rmin = False
+    inp_data += get_minimum_cutoff(rcut_min, adaptive_rmin)
 
     # Pair Energy
     if "pair_energy" in kwargs:
@@ -471,6 +475,12 @@ def generate_input(
         steps_per_sweep,
         block_avg_freq,
     )
+
+    # Widom_Insertion section
+    if "widom_insertions" in kwargs:
+        inp_data += get_widom_info(kwargs["widom_insertions"], nbr_species)
+    if "cell_list" in kwargs:
+        inp_data += get_cell_list_info(kwargs["cell_list"])
 
     # Properties section
     if "properties" in kwargs:
@@ -792,16 +802,21 @@ def get_seed_info(seed1=None, seed2=None):
     return inp_data
 
 
-def get_minimum_cutoff(cutoff):
+def get_minimum_cutoff(cutoff, adaptive_rmin):
     if not isinstance(cutoff, (float, int)):
         raise TypeError("rcut_min should be of type float")
+    if not isinstance(adaptive_rmin, (bool, float, int, np.int_)):
+        raise TypeError("adaptive_rmin should be of type bool, int, or float")
 
     inp_data = """
 # Rcutoff_Low
 {cutoff}""".format(
         cutoff=cutoff
     )
-
+    if not (adaptive_rmin is False):
+        inp_data += "\nadaptive "
+        if not (adaptive_rmin is True):
+            inp_data += str(adaptive_rmin)
     inp_data += """
 !------------------------------------------------------------------------------
 """
@@ -1854,6 +1869,90 @@ rcut_cbmc""".format(
     return inp_data
 
 
+def get_widom_info(widom_insertions, nbr_species):
+    """Get the Widom_Insertion section of the input file.
+    Parameters
+    ----------
+    widom_insertions : list of dictionaries
+         One dictionary per box.  The dictionary keys are the
+         species numbers of the Widom test particle species, and
+         each dictionary entry is a list of two integers:
+         [n_ins, widom_freq], where n_ins is the number of Widom insertions
+         to be performed after every widom_freq MC steps (or MC sweeps if the
+         simulation length units are sweeps).
+    nbr_species : integer
+         number of species in the simulation
+    """
+    param_names = (
+        "Number of Widom insertions per frame",
+        "Frequency of Widom insertions",
+        "Number of Widom insertion subgroups",
+    )
+    inp_data = """
+# Widom_Insertion
+"""
+    if not widom_insertions:
+        inp_data += "False"
+        inp_data += """
+!------------------------------------------------------------------------------
+"""
+        return inp_data
+    inp_data += "True"
+    for i in range(nbr_species):
+        inp_data += "\n"
+        for boxdict in widom_insertions:
+            if (i + 1) in boxdict:
+                parlist = boxdict[i + 1]
+                inp_data += "cbmc "
+                if len(parlist) > 3 or len(parlist) < 2:
+                    raise ValueError(
+                        f"Widom insertions parameter list for species {i+1} must have 2 or 3 elements"
+                    )
+                for j, j_el in enumerate(parlist):
+                    # Verify that parameters are integers.  Should this allow numpy.int64?
+                    if not (
+                        isinstance(j_el, int) or isinstance(j_el, np.int64)
+                    ):
+                        raise TypeError(param_names[j] + " must be an integer")
+                    if j_el < 0:
+                        raise ValueError(
+                            param_names[j] + " must not be negative"
+                        )
+                    if j == 1 and j_el < 1:
+                        raise ValueError(
+                            "Freqency of Widom insertions must be positive"
+                        )
+                    if j == 2 and not j_el:
+                        continue
+                    if j == 2:
+                        if j_el > parlist[0]:
+                            raise ValueError(
+                                param_names[j]
+                                + " must not exceed "
+                                + param_names[0]
+                            )
+                    inp_data += "{} ".format(j_el)
+            else:
+                inp_data += "none "
+    inp_data += """
+!------------------------------------------------------------------------------
+"""
+    return inp_data
+
+
+def get_cell_list_info(cell_list):
+    """Add the cell list section of the input file."""
+
+    if not isinstance(cell_list, (bool, str)):
+        raise TypeError("cell_list must be of type bool or str")
+    inp_data = """
+# Cell_List_Overlap
+{}""".format(
+        cell_list
+    )
+    return inp_data
+
+
 def print_valid_kwargs():
     """Print the valid keyword arguments with a brief description"""
 
@@ -1900,6 +1999,9 @@ def _get_possible_kwargs(desc=False):
             '"pressure", "volume", "nmols", "density", "mass_density"'
         ),
         "angle_style": "list of str, angle style for each species",
+        "widom_insertions": "list of dicts, one dict per box, key=species number of test particle, value=list of two integer Widom insertion parameters",
+        "cell_list": "boolean, true if using cell list overlap detection",
+        "adaptive_rmin": "float, maximum desired intermolecular nonbonded single atom pair energy for Widom insertions",
     }
     if desc:
         return valid_kwargs

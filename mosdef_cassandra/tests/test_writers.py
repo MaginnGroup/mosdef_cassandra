@@ -1806,3 +1806,108 @@ class TestInpFunctions(BaseTest):
                 assert "run 1000" in contents
                 assert "# Start_Type\ncheckpoint gemc.out.chk\n\n!" in contents
                 assert "# Run_Name\ngemc.rst.001.out" in contents
+
+    def test_widom_onecomp(self, onecomp_system):
+        (system, moveset) = onecomp_system
+        widom_insertions = [{1: [100, 10]}]
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                inp_data = generate_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                    widom_insertions=widom_insertions,
+                    cell_list=True,
+                    adaptive_rmin=100,
+                )
+                assert "# Widom_Insertion\nTrue\ncbmc 100 10 \n" in inp_data
+                assert "# Cell_List_Overlap\nTrue\n" in inp_data
+                assert "# Rcutoff_Low\n1.0\nadaptive 100\n" in inp_data
+
+    def test_widom_twocomp(self, twocomp_system):
+        (system, moveset) = twocomp_system
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                inp_data = generate_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                    widom_insertions=[{1: [100, 10], 2: [300, 5]}],
+                )
+                assert (
+                    "# Widom_Insertion\nTrue\ncbmc 100 10 \ncbmc 300 5 \n"
+                    in inp_data
+                )
+                inp_data = generate_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                    widom_insertions=[{2: [300, 5], 1: [100, 10]}],
+                )
+                assert (
+                    "# Widom_Insertion\nTrue\ncbmc 100 10 \ncbmc 300 5 \n"
+                    in inp_data
+                )
+                inp_data = generate_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                    widom_insertions=[{2: [300, 5]}],
+                )
+                assert (
+                    "# Widom_Insertion\nTrue\nnone \ncbmc 300 5 \n" in inp_data
+                )
+                inp_data = generate_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                    widom_insertions=[{1: [10000000000, 100]}],
+                )
+                assert (
+                    "# Widom_Insertion\nTrue\ncbmc 10000000000 100 \nnone \n"
+                    in inp_data
+                )
+
+    def test_widom_twocomptwobox(self, twocomptwobox_system):
+        (system, moveset) = twocomptwobox_system
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                inp_data = generate_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                    pressure=1.0 * u.bar,
+                    widom_insertions=[
+                        {1: [100, 10], 2: [300, 5]},
+                        {2: [35, 25], 1: [50, 15]},
+                    ],
+                )
+                assert (
+                    "# Widom_Insertion\nTrue\ncbmc 100 10 cbmc 50 15 \ncbmc 300 5 cbmc 35 25 "
+                    in inp_data
+                )
+                inp_data = generate_input(
+                    system=system,
+                    moveset=moveset,
+                    run_type="equilibration",
+                    run_length=500,
+                    temperature=300 * u.K,
+                    pressure=1.0 * u.bar,
+                    widom_insertions=[{2: [300, 5]}, {1: [50, 15]}],
+                )
+                assert (
+                    "# Widom_Insertion\nTrue\nnone cbmc 50 15 \ncbmc 300 5 none "
+                    in inp_data
+                )

@@ -143,6 +143,7 @@ def _generate_restart_inp(restart_from, run_name, run_type, run_length):
         if "# Start_Type" in line:
             inp_contents[idx + 1] = "checkpoint " + restart_from + ".out.chk"
             i = idx + 2
+<<<<<<< HEAD
             while i < len(inp_contents) and not inp_contents[
                 i
             ].strip().startswith("#"):
@@ -150,6 +151,11 @@ def _generate_restart_inp(restart_from, run_name, run_type, run_length):
                     inp_contents[i] = (
                         ""  # Replace non-comment lines with an empty string
                     )
+=======
+            while i < len(inp_contents) and not inp_contents[i].strip().startswith("#"):
+                if not inp_contents[i].strip().startswith("!"):
+                    inp_contents[i] = ""  # Replace non-comment lines with an empty string
+>>>>>>> Fix chain of restart writes of input files with checkpoint start type
                 i += 1
         if run_type is not None:
             if "# Run_Type" in line:

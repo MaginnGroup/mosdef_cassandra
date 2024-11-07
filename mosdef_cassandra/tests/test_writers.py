@@ -14,6 +14,33 @@ from mosdef_cassandra.utils.tempdir import *
 
 
 class TestInpFunctions(BaseTest):
+
+    @staticmethod
+    def check_start_type_header(inp_contents):
+        """Helper function to find the # Start_Type header index."""
+        for idx, line in enumerate(inp_contents):
+            if "# Start_Type" in line:
+                return idx
+        raise AssertionError("Missing '# Start_Type' header")
+    
+    @staticmethod
+    def check_checkpoint_line(inp_contents, start_idx):
+        """Helper function to check the checkpoint line format."""
+        checkpoint_line = inp_contents[start_idx + 1].strip()
+        parts = checkpoint_line.split()
+        assert len(parts) == 2, "The line following '# Start_Type' should have exactly two entries"
+        assert parts[0] == "checkpoint", "The first entry should be 'checkpoint'"
+
+    @staticmethod
+    def check_only_comments_or_whitespace(inp_contents, start_idx):
+        """Helper function to check for only comments or whitespace until the next header."""
+        for line in inp_contents[start_idx + 2:]:
+            line = line.strip()
+            if line.startswith("#"):
+                break
+            assert line == "" or line.startswith("!"), \
+                "Only spaces or comments are allowed between the checkpoint line and the next header"
+
     @pytest.fixture
     def onecomp_system(self, methane_oplsaa, box):
         system = mc.System([box], [methane_oplsaa], mols_to_add=[[10]])
@@ -1806,3 +1833,71 @@ class TestInpFunctions(BaseTest):
                 assert "run 1000" in contents
                 assert "# Start_Type\ncheckpoint gemc.out.chk\n\n!" in contents
                 assert "# Run_Name\ngemc.rst.001.out" in contents
+
+    @pytest.mark.parametrize(
+        "system_fixture, base_name",
+        [
+            ("onecomp_system", "nvt"),
+            ("twobox_system", "gemc"),
+        ],
+    )
+    def test_rst_multiple_rst(self, request, system_fixture, base_name):
+        """
+        Test the creation of a chain of input files, each of which restarts from
+        the previous input file in the chain. This is useful within the context
+        of an automatic equilibration detection loop, in which a simulation needs to
+        be restarted if its not equilibrated.
+
+        This test evaluates systems with one or two boxes. Two boxes might be 
+        problematic because some start types require two lines in the # Start_Type
+        section.
+        
+        This test ensures that the input files generated at each restart step:
+        1. Contain a valid # Start_Type header.
+        2. Follow the correct checkpoint line format (two entries, starting with "checkpoint").
+        3. Include only comments or whitespace between the checkpoint line and the next # header.
+
+        Parameters:
+        - system_fixture: The fixture name of the system setup, allowing tests with 
+                          both one-component and two-box systems.
+        - base_name: The base name used for the generated files (e.g., "nvt" or "gemc").
+        """
+
+        # Access the system fixture based on parameter
+        (system, moveset) = request.getfixturevalue(system_fixture)
+        repeats = 3
+        with temporary_directory() as tmp_dir:
+            with temporary_cd(tmp_dir):
+                for count in range(repeats):
+                    if count == 0:
+                        # Initial write of the input file
+                        run_name = f"{base_name}.{count:03d}"
+                        write_input(
+                            run_name=run_name,
+                            system=system,
+                            moveset=moveset,
+                            run_type="equilibration",
+                            run_length=2,
+                            temperature=300 * u.K,
+                        )
+                    else:
+                        restart_from = f"{base_name}.{count - 1:03d}"
+                        run_name = f"{base_name}.{count:03d}"
+                        write_restart_input(
+                            restart_from=restart_from,
+                            run_name=run_name,
+                            run_type="equilibration",
+                            run_length=1000,
+                        )
+
+                        with open(f"{run_name}.inp", mode="r") as f:
+                            inp_contents = f.readlines()
+
+                        # Step 1: Check we have a # Start_Type header
+                        start_idx = self.check_start_type_header(inp_contents)
+
+                        # Step 2: Check the line after "# Start_Type" has two entries, with the first as "checkpoint"
+                        self.check_checkpoint_line(inp_contents, start_idx)
+
+                        # Step 3: Ensure only comments or whitespace are present until the next '#' header
+                        self.check_only_comments_or_whitespace(inp_contents, start_idx)

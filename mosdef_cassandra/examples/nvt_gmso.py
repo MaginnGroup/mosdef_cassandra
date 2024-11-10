@@ -7,7 +7,7 @@ import forcefield_utilities as ffutils
 from gmso.parameterization import apply
 
 
-def run_nvt(**custom_args):
+def run_nvt_gmso(**custom_args):
 
     # Use mBuild to create a methane molecule
     methane = mbuild.load("C", smiles=True)

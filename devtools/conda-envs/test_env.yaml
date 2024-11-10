@@ -9,3 +9,6 @@ dependencies:
   - pytest
   - pandas
   - unyt
+  - cassandra
+  - constrainmol
+  - parmed

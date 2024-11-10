@@ -20,18 +20,18 @@ jobs:
 - job: BleedingMoSDeF
   strategy:
     matrix:
-      Python39Ubuntu:
-        imageName: 'ubuntu-20.04'
-        python.version: 3.9
-      Python38Ubuntu:
-        imageName: 'ubuntu-20.04'
-        python.version: 3.8
-      Python37macOS:
-        imageName: 'macOS-10.14'
-        python.version: 3.7
-      Python39macOS:
-        imageName: 'macOS-latest'
-        python.version: 3.9
+      Python310Ubuntu:
+        imageName: 'ubuntu-22.04'
+        python.version: 3.10
+      Python311Ubuntu:
+        imageName: 'ubuntu-22.04'
+        python.version: 3.11
+      Python10macOS:
+        imageName: 'macOS-14'
+        python.version: 3.10
+      Python311macOS:
+        imageName: 'macOS-14'
+        python.version: 3.11
 
   pool:
     vmImage: $(imageName)
@@ -59,9 +59,9 @@ jobs:
 
     - bash: |
         source activate bleeding-test-environment
-        wget https://github.com/MaginnGroup/Cassandra/archive/v1.2.5.tar.gz
-        tar -xzvf v1.2.5.tar.gz
-        cd Cassandra-1.2.5/Src
+        wget https://github.com/MaginnGroup/Cassandra/archive/v1.3.1.tar.gz
+        tar -xzvf v1.3.1.tar.gz
+        cd Cassandra-1.3.1/Src
         make -f Makefile.gfortran
         mkdir ../bin
         cp cassandra_gfortran.exe ../bin/.

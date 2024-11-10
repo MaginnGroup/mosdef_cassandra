@@ -9,6 +9,8 @@ dependencies:
   - pytest
   - pandas
   - unyt
-  - cassandra
-  - constrainmol
-  - parmed
+  - foyer
+  - mbuild
+  - gmso >= 0.11.1
+  - pycifrw
+  - garnett

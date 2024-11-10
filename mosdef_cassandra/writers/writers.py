@@ -1,3 +1,4 @@
+import os
 import parmed
 import mbuild
 import gmso
@@ -10,7 +11,7 @@ from mosdef_cassandra import System, MoveSet
 from mosdef_cassandra.writers.inp_functions import generate_input
 
 
-def write_mcfs(system, angle_style="harmonic"):
+def write_mcfs(system, run_dir=None, angle_style="harmonic"):
     """Write a MCF file for a given mosdef_cassandra.System
     Parameters
     ----------
@@ -19,6 +20,9 @@ def write_mcfs(system, angle_style="harmonic"):
     angle_style : str, default="harmonic"
         Angle style for the system, valid arguments: "harmonic", "fixed"
     """
+    if run_dir is None:
+        run_dir = os.getcwd()
+
     if type(angle_style) == str:
         angle_style = [angle_style] * len(system.species_topologies)
 
@@ -52,20 +56,23 @@ def write_mcfs(system, angle_style="harmonic"):
         else:
             dihedral_style = "none"
 
-        mcf_name = "species{}.mcf".format(species_count + 1)
+        mcf_path = os.path.join(run_dir, "species{}.mcf".format(species_count + 1))
 
         if all(isinstance(top, parmed.Structure) for top in system.original_tops):
             write_mcf(
                 species,
-                mcf_name,
+                mcf_path,
                 angle_style=angle_style[species_count],
                 dihedral_style=dihedral_style,
             )
         elif all(isinstance(top, gmso.Topology) for top in system.original_tops):
-            gmso_write_mcf(system.original_tops[species_count], mcf_name)
+            gmso_write_mcf(system.original_tops[species_count], mcf_path)
 
 
-def write_configs(system):
+def write_configs(system, run_dir=None):
+
+    if run_dir is None:
+        run_dir = os.getcwd()
 
     if not isinstance(system, System):
         raise TypeError('"system" must be of type ' "mosdef_cassandra.System")
@@ -83,11 +90,11 @@ def write_configs(system):
         # Only save if box has particles inside
         # This only occurs if box is an mbuild.Compound
         if isinstance(box, mbuild.Compound):
-            xyz_name = "box{}.in.xyz".format(box_count + 1)
-            box.save(xyz_name, overwrite=True)
+            xyz_path = os.path.join(run_dir, "box{}.in.xyz".format(box_count + 1))
+            box.save(xyz_path, overwrite=True)
 
 
-def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
+def write_input(system, moveset, run_type, run_length, temperature, run_dir, **kwargs):
 
     if "run_name" not in kwargs:
         kwargs["run_name"] = moveset.ensemble
@@ -103,32 +110,32 @@ def write_input(system, moveset, run_type, run_length, temperature, **kwargs):
 
     inp_name = kwargs["run_name"] + ".inp"
 
-    with open(inp_name, "w") as inp:
+    with open(os.path.join(run_dir, inp_name), "w") as inp:
         inp.write(inp_data)
 
     return inp_name
 
 
-def write_restart_input(restart_from, run_name, run_type, run_length):
+def write_restart_input(restart_from, run_name, run_type, run_length, run_dir):
     """Write an input file for a restart run"""
     input_contents = _generate_restart_inp(
-        restart_from, run_name, run_type, run_length
+        restart_from, run_name, run_type, run_length, run_dir
     )
-    with open(run_name + ".inp", "w") as f:
+    with open(os.path.join(run_dir, run_name + ".inp"), "w") as f:
         f.write(input_contents)
 
 
-def _generate_restart_inp(restart_from, run_name, run_type, run_length):
+def _generate_restart_inp(restart_from, run_name, run_type, run_length, run_dir):
     """Create the input file for a restart"""
     # Extract contents of old input file
-    old_inpfile_name = restart_from + ".inp"
-    if not Path(old_inpfile_name).is_file():
+    old_inpfile_path = os.path.join(run_dir, restart_from + ".inp")
+    if not Path(old_inpfile_path).is_file():
         raise FileNotFoundError(
-            f"Input file {old_inpfile_name} does not exist."
+            f"Input file {old_inpfile_path} does not exist."
         )
 
     inp_contents = []
-    with open(old_inpfile_name) as f:
+    with open(old_inpfile_path) as f:
         for line in f:
             inp_contents.append(line.strip())
 

@@ -15,7 +15,7 @@ from mosdef_cassandra.utils.detect import detect_cassandra_binaries
 from mosdef_cassandra.utils.exceptions import CassandraRuntimeError
 
 
-def run(system, moveset, run_type, run_length, temperature, **kwargs):
+def run(system, moveset, run_type, run_length, temperature, run_dir=None, **kwargs):
     """Run the Monte Carlo simulation with Cassandra
 
     The following steps are performed: write the molecular connectivity
@@ -36,12 +36,17 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
         an acceptance ratio of 0.5
     run_length : int
         length of the MC simulation
+    run_dir : str
+        directory where the simulation will be run
     temperature : float
         temperature at which to perform the MC simulation
     **kwargs : keyword arguments
         any other valid keyword arguments, see
         ``mosdef_cassandra.print_valid_kwargs()`` for details
     """
+
+    if run_dir is None:
+        run_dir = os.getcwd()
 
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
@@ -53,12 +58,12 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
 
     # Write MCF files
     if "angle_style" in kwargs:
-        write_mcfs(system, angle_style=kwargs["angle_style"])
+        write_mcfs(system, angle_style=kwargs["angle_style"], run_dir=run_dir)
     else:
-        write_mcfs(system)
+        write_mcfs(system, run_dir=run_dir)
 
     # Write starting configs (if needed)
-    write_configs(system)
+    write_configs(system, run_dir=run_dir)
 
     # Write input file
     inp_file = write_input(
@@ -67,18 +72,19 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
         run_type=run_type,
         run_length=run_length,
         temperature=temperature,
+        run_dir=run_dir,
         **kwargs,
     )
 
     # Write pdb files (this step will be removed when frag generation
     # is incorporated into this workflow )
     for isp, top in enumerate(system.species_topologies):
-        filename = "species{}.pdb".format(isp + 1)
+        filename = os.path.join(run_dir, "species{}.pdb".format(isp + 1))
         write_pdb(top, filename)
 
-    log_file = "mosdef_cassandra_{}.log".format(
+    log_file = os.path.join(run_dir, "mosdef_cassandra_{}.log".format(
         datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
-    )
+    ))
 
     # Run fragment generation
     print("Generating fragment libraries...")
@@ -89,15 +95,16 @@ def run(system, moveset, run_type, run_length, temperature, **kwargs):
         inp_file,
         log_file,
         len(system.species_topologies),
+        run_dir,
     )
 
     # Run simulation
     print("Running Cassandra...")
-    _run_cassandra(cassandra, inp_file, log_file)
+    _run_cassandra(cassandra, inp_file, log_file, run_dir)
 
 
 def restart(
-    total_run_length=None, restart_from=None, run_name=None, run_type=None
+    total_run_length=None, restart_from=None, run_name=None, run_type=None, run_dir=None,
 ):
     """Restart a Monte Carlo simulation from a checkpoint file with Cassandra
 
@@ -134,7 +141,12 @@ def restart(
         the maximum translation, rotation, and volume move sizes to achieve
         an acceptance ratio of 0.5. If None, use the same choice as the
         previous run.
+    run_dir : str, directory where the simulation was run
     """
+
+    if run_dir is None:
+        run_dir = os.getcwd()
+
     valid_run_types = ["equilibration", "equil", "production", "prod"]
     # Check that the user has the Cassandra binary on their PATH
     # Also need library_setup.py on the PATH and python2
@@ -159,24 +171,24 @@ def restart(
             run_type = "production"
 
     restart_from, run_name = get_restart_name(restart_from, run_name)
-    checkpoint_name = restart_from + ".out.chk"
+    checkpoint_name = os.path.join(run_dir, restart_from + ".out.chk")
     if not os.path.isfile(checkpoint_name):
         raise FileNotFoundError(
             f"Checkpoint file: {checkpoint_name} does not exist."
         )
 
-    write_restart_input(restart_from, run_name, run_type, total_run_length)
+    write_restart_input(restart_from, run_name, run_type, total_run_length, run_dir)
 
-    log_file = "mosdef_cassandra_{}.log".format(
+    log_file = os.path.join(run_dir, "mosdef_cassandra_{}.log".format(
         datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S.%f")
-    )
+    ))
 
     print("Running Cassandra...")
-    _run_cassandra(cassandra, run_name + ".inp", log_file)
+    _run_cassandra(cassandra, run_name + ".inp", log_file, run_dir)
 
 
 def _run_fraglib_setup(
-    py, fraglib_setup, cassandra, inp_file, log_file, nspecies
+    py, fraglib_setup, cassandra, inp_file, log_file, nspecies, run_dir
 ):
     """Builds the fragment libraries required to run Cassandra.
 
@@ -204,6 +216,7 @@ def _run_fraglib_setup(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         universal_newlines=True,
+        cwd=run_dir,
     )
     out, err = p.communicate()
 
@@ -230,7 +243,7 @@ def _run_fraglib_setup(
         )
 
 
-def _run_cassandra(cassandra, inp_file, log_file):
+def _run_cassandra(cassandra, inp_file, log_file, run_dir):
     """Calls Cassandra"""
     cassandra_cmd = "{cassandra} {inp_file}".format(
         cassandra=cassandra, inp_file=inp_file
@@ -241,6 +254,7 @@ def _run_cassandra(cassandra, inp_file, log_file):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         universal_newlines=True,
+        cwd=run_dir,
     )
     out, err = p.communicate()
 

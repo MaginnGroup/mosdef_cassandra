@@ -36,7 +36,6 @@ jobs:
 
       - uses: mamba-org/setup-micromamba@v1
         with:
-          micromamba-version: 'latest'
           environment-file: devtools/conda-envs/test_env.yaml
           condarc: |
             channels:

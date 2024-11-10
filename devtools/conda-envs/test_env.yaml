@@ -5,20 +5,3 @@ channels:
 dependencies:
     # Base depends
   - python
-  - pip
-  - numpy
-  - parmed
-  - networkx
-  - foyer >= 0.7.6
-  - pytest
-  - pytest-cov
-  - codecov
-  - mbuild >= 0.11.0
-  - openbabel
-  - cassandra >= 1.2.5
-  - unyt >= 2.4
-  - pandas >= 1.0
-  - garnett
-  - pycifrw
-  - constrainmol
-  - gmso >= 0.11.1

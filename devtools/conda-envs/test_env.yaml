@@ -14,3 +14,4 @@ dependencies:
   - gmso >= 0.11.1
   - pycifrw
   - garnett
+  - cassandra

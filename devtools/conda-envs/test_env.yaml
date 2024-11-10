@@ -5,3 +5,15 @@ channels:
 dependencies:
     # Base depends
   - python
+  - parmed
+  - networkx
+  - foyer
+  - mbuild
+  - pytest
+  - cassandra
+  - unyt
+  - pandas
+  - garnett
+  - pycifrw
+  - constrainmol
+  - gmso >= 0.11.1

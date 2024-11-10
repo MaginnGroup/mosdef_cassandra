@@ -37,6 +37,9 @@ jobs:
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: devtools/conda-envs/test_env.yaml
+          condarc: |
+            channels:
+              - conda-forge
           create-args: >-
             python=${{ matrix.python-version }}
 

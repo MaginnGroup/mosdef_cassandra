@@ -54,14 +54,18 @@ def write_mcfs(system, angle_style="harmonic"):
 
         mcf_name = "species{}.mcf".format(species_count + 1)
 
-        if all(isinstance(top, parmed.Structure) for top in system.original_tops):
+        if all(
+            isinstance(top, parmed.Structure) for top in system.original_tops
+        ):
             write_mcf(
                 species,
                 mcf_name,
                 angle_style=angle_style[species_count],
                 dihedral_style=dihedral_style,
             )
-        elif all(isinstance(top, gmso.Topology) for top in system.original_tops):
+        elif all(
+            isinstance(top, gmso.Topology) for top in system.original_tops
+        ):
             gmso_write_mcf(system.original_tops[species_count], mcf_name)
 
 
@@ -139,9 +143,13 @@ def _generate_restart_inp(restart_from, run_name, run_type, run_length):
         if "# Start_Type" in line:
             inp_contents[idx + 1] = "checkpoint " + restart_from + ".out.chk"
             i = idx + 2
-            while i < len(inp_contents) and not inp_contents[i].strip().startswith("#"):
+            while i < len(inp_contents) and not inp_contents[
+                i
+            ].strip().startswith("#"):
                 if not inp_contents[i].strip().startswith("!"):
-                    inp_contents[i] = ""  # Replace non-comment lines with an empty string
+                    inp_contents[i] = (
+                        ""  # Replace non-comment lines with an empty string
+                    )
                 i += 1
         if run_type is not None:
             if "# Run_Type" in line:

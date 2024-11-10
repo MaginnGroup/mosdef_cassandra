@@ -25,7 +25,7 @@ class ThermoProps:
         # Read headers
         prp_headers = []
         with open(self.filename) as f:
-            for (idx, line) in enumerate(f):
+            for idx, line in enumerate(f):
                 if idx == 1 or idx == 2:
                     prp_headers.append(line)
                 if idx > 2:

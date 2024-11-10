@@ -21,8 +21,10 @@ class TestMoveSet(BaseTest):
 
     def test_invalid_species_type(self):
         with pytest.raises(
-            TypeError, match=r"Each species should be a " "parmed.Structure or gmso.Topology"
-                "and must be of the same type"
+            TypeError,
+            match=r"Each species should be a "
+            "parmed.Structure or gmso.Topology"
+            "and must be of the same type",
         ):
             moveset = mc.MoveSet("nvt", [1])
 
@@ -605,7 +607,7 @@ class TestMoveSet(BaseTest):
                 [methane_oplsaa], [["slitpore", None]], [[1, None]]
             )
 
-    @pytest.mark.skip(reason="The purpose of this test is not clear.")    
+    @pytest.mark.skip(reason="The purpose of this test is not clear.")
     def test_add_multiple_restricted_insertions(self, methane_oplsaa):
         moveset = mc.MoveSet("gcmc", [methane_oplsaa])
         moveset.add_restricted_insertions(

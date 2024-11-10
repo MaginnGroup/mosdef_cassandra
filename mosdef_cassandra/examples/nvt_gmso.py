@@ -32,15 +32,17 @@ def run_nvt_gmso(**custom_args):
 
     # Run a simulation at 300 K for 10000 MC moves
     mc.run(
-       system=system,
-       moveset=moveset,
-       run_type="equilibration",
-       run_length=10000,
-       temperature=300.0 * u.K,
-       seeds=[12345, 12345],
-       run_name="nvt_gmso",
-       **custom_args,
+        system=system,
+        moveset=moveset,
+        run_type="equilibration",
+        run_length=10000,
+        temperature=300.0 * u.K,
+        seeds=[12345, 12345],
+        run_name="nvt_gmso",
+        **custom_args,
     )
+
+
 #
 
 if __name__ == "__main__":

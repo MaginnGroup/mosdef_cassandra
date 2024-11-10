@@ -7,6 +7,7 @@ from mosdef_cassandra.utils.tempdir import *
 from mosdef_cassandra.utils.exceptions import *
 from mosdef_cassandra.tests.base_test import BaseTest
 
+
 @pytest.mark.long
 class TestExamples(BaseTest):
     def test_run_nvt(self):

@@ -22,24 +22,29 @@ class TestInpFunctions(BaseTest):
             if "# Start_Type" in line:
                 return idx
         raise AssertionError("Missing '# Start_Type' header")
-    
+
     @staticmethod
     def check_checkpoint_line(inp_contents, start_idx):
         """Helper function to check the checkpoint line format."""
         checkpoint_line = inp_contents[start_idx + 1].strip()
         parts = checkpoint_line.split()
-        assert len(parts) == 2, "The line following '# Start_Type' should have exactly two entries"
-        assert parts[0] == "checkpoint", "The first entry should be 'checkpoint'"
+        assert (
+            len(parts) == 2
+        ), "The line following '# Start_Type' should have exactly two entries"
+        assert (
+            parts[0] == "checkpoint"
+        ), "The first entry should be 'checkpoint'"
 
     @staticmethod
     def check_only_comments_or_whitespace(inp_contents, start_idx):
         """Helper function to check for only comments or whitespace until the next header."""
-        for line in inp_contents[start_idx + 2:]:
+        for line in inp_contents[start_idx + 2 :]:
             line = line.strip()
             if line.startswith("#"):
                 break
-            assert line == "" or line.startswith("!"), \
-                "Only spaces or comments are allowed between the checkpoint line and the next header"
+            assert line == "" or line.startswith(
+                "!"
+            ), "Only spaces or comments are allowed between the checkpoint line and the next header"
 
     @pytest.fixture
     def onecomp_system(self, methane_oplsaa, box):
@@ -1848,17 +1853,17 @@ class TestInpFunctions(BaseTest):
         of an automatic equilibration detection loop, in which a simulation needs to
         be restarted if its not equilibrated.
 
-        This test evaluates systems with one or two boxes. Two boxes might be 
+        This test evaluates systems with one or two boxes. Two boxes might be
         problematic because some start types require two lines in the # Start_Type
         section.
-        
+
         This test ensures that the input files generated at each restart step:
         1. Contain a valid # Start_Type header.
         2. Follow the correct checkpoint line format (two entries, starting with "checkpoint").
         3. Include only comments or whitespace between the checkpoint line and the next # header.
 
         Parameters:
-        - system_fixture: The fixture name of the system setup, allowing tests with 
+        - system_fixture: The fixture name of the system setup, allowing tests with
                           both one-component and two-box systems.
         - base_name: The base name used for the generated files (e.g., "nvt" or "gemc").
         """
@@ -1900,4 +1905,6 @@ class TestInpFunctions(BaseTest):
                         self.check_checkpoint_line(inp_contents, start_idx)
 
                         # Step 3: Ensure only comments or whitespace are present until the next '#' header
-                        self.check_only_comments_or_whitespace(inp_contents, start_idx)
+                        self.check_only_comments_or_whitespace(
+                            inp_contents, start_idx
+                        )

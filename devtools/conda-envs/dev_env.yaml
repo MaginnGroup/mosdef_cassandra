@@ -1,0 +1,24 @@
+name: dev_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+    # Base depends
+  - python
+  - networkx
+  - pytest
+  - pytest-cov
+  - pandas
+  - unyt
+  - foyer
+  - mbuild
+  - gmso >= 0.11.1
+  - pycifrw
+  - garnett
+  - constrainmol
+  - parmed
+  - cassandra
+  - openbabel
+  - black
+  - sphinx
+  - shinx_rtd_theme

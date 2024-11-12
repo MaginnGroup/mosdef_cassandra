@@ -607,15 +607,7 @@ class TestMoveSet(BaseTest):
                 [methane_oplsaa], [["slitpore", None]], [[1, None]]
             )
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     @pytest.mark.skip(reason="The purpose of this test is not clear.")
-=======
-    @pytest.mark.skip(reason="The purpose of this test is not clear.")    
->>>>>>> Skip a test whose purpose is not clear now.
-=======
-    @pytest.mark.skip(reason="The purpose of this test is not clear.")
->>>>>>> Black
     def test_add_multiple_restricted_insertions(self, methane_oplsaa):
         moveset = mc.MoveSet("gcmc", [methane_oplsaa])
         moveset.add_restricted_insertions(

@@ -11,7 +11,8 @@ MoSDeF Cassandra
 .. |Codecov| image:: https://codecov.io/gh/MaginnGroup/mosdef_cassandra/branch/master/graph/badge.svg
 .. |Azure| image:: https://dev.azure.com/MaginnGroup/mosdef_cassandra/_apis/build/status/MaginnGroup.mosdef_cassandra?branchName=master
 .. |License| image:: https://img.shields.io/github/license/maginngroup/mosdef_cassandra
-
+.. |CI| image:: https://github.com/MaginnGroup/mosdef_cassandra/actions/workflows/CI.yaml/badge.svg
+   :target: https://github.com/MaginnGroup/mosdef_cassandra/actions/workflows/CI.yaml
 Overview
 ~~~~~~~~
 

@@ -7,6 +7,7 @@ dependencies:
   - python
   - networkx
   - pytest
+  - pytest-cov
   - pandas
   - unyt
   - foyer

@@ -134,11 +134,20 @@ class System(object):
                     "See help(mosdef_Cassandra.System) for details."
                 )
 
-            if not (all(isinstance(top, gmso.Topology) for top in species_topologies) or all(
-                isinstance(top, parmed.Structure) for top in species_topologies)):
+            if not (
+                all(
+                    isinstance(top, gmso.Topology)
+                    for top in species_topologies
+                )
+                or all(
+                    isinstance(top, parmed.Structure)
+                    for top in species_topologies
+                )
+            ):
 
                 raise TypeError(
-                    "Each species should be a " "parmed.Structure or gmso.Topology"
+                    "Each species should be a "
+                    "parmed.Structure or gmso.Topology"
                     "and must be of the same type"
                 )
 
@@ -149,14 +158,18 @@ class System(object):
                 subtops = []
                 if isinstance(top, gmso.Topology):
                     for molecule in top.unique_site_labels(name_only=True):
-                        subtops.append(top.create_subtop("molecule", (molecule, 1)))
+                        subtops.append(
+                            top.create_subtop("molecule", (molecule, 1))
+                        )
 
                     if len(subtops) > 1:
-                        raise ValueError("GMSO Topology must contain only one molecule type. For example, "
-                                         "if you have a box of water, you must have a single water molecule "
-                                         "type in the topology. If you have a box of water and methane, you "
-                                         "must have two separate single molecule topologies, one for water "
-                                          " and one for methane.")
+                        raise ValueError(
+                            "GMSO Topology must contain only one molecule type. For example, "
+                            "if you have a box of water, you must have a single water molecule "
+                            "type in the topology. If you have a box of water and methane, you "
+                            "must have two separate single molecule topologies, one for water "
+                            " and one for methane."
+                        )
                     subtops[0].box = top.box
                     top = to_parmed(subtops[0])
                     # top = to_parmed(top)
@@ -357,9 +370,9 @@ class System(object):
                 if constrain is None:
                     start_idx = idx_offset
                     end_idx = idx_offset + n_mols * n_atoms
-                    constrained_coordinates[
-                        start_idx:end_idx
-                    ] = unconstrained_coordinates[start_idx:end_idx]
+                    constrained_coordinates[start_idx:end_idx] = (
+                        unconstrained_coordinates[start_idx:end_idx]
+                    )
                 # Else we apply the constraints one molecule
                 # at a time
                 else:

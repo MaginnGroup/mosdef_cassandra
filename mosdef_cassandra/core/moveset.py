@@ -43,11 +43,16 @@ class MoveSet(object):
                 "species_topologies should be a " "list of species"
             )
 
-        if not (all(isinstance(top, gmso.Topology) for top in species_topologies) or all(
-            isinstance(top, parmed.Structure) for top in species_topologies)):
+        if not (
+            all(isinstance(top, gmso.Topology) for top in species_topologies)
+            or all(
+                isinstance(top, parmed.Structure) for top in species_topologies
+            )
+        ):
 
             raise TypeError(
-                "Each species should be a " "parmed.Structure or gmso.Topology"
+                "Each species should be a "
+                "parmed.Structure or gmso.Topology"
                 "and must be of the same type"
             )
 
@@ -745,46 +750,46 @@ CBMC selections:
             contents += "========     ".format(idx=idx + 1)
         contents += "\n"
         contents += "    Max translate (Ang):     "
-        for (box, max_translate_box) in enumerate(self.max_translate):
+        for box, max_translate_box in enumerate(self.max_translate):
             if box > 0:
                 contents += "                             "
-            for (idx, max_translate) in enumerate(max_translate_box):
+            for idx, max_translate in enumerate(max_translate_box):
                 contents += "{max_trans:4.2f}          ".format(
                     max_trans=max_translate
                 )
             contents += "(Box {box})".format(box=box + 1)
             contents += "\n"
         contents += "    Max rotate (deg):        "
-        for (box, max_rotate_box) in enumerate(self.max_rotate):
+        for box, max_rotate_box in enumerate(self.max_rotate):
             if box > 0:
                 contents += "                             "
-            for (idx, max_rotate) in enumerate(max_rotate_box):
+            for idx, max_rotate in enumerate(max_rotate_box):
                 contents += "{max_rot:4.2f}         ".format(
                     max_rot=max_rotate
                 )
             contents += "(Box {box})".format(box=box + 1)
             contents += "\n"
         contents += "    Insertable:              "
-        for (idx, insert) in enumerate(self.insertable):
+        for idx, insert in enumerate(self.insertable):
             contents += "{insert}          ".format(insert=insert)
         contents += "\n"
         contents += "    Max dihedral:            "
-        for (idx, max_dih) in enumerate(self.max_dihedral):
+        for idx, max_dih in enumerate(self.max_dihedral):
             contents += "{max_dih:4.2f}          ".format(max_dih=max_dih)
         contents += "\n"
         contents += "    Prob swap:               "
-        for (idx, prob_swap) in enumerate(self.prob_swap_species):
+        for idx, prob_swap in enumerate(self.prob_swap_species):
             contents += "{prob_swap:4.2f}          ".format(
                 prob_swap=prob_swap
             )
         contents += "\n"
         contents += "    Prob regrow:             "
-        for (idx, prob_regrow) in enumerate(self.prob_regrow_species):
+        for idx, prob_regrow in enumerate(self.prob_regrow_species):
             contents += "{regrow:4.2f}          ".format(regrow=prob_regrow)
         contents += "\n"
 
         contents += "\n\nMax volume (Ang^3):\n"
-        for (box, max_vol) in enumerate(self.max_volume):
+        for box, max_vol in enumerate(self.max_volume):
             contents += "    Box {box}: {max_vol}\n".format(
                 box=box + 1, max_vol=max_vol
             )

@@ -50,10 +50,10 @@ jobs:
       - name: Run tests
         shell: bash -l {0}
         run: |
-          pytest -v -m "not slow" --cov=mosdef_cassandra --cov-report=xml --color=yes mosdef_cassandra/tests/
+          pytest -v --cov=mosdef_cassandra --cov-report=xml --color=yes mosdef_cassandra/tests/
 
       - name: Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
           flags: unittests

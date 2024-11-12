@@ -4,15 +4,16 @@ MoSDeF Cassandra
 |Citing|
 |License|
 |CodeCov|
-|Azure|
+|CI|
 
 .. |Citing| image:: https://img.shields.io/badge/cite-mosdef__cassandra-blue
    :target: https://mosdef-cassandra.readthedocs.io/en/latest/reference/citing.html
 .. |Codecov| image:: https://codecov.io/gh/MaginnGroup/mosdef_cassandra/branch/master/graph/badge.svg
 .. |Azure| image:: https://dev.azure.com/MaginnGroup/mosdef_cassandra/_apis/build/status/MaginnGroup.mosdef_cassandra?branchName=master
 .. |License| image:: https://img.shields.io/github/license/maginngroup/mosdef_cassandra
-.. |CI| image:: https://github.com/MaginnGroup/mosdef_cassandra/actions/workflows/CI.yaml/badge.svg
+.. |CI| image:: https://github.com/MaginnGroup/mosdef_cassandra/actions/workflows/CI.yaml/badge.svg?branch=master
    :target: https://github.com/MaginnGroup/mosdef_cassandra/actions/workflows/CI.yaml
+
 Overview
 ~~~~~~~~
 
